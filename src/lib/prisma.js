@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
 
 // En Prisma 7 con la integración de Prisma Postgres, el cliente se encarga de todo.
