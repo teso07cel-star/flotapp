@@ -6,8 +6,8 @@ export default async function MonthlySummary({ searchParams }) {
   const month = params.month ? parseInt(params.month) : new Date().getMonth();
   const year = params.year ? parseInt(params.year) : new Date().getFullYear();
 
-  const res = await getMonthlySummary(month, year);
-  const summary = res.success ? res.data : [];
+   const res = await getMonthlySummary(month, year);
+   const { summary, totalFleetVisits } = res.success ? res.data : { summary: [], totalFleetVisits: 0 };
 
   const months = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -45,21 +45,29 @@ export default async function MonthlySummary({ searchParams }) {
         </form>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-[3rem] p-10 text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden group">
             <div className="relative z-10">
               <p className="text-blue-100 text-xs font-black uppercase tracking-[0.2em] mb-4">Uso de Flota (Total)</p>
-              <h2 className="text-6xl font-black tracking-tighter mb-2">{totalFlotaKm.toLocaleString()} <span className="text-lg">KM</span></h2>
+              <h2 className="text-5xl font-black tracking-tighter mb-2">{totalFlotaKm.toLocaleString()} <span className="text-lg">KM</span></h2>
               <p className="text-blue-200 font-bold text-sm tracking-tight opacity-80 uppercase">{months[month]} {year}</p>
             </div>
             <div className="absolute top-0 right-0 p-8 opacity-10 scale-150"><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
          </div>
 
-         <div className="bg-white dark:bg-gray-900 border-2 border-blue-600/10 rounded-[3rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden group text-center md:text-left">
+         <div className="bg-white dark:bg-gray-900 border-2 border-blue-600/10 rounded-[3rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden group">
             <div className="relative z-10">
-              <p className="text-gray-500 dark:text-gray-400 text-xs font-black uppercase tracking-[0.2em] mb-4">Gasto Mensual Consolidado</p>
-              <h2 className="text-6xl font-black tracking-tighter mb-2 text-blue-600 dark:text-blue-400">$ {totalFlotaGastos.toLocaleString()}</h2>
-              <p className="text-gray-400 font-bold text-sm tracking-tight opacity-80 uppercase">Inversión en Operación</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs font-black uppercase tracking-[0.2em] mb-4">Visitas Generales</p>
+              <h2 className="text-5xl font-black tracking-tighter mb-2 text-blue-600 dark:text-blue-400">{totalFleetVisits.toLocaleString()}</h2>
+              <p className="text-gray-400 font-bold text-sm tracking-tight opacity-80 uppercase">Logística Mensual</p>
+            </div>
+         </div>
+
+         <div className="bg-white dark:bg-gray-900 border-2 border-blue-600/10 rounded-[3rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden group">
+            <div className="relative z-10">
+              <p className="text-gray-500 dark:text-gray-400 text-xs font-black uppercase tracking-[0.2em] mb-4">Inversión Operativa</p>
+              <h2 className="text-5xl font-black tracking-tighter mb-2 text-blue-600 dark:text-blue-400">$ {totalFlotaGastos.toLocaleString()}</h2>
+              <p className="text-gray-400 font-bold text-sm tracking-tight opacity-80 uppercase">Gasto Consolidado</p>
             </div>
          </div>
       </div>

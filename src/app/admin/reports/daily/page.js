@@ -29,20 +29,39 @@ export default async function DailyReport({ searchParams }) {
         </form>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Unidades Activas</p>
             <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{stats.uniqueVehicles}</h2>
          </div>
          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Visitas a Sucursales</p>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Visitas Totales</p>
             <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{stats.totalVisits}</h2>
          </div>
          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Kilometraje Total</p>
             <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{stats.totalKm.toLocaleString()} <span className="text-xs">KM</span></h2>
          </div>
+         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Sucursales Distintas</p>
+            <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{Object.keys(stats.branchBreakdown || {}).length}</h2>
+         </div>
       </div>
+
+      {/* Breakdown de sucursales */}
+      {Object.keys(stats.branchBreakdown || {}).length > 0 && (
+         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-xl shadow-black/5">
+            <h2 className="text-lg font-black uppercase tracking-tighter mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">Visitas por Sucursal</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+               {Object.entries(stats.branchBreakdown).sort((a,b) => b[1] - a[1]).map(([name, count]) => (
+                  <div key={name} className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800">
+                     <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest text-center mb-1 truncate w-full">{name}</span>
+                     <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{count}</span>
+                  </div>
+               ))}
+            </div>
+         </div>
+      )}
 
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[3rem] overflow-hidden shadow-2xl shadow-black/5">
         <div className="overflow-x-auto">

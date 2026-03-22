@@ -219,7 +219,13 @@ export async function getMonthlySummary(month, year) {
       };
     });
 
-    return { success: true, data: summary };
+    const totalFleetVisits = allRegistros.filter(r => {
+      if (!r.fecha) return false;
+      const d = new Date(r.fecha);
+      return d.getMonth() === month && d.getFullYear() === year;
+    }).length;
+
+    return { success: true, data: { summary, totalFleetVisits } };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
     return { success: false, error: error.message, data: [] };
@@ -325,13 +331,21 @@ export async function getDailyReport(dateString) {
 
     // Calcular estadísticas del día con lógica correcta
     const vehicleData = {};
+    const branchBreakdown = {};
+    
     registros.forEach(r => {
+      // Vehiculos
       if (!vehicleData[r.vehiculoId]) {
         vehicleData[r.vehiculoId] = { min: r.kmActual, max: r.kmActual, visits: 0 };
       }
       vehicleData[r.vehiculoId].min = Math.min(vehicleData[r.vehiculoId].min, r.kmActual);
       vehicleData[r.vehiculoId].max = Math.max(vehicleData[r.vehiculoId].max, r.kmActual);
       vehicleData[r.vehiculoId].visits += (r.sucursales?.length || 0);
+
+      // Sucursales
+      r.sucursales?.forEach(s => {
+        branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
+      });
     });
 
     const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + (v.max - v.min), 0);
@@ -345,7 +359,8 @@ export async function getDailyReport(dateString) {
         stats: {
           totalKm,
           uniqueVehicles,
-          totalVisits
+          totalVisits,
+          branchBreakdown
         }
       } 
     };
