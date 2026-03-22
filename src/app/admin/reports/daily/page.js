@@ -82,8 +82,8 @@ export default async function DailyReport({ searchParams }) {
               ) : registros.map((r) => (
                 <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
                   <td className="p-6 pl-10">
-                    <div className="font-bold text-blue-600 dark:text-blue-400 text-sm" suppressHydrationWarning>
-                        {new Date(r.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
+                        <FormattedDate date={r.fecha} showDate={false} />
                     </div>
                   </td>
                   <td className="p-6">
