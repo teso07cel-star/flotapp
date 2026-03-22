@@ -182,19 +182,21 @@ export async function deleteRegistroDiario(id) {
 
 export async function getMonthlySummary(month, year) {
   try {
-    const vehiculos = await prisma.vehiculo.findMany();
-    const allRegistros = await prisma.registroDiario.findMany({
+    const vehiculos = (await prisma.vehiculo.findMany()) || [];
+    const allRegistros = (await prisma.registroDiario.findMany({
       include: { vehiculo: true, sucursales: true }
-    });
-    const allGastos = await prisma.gasto.findMany();
+    })) || [];
+    const allGastos = (await prisma.gasto.findMany()) || [];
 
     const summary = vehiculos.map(v => {
       const records = allRegistros.filter(r => {
+        if (!r.fecha) return false;
         const d = new Date(r.fecha);
         return r.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
       });
 
       const expenses = allGastos.filter(g => {
+        if (!g.fecha) return false;
         const d = new Date(g.fecha);
         return g.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
       });
@@ -203,15 +205,15 @@ export async function getMonthlySummary(month, year) {
       let finalKm = 0;
       if (records.length > 0) {
         const sorted = [...records].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-        initialKm = sorted[0].kmActual;
-        finalKm = sorted[sorted.length - 1].kmActual;
+        initialKm = sorted[0].kmActual || 0;
+        finalKm = sorted[sorted.length - 1].kmActual || 0;
       }
 
       return {
         id: v.id,
         patente: v.patente,
-        kmRecorridos: finalKm - initialKm > 0 ? finalKm - initialKm : 0,
-        totalGastos: expenses.reduce((sum, g) => sum + g.monto, 0),
+        kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
+        totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
         cantidadRegistros: records.length,
         novedades: records.filter(r => r.novedades).map(r => r.novedades)
       };
@@ -219,8 +221,8 @@ export async function getMonthlySummary(month, year) {
 
     return { success: true, data: summary };
   } catch (error) {
-    console.error(error);
-    return { success: false, error: error.message };
+    console.error("Error in getMonthlySummary:", error);
+    return { success: false, error: error.message, data: [] };
   }
 }
 

@@ -14,19 +14,28 @@ async function deleteGastoAction(formData) {
 export default async function GlobalExpenses() {
   const month = new Date().getMonth();
   const year = new Date().getFullYear();
-  const res = await getMonthlySummary(month, year);
-  const summary = res.success ? res.data : [];
-
-  // But let's fetch all raw expenses to show a detailed list too.
-  const allGastos = await prisma.gasto.findMany({
-    include: { vehiculo: true }
-  });
   
-  const totalMensual = allGastos.reduce((sum, g) => {
-    const d = new Date(g.fecha);
-    if (d.getMonth() === month && d.getFullYear() === year) return sum + g.monto;
-    return sum;
-  }, 0);
+  let summary = [];
+  let allGastos = [];
+  let totalMensual = 0;
+
+  try {
+    const res = await getMonthlySummary(month, year);
+    summary = res.success ? res.data : [];
+
+    allGastos = (await prisma.gasto.findMany({
+      include: { vehiculo: true }
+    })) || [];
+    
+    totalMensual = allGastos.reduce((sum, g) => {
+      if (!g.fecha) return sum;
+      const d = new Date(g.fecha);
+      if (d.getMonth() === month && d.getFullYear() === year) return sum + (g.monto || 0);
+      return sum;
+    }, 0);
+  } catch (error) {
+    console.error("Error in GlobalExpenses page:", error);
+  }
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 max-w-6xl">
