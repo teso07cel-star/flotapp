@@ -103,7 +103,7 @@ export default async function MonthlySummary({ searchParams }) {
                   </td>
                   <td className="p-8">
                     <span className="bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-200/50 dark:border-blue-500/20">
-                      {v.cantidadRegistros} Visitas
+                      {v.visitasSucursales} Visitas a Suc.
                     </span>
                   </td>
                   <td className="p-8 pr-12 text-right">

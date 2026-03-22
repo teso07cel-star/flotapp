@@ -215,15 +215,18 @@ export async function getMonthlySummary(month, year) {
         kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
         totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
         cantidadRegistros: records.length,
+        visitasSucursales: records.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0),
         novedades: records.filter(r => r.novedades).map(r => r.novedades)
       };
     });
 
-    const totalFleetVisits = allRegistros.filter(r => {
+    const currentMonthVisits = allRegistros.filter(r => {
       if (!r.fecha) return false;
       const d = new Date(r.fecha);
       return d.getMonth() === month && d.getFullYear() === year;
-    }).length;
+    });
+    
+    const totalFleetVisits = currentMonthVisits.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0);
 
     return { success: true, data: { summary, totalFleetVisits } };
   } catch (error) {
