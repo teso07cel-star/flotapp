@@ -40,6 +40,17 @@ export default async function DriverEntry() {
 
         {/* COMPONENTE CLIENTE DE WEBAUTHN */}
         <WebAuthnLogin choferes={choferes} />
+
+        <div className="mt-8 text-center bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-800 p-6 shadow-xl">
+           <h3 className="text-gray-400 font-bold mb-3 text-sm tracking-wide">¿Vehículo o Chofer Tercerizado?</h3>
+           <Link 
+              href="/driver/vehicle"
+              className="inline-flex w-full items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 rounded-xl transition-colors border border-gray-700 hover:border-gray-500 shadow-md"
+           >
+              Soy Chofer Externo
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+           </Link>
+        </div>
       </div>
     </div>
   );
