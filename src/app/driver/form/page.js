@@ -2,7 +2,9 @@ export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { getVehiculoById, getAllSucursales } from "@/lib/actions";
 import { redirect } from "next/navigation";
+// Cargar ambos clientes para usarlos condicionalmente
 import DriverFormClient from "@/components/DriverFormClient";
+import ExternalDriverFormClient from "@/components/ExternalDriverFormClient";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
@@ -37,6 +39,31 @@ export default async function DriverForm({ searchParams }) {
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
   const lastLog = vehiculo.registros?.[0];
 
+  let debeTicket = false;
+
+  // Lógica específica para fleteros/externos
+  if (vehiculo.tipo === 'EXTERNO') {
+     const now = new Date();
+     const currentMonth = now.getMonth() + 1; // 1-12
+     const currentYear = now.getFullYear();
+
+     const hasInspection = await prisma.inspeccionMensual.findFirst({
+        where: { vehiculoId: vehiculo.id, mes: currentMonth, anio: currentYear }
+     });
+
+     if (!hasInspection) {
+         redirect(`/driver/inspection?v=${vehiculo.id}`);
+     }
+
+     // Calcular si debe ticket
+     if (lastLog) {
+         const nivelesBajos = ["Vacio", "1/4", "Medio"];
+         if (nivelesBajos.includes(lastLog.nivelCombustible) && !lastLog.fotoTicketCombustible) {
+            debeTicket = true;
+         }
+     }
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -58,11 +85,17 @@ export default async function DriverForm({ searchParams }) {
             </div>
             <div>
               <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Bitácora Diaria</h1>
-              <p className="text-sm text-gray-400 font-medium">Completá los datos de tu jornada</p>
+              <p className="text-sm text-gray-400 font-medium">
+                 {vehiculo.tipo === "EXTERNO" ? "Confirmá tu ubicación de guardado" : "Completá los datos de tu jornada"}
+              </p>
             </div>
           </div>
 
-          <DriverFormClient vehiculo={vehiculo} sucursales={sucursales} lastLog={lastLog} chofer={chofer} />
+          {vehiculo.tipo === "EXTERNO" ? (
+             <ExternalDriverFormClient vehiculo={vehiculo} chofer={chofer} lastLog={lastLog} debeTicket={debeTicket} />
+          ) : (
+             <DriverFormClient vehiculo={vehiculo} sucursales={sucursales} lastLog={lastLog} chofer={chofer} />
+          )}
         </div>
       </div>
     </div>
