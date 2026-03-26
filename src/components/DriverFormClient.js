@@ -9,7 +9,7 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
   const [authCode, setAuthCode] = useState("");
 
   const [kmActual, setKmActual] = useState(lastLog?.kmActual || "");
-  const [selectedSucursales, setSelectedSucursales] = useState([]);
+  const [sucursalCounts, setSucursalCounts] = useState({});
   const [novedades, setNovedades] = useState("");
 
   const [isListening, setIsListening] = useState(false);
@@ -46,12 +46,16 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
           }
 
           // 2. Mapear Sucursales
-          const foundSucursalIds = sucursales
-             .filter(s => transcript.includes(s.nombre.toLowerCase()))
-             .map(s => s.id);
+          const foundSucursales = sucursales.filter(s => transcript.includes(s.nombre.toLowerCase()));
              
-          if (foundSucursalIds.length > 0) {
-             setSelectedSucursales(prev => Array.from(new Set([...prev, ...foundSucursalIds])));
+          if (foundSucursales.length > 0) {
+             setSucursalCounts(prev => {
+                const next = { ...prev };
+                foundSucursales.forEach(s => {
+                   next[s.id] = (next[s.id] || 0) + 1; // Incrementa automáticamente
+                });
+                return next;
+             });
           }
 
           setIsListening(false);
@@ -84,10 +88,17 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
     }
   };
 
-  const toggleSucursal = (id) => {
-    setSelectedSucursales(prev => 
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    );
+  const updateSucursal = (id, delta) => {
+    setSucursalCounts(prev => {
+      const current = prev[id] || 0;
+      const next = current + delta;
+      if (next <= 0) {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      }
+      return { ...prev, [id]: next };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -100,7 +111,7 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
       choferId: chofer?.id,
       kmActual: kmActual,
       novedades: novedades,
-      sucursalIds: selectedSucursales,
+      sucursalCounts: sucursalCounts,
       authCode: authCode
     };
 
@@ -219,32 +230,43 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
         <div className="space-y-4">
           <label className="text-sm font-bold text-gray-300 uppercase tracking-wider flex justify-between items-center">
             Sucursales Visitadas
-            <span className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded-full">{selectedSucursales.length}</span>
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded-full">{Object.values(sucursalCounts).reduce((a, b) => a + b, 0)} visitas</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
             {sucursales.map(s => {
-              const isSelected = selectedSucursales.includes(s.id);
+              const count = sucursalCounts[s.id] || 0;
+              const isSelected = count > 0;
               return (
-                <label
+                <div
                   key={s.id}
-                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all cursor-pointer group
+                  className={`flex items-center justify-between p-3 sm:p-4 rounded-2xl border transition-all group
                     ${isSelected 
                       ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]' 
                       : 'border-gray-800 bg-gray-950/50 hover:border-gray-700'}`}
                 >
-                  <input 
-                    type="checkbox" 
-                    checked={isSelected}
-                    onChange={() => toggleSucursal(s.id)}
-                    className="w-5 h-5 rounded-md border-gray-700 bg-gray-950 text-blue-600 focus:ring-blue-500 transition-all"
-                  />
-                  <div className="flex-1">
-                    <div className={`text-sm font-bold transition-colors ${isSelected ? 'text-blue-400' : 'text-gray-300 group-hover:text-white'}`}>
+                  <div className="flex-1 min-w-0 pr-3">
+                    <div className={`text-sm font-bold transition-colors truncate ${isSelected ? 'text-blue-400' : 'text-gray-300 group-hover:text-white'}`}>
                       {s.nombre}
                     </div>
                     <div className="text-[10px] text-gray-500 truncate">{s.direccion}</div>
                   </div>
-                </label>
+                  
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                     <button
+                        type="button"
+                        onClick={() => updateSucursal(s.id, -1)}
+                        disabled={count === 0}
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-lg font-black transition-all active:scale-90
+                           ${count > 0 ? 'bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white' : 'bg-gray-800 text-gray-600'}`}
+                     >-</button>
+                     <span className={`font-mono font-black w-4 sm:w-6 text-center text-sm sm:text-base ${count > 0 ? 'text-white' : 'text-gray-600'}`}>{count}</span>
+                     <button
+                        type="button"
+                        onClick={() => updateSucursal(s.id, 1)}
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center text-lg font-black transition-all active:scale-90"
+                     >+</button>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -264,7 +286,7 @@ export default function DriverFormClient({ vehiculo, sucursales, chofer, lastLog
 
         <button
           type="submit"
-          disabled={loading || selectedSucursales.length === 0 || !kmActual}
+          disabled={loading || Object.keys(sucursalCounts).length === 0 || !kmActual}
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black tracking-widest py-6 px-6 rounded-2xl transition-all shadow-xl shadow-blue-500/25 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 flex justify-center items-center gap-3 group mt-8"
         >
           {loading ? (
