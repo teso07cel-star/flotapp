@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Vehiculo {
+  id                Int      @id @default(autoincrement())
+  patente           String   @unique
+  vtvVencimiento    DateTime?
+  seguroVencimiento DateTime?
+  proximoServiceKm  Int?
+  activo            Boolean  @default(true)
+  codigoAutorizacion String?
+  registros         RegistroDiario[]
+  gastos            Gasto[]
+}
+
+model Sucursal {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  direccion String?
+  registros RegistroDiario[]
+}
+
+model Chofer {
+  id              Int      @id @default(autoincrement())
+  nombre          String   @unique
+  activo          Boolean  @default(true)
+  passkeyId       String?  @unique
+  passkeyPubKey   Bytes?
+  registros       RegistroDiario[]
+}
+
+model RegistroDiario {
+  id              Int      @id @default(autoincrement())
+  fecha           DateTime @default(now())
+  kmActual        Int
+  novedades       String?
+  nombreConductor String?
+  choferId        Int?
+  chofer          Chofer?  @relation(fields: [choferId], references: [id])
+  vehiculoId      Int
+  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
+  sucursales      Sucursal[]
+}
+
+model Gasto {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @default(now())
+  monto       Float
+  descripcion String
+  tipo        String   
+  vehiculoId  Int
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
+}

@@ -1,0 +1,397 @@
+{
+  "vehiculos": [
+    {
+      "id": 2,
+      "patente": "AD848KQ",
+      "vtvVencimiento": "2026-07-31T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-19T00:00:00.000Z",
+      "proximoServiceKm": 534300,
+      "activo": true
+    },
+    {
+      "id": 3,
+      "patente": "PGX770",
+      "vtvVencimiento": "2026-12-11T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-19T00:00:00.000Z",
+      "proximoServiceKm": 558100,
+      "activo": true
+    },
+    {
+      "id": 4,
+      "patente": "A124TJW",
+      "vtvVencimiento": "2026-04-30T00:00:00.000Z",
+      "seguroVencimiento": "2026-04-13T00:00:00.000Z",
+      "proximoServiceKm": 84500,
+      "activo": true
+    },
+    {
+      "id": 5,
+      "patente": "A122WRA",
+      "vtvVencimiento": "2027-02-04T00:00:00.000Z",
+      "seguroVencimiento": "2026-05-14T00:00:00.000Z",
+      "proximoServiceKm": 7300,
+      "activo": true
+    },
+    {
+      "id": 6,
+      "patente": "AD380TS",
+      "vtvVencimiento": "2026-05-13T00:00:00.000Z",
+      "seguroVencimiento": "2026-06-19T00:00:00.000Z",
+      "proximoServiceKm": 719700,
+      "activo": true
+    },
+    {
+      "id": 7,
+      "patente": "A239WDL",
+      "vtvVencimiento": null,
+      "seguroVencimiento": "2026-05-05T00:00:00.000Z",
+      "proximoServiceKm": 12700,
+      "activo": true
+    },
+    {
+      "id": 8,
+      "patente": "ONR078",
+      "vtvVencimiento": "2026-05-22T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-15T00:00:00.000Z",
+      "proximoServiceKm": 417399,
+      "activo": true
+    },
+    {
+      "id": 9,
+      "patente": "AF601QS",
+      "vtvVencimiento": "2026-06-12T00:00:00.000Z",
+      "seguroVencimiento": "2026-04-30T00:00:00.000Z",
+      "proximoServiceKm": 282250,
+      "activo": true
+    },
+    {
+      "id": 10,
+      "patente": "PGX769",
+      "vtvVencimiento": "2026-05-23T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-19T00:00:00.000Z",
+      "proximoServiceKm": 522200,
+      "activo": true
+    },
+    {
+      "id": 11,
+      "patente": "AD724VP",
+      "vtvVencimiento": "2026-06-10T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-19T00:00:00.000Z",
+      "proximoServiceKm": 449299,
+      "activo": true
+    },
+    {
+      "id": 12,
+      "patente": "AF668JV",
+      "vtvVencimiento": "2027-02-06T00:00:00.000Z",
+      "seguroVencimiento": "2026-12-16T00:00:00.000Z",
+      "proximoServiceKm": 417600,
+      "activo": true
+    },
+    {
+      "id": 13,
+      "patente": "AF 668 JR",
+      "vtvVencimiento": "2027-01-02T00:00:00.000Z",
+      "seguroVencimiento": "2026-12-06T00:00:00.000Z",
+      "proximoServiceKm": 292150,
+      "activo": true
+    },
+    {
+      "id": 14,
+      "patente": "A239WDM",
+      "vtvVencimiento": null,
+      "seguroVencimiento": "2026-05-05T00:00:00.000Z",
+      "proximoServiceKm": 8200,
+      "activo": true
+    },
+    {
+      "id": 15,
+      "patente": "AD848LH",
+      "vtvVencimiento": "2026-09-19T00:00:00.000Z",
+      "seguroVencimiento": null,
+      "proximoServiceKm": 465700,
+      "activo": true
+    },
+    {
+      "id": 16,
+      "patente": "AD724VQ",
+      "vtvVencimiento": "2026-06-17T00:00:00.000Z",
+      "seguroVencimiento": "2026-07-19T00:00:00.000Z",
+      "proximoServiceKm": 537700,
+      "activo": true
+    },
+    {
+      "id": 17,
+      "patente": "AD848KR",
+      "vtvVencimiento": null,
+      "seguroVencimiento": null,
+      "proximoServiceKm": 534000,
+      "activo": true
+    },
+    {
+      "id": 18,
+      "patente": "AH279KZ",
+      "vtvVencimiento": null,
+      "seguroVencimiento": null,
+      "proximoServiceKm": 60000,
+      "activo": true
+    },
+    {
+      "id": 19,
+      "patente": "AH336BA",
+      "vtvVencimiento": null,
+      "seguroVencimiento": null,
+      "proximoServiceKm": 80000,
+      "activo": true
+    }
+  ],
+  "sucursales": [
+    {
+      "id": 4,
+      "nombre": "San Martin",
+      "direccion": ""
+    },
+    {
+      "id": 5,
+      "nombre": "Moron",
+      "direccion": ""
+    },
+    {
+      "id": 6,
+      "nombre": "San Justo",
+      "direccion": ""
+    },
+    {
+      "id": 7,
+      "nombre": "Ramos",
+      "direccion": ""
+    },
+    {
+      "id": 8,
+      "nombre": "San Miguel",
+      "direccion": ""
+    },
+    {
+      "id": 9,
+      "nombre": "Zarate",
+      "direccion": ""
+    },
+    {
+      "id": 10,
+      "nombre": "Campana",
+      "direccion": ""
+    },
+    {
+      "id": 11,
+      "nombre": "Pacheco ",
+      "direccion": ""
+    },
+    {
+      "id": 12,
+      "nombre": "Pacheco NOVO",
+      "direccion": ""
+    },
+    {
+      "id": 13,
+      "nombre": "San Fernando",
+      "direccion": ""
+    },
+    {
+      "id": 14,
+      "nombre": "San Isidro",
+      "direccion": ""
+    },
+    {
+      "id": 15,
+      "nombre": "San Isidro ROLON",
+      "direccion": ""
+    },
+    {
+      "id": 16,
+      "nombre": "Martinez",
+      "direccion": ""
+    },
+    {
+      "id": 17,
+      "nombre": "Olivos",
+      "direccion": ""
+    },
+    {
+      "id": 18,
+      "nombre": "Vicente Lopez",
+      "direccion": ""
+    },
+    {
+      "id": 19,
+      "nombre": "TESO NORTE",
+      "direccion": ""
+    },
+    {
+      "id": 20,
+      "nombre": "TESO SAN TELMO",
+      "direccion": ""
+    },
+    {
+      "id": 21,
+      "nombre": "Belgrano",
+      "direccion": ""
+    },
+    {
+      "id": 22,
+      "nombre": "Cabildo",
+      "direccion": ""
+    },
+    {
+      "id": 23,
+      "nombre": "Barrio Norte",
+      "direccion": ""
+    },
+    {
+      "id": 24,
+      "nombre": "Plaza Italia",
+      "direccion": ""
+    },
+    {
+      "id": 25,
+      "nombre": "Parque Patricios",
+      "direccion": ""
+    },
+    {
+      "id": 26,
+      "nombre": "Once",
+      "direccion": ""
+    },
+    {
+      "id": 27,
+      "nombre": "VOY Y VUELVO",
+      "direccion": ""
+    },
+    {
+      "id": 28,
+      "nombre": "Madero",
+      "direccion": ""
+    },
+    {
+      "id": 29,
+      "nombre": "Canning",
+      "direccion": ""
+    },
+    {
+      "id": 30,
+      "nombre": "Monte Grande",
+      "direccion": ""
+    },
+    {
+      "id": 31,
+      "nombre": "Adrogue",
+      "direccion": ""
+    },
+    {
+      "id": 32,
+      "nombre": "Lomas",
+      "direccion": ""
+    },
+    {
+      "id": 33,
+      "nombre": "Banfield",
+      "direccion": ""
+    },
+    {
+      "id": 34,
+      "nombre": "Lanus",
+      "direccion": ""
+    },
+    {
+      "id": 35,
+      "nombre": "Avellaneda",
+      "direccion": ""
+    },
+    {
+      "id": 36,
+      "nombre": "Wilde",
+      "direccion": ""
+    },
+    {
+      "id": 37,
+      "nombre": "Bernal",
+      "direccion": ""
+    },
+    {
+      "id": 38,
+      "nombre": "Berazategui",
+      "direccion": ""
+    },
+    {
+      "id": 39,
+      "nombre": "Varela",
+      "direccion": ""
+    },
+    {
+      "id": 40,
+      "nombre": "Berisso",
+      "direccion": ""
+    },
+    {
+      "id": 41,
+      "nombre": "La Plata",
+      "direccion": ""
+    },
+    {
+      "id": 42,
+      "nombre": "La Plata 56",
+      "direccion": ""
+    },
+    {
+      "id": 43,
+      "nombre": "Chascomus",
+      "direccion": ""
+    },
+    {
+      "id": 44,
+      "nombre": "Gualeguaychú",
+      "direccion": ""
+    },
+    {
+      "id": 45,
+      "nombre": "Concordia",
+      "direccion": ""
+    },
+    {
+      "id": 46,
+      "nombre": "La Paz ",
+      "direccion": ""
+    },
+    {
+      "id": 47,
+      "nombre": "Olavarría",
+      "direccion": ""
+    },
+    {
+      "id": 48,
+      "nombre": "Tandil ",
+      "direccion": ""
+    },
+    {
+      "id": 49,
+      "nombre": "Tres Arroyo",
+      "direccion": ""
+    },
+    {
+      "id": 50,
+      "nombre": "Coronel Suarez",
+      "direccion": ""
+    },
+    {
+      "id": 51,
+      "nombre": "Independencia (MDQ)",
+      "direccion": ""
+    },
+    {
+      "id": 52,
+      "nombre": "Güemes (MDQ) ",
+      "direccion": ""
+    }
+  ],
+  "registros": [],
+  "gastos": []
+}
