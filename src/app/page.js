@@ -21,10 +21,33 @@ function HomePageContent() {
         </div>
       )}
       
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      {/* Dynamic Crypto Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Nebulosas */}
         <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-emerald-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[30%] left-[40%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDelay: '4s' }} />
+        
+        {/* Símbolos Flotantes */}
+        {/* Bitcoin */}
+        <div className="absolute top-[15%] left-[10%] text-amber-500/20 w-32 h-32 animate-[bounce_8s_infinite]">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 10h-2V8h2a1 1 0 1 0 0-2H9v2H7v2h2v4H7v2h2v2h2v-2h2a3 3 0 0 0 0-6Zm-2 4h-2v-2h2a1 1 0 0 1 0 2Z" fillRule="evenodd"/><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8Z"/></svg>
+        </div>
+        
+        {/* Ethereum */}
+        <div className="absolute bottom-[20%] right-[15%] text-purple-500/20 w-40 h-40 animate-[bounce_10s_infinite]" style={{ animationDelay: '3s' }}>
+          <svg viewBox="0 0 320 512" fill="currentColor"><path d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.5 160 512l152-221.5-152 92.9z"/></svg>
+        </div>
+
+        {/* Solana */}
+        <div className="absolute top-[40%] right-[5%] text-emerald-400/15 w-24 h-24 animate-[bounce_7s_infinite]" style={{ animationDelay: '1s' }}>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.25 15.11H3.75a.75.75 0 00-.75.75v1.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75v-1.5a.75.75 0 00-.75-.75zm0-4.61H3.75a.75.75 0 00-.75.75v1.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75v-1.5a.75.75 0 00-.75-.75zm0-4.61H3.75a.75.75 0 00-.75.75v1.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75v-1.5a.75.75 0 00-.75-.75z"/></svg>
+        </div>
+
+        {/* Tether */}
+        <div className="absolute bottom-[10%] left-[20%] text-green-500/20 w-28 h-28 animate-[bounce_9s_infinite]" style={{ animationDelay: '5s' }}>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14v-4c3.31 0 6-1.34 6-3s-2.69-3-6-3V4h-2v2C7.69 6 5 7.34 5 9s2.69 3 6 3v4h2zM7 9c0-1.1.9-2 2-2h2v4H9c-1.1 0-2-.9-2-2z"/></svg>
+        </div>
       </div>
 
       <div className="relative z-10 w-full max-w-4xl">
