@@ -16,7 +16,7 @@ const origin = process.env.NODE_ENV === "production" ? `https://${rpID}` : `http
 
 /**
  * =====================================
- * REGISTRO (Vincular Huella a Chofer)
+ * REGISTRO (Vincular Reconocimiento Facial a Chofer)
  * =====================================
  */
 export async function getRegistrationOptions(choferId) {
@@ -112,7 +112,7 @@ export async function verifyRegistration(response) {
 
 /**
  * =====================================
- * LOGIN (Usar Huella Existente)
+ * LOGIN (Usar FaceID Existente)
  * =====================================
  */
 export async function getAuthenticationOptions() {
@@ -158,7 +158,7 @@ export async function verifyAuthentication(response) {
     });
 
     if (!chofer || !chofer.passkeyPubKey) {
-      return { success: false, error: "Huella no registrada en el sistema" };
+      return { success: false, error: "Rostro no registrado en el sistema" };
     }
 
     const verification = await verifyAuthenticationResponse({
@@ -185,7 +185,7 @@ export async function verifyAuthentication(response) {
       return { success: true, choferId: chofer.id };
     }
     
-    return { success: false, error: "Verificación de huella falló" };
+    return { success: false, error: "Verificación facial falló" };
   } catch (error) {
     return { success: false, error: error.message };
   }
