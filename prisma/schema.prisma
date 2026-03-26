@@ -85,6 +85,7 @@ model InspeccionMensual {
   vehiculo              Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
   choferId              Int?
   chofer                Chofer?  @relation(fields: [choferId], references: [id], onDelete: SetNull)
+  nombreConductor       String?
   mes                   Int
   anio                  Int
   fecha                 DateTime @default(now())
