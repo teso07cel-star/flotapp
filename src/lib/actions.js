@@ -231,10 +231,21 @@ export async function createInspeccionMensual(data) {
     const mes = now.getMonth() + 1;
     const anio = now.getFullYear();
 
+    let choferName = null;
+    if (data.choferId) {
+      const dbChofer = await prisma.chofer.findUnique({ where: { id: parseInt(data.choferId) }});
+      if (dbChofer) choferName = dbChofer.nombre;
+    } else {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      choferName = cookieStore.get("flotapp_externo_session")?.value || "Chofer Externo";
+    }
+
     const inspeccion = await prisma.inspeccionMensual.create({
       data: {
         vehiculoId,
         choferId: data.choferId ? parseInt(data.choferId) : null,
+        nombreConductor: choferName,
         mes,
         anio,
         fotoFrente: data.frente || null,
