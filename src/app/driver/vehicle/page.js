@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getAllVehiculos } from "@/lib/actions";
 import VehicleSelectorClient from "@/components/VehicleSelectorClient";
 
