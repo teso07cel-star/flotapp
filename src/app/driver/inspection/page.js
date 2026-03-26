@@ -16,13 +16,15 @@ export default async function DriverInspection({ searchParams }) {
 
   const cookieStore = await cookies();
   const driverIdStr = cookieStore.get("flotapp_driver_session")?.value;
-  if (!driverIdStr) redirect("/driver/entry");
+  const externoName = cookieStore.get("flotapp_externo_session")?.value;
 
-  const chofer = await prisma.chofer.findUnique({
-     where: { id: parseInt(driverIdStr) },
-     select: { id: true, nombre: true, activo: true } 
-  });
-  if (!chofer || !chofer.activo) redirect("/driver/entry");
+  let chofer = null;
+  if (driverIdStr) {
+     chofer = await prisma.chofer.findUnique({
+        where: { id: parseInt(driverIdStr) },
+        select: { id: true, nombre: true, activo: true } 
+     });
+  }
 
   const vehiculoRes = await getVehiculoById(vId);
 
@@ -31,6 +33,17 @@ export default async function DriverInspection({ searchParams }) {
   }
 
   const vehiculo = vehiculoRes.data;
+
+  // Validación combinada
+  if (!chofer) {
+     if (vehiculo.tipo === 'EXTERNO' && externoName) {
+         chofer = { id: null, nombre: externoName, activo: true };
+     } else {
+         redirect("/driver/entry");
+     }
+  } else if (!chofer.activo) {
+     redirect("/driver/entry");
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
