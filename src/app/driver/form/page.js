@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { getVehiculoByPatente, getAllSucursales } from "@/lib/actions";
+import { getVehiculoById, getAllSucursales } from "@/lib/actions";
 import { redirect } from "next/navigation";
 import DriverFormClient from "@/components/DriverFormClient";
 import { cookies } from "next/headers";
@@ -8,9 +8,9 @@ import prisma from "@/lib/prisma";
 
 export default async function DriverForm({ searchParams }) {
   const params = await searchParams;
-  const patente = params.patente;
+  const vId = params.v;
 
-  if (!patente) {
+  if (!vId) {
     redirect("/driver/entry");
   }
 
@@ -25,7 +25,7 @@ export default async function DriverForm({ searchParams }) {
   if (!chofer || !chofer.activo) redirect("/driver/entry");
 
   const [vehiculoRes, sucursalesRes] = await Promise.all([
-    getVehiculoByPatente(patente),
+    getVehiculoById(vId),
     getAllSucursales()
   ]);
 
