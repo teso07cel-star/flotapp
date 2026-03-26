@@ -12,6 +12,10 @@ export default function VehicleSelectorClient({ vehiculos }) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
 
+  const [nombreExterno, setNombreExterno] = useState("");
+  const [showExternoNameModal, setShowExternoNameModal] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
   useEffect(() => {
     // Recordar la última patente usada en este celular
     const lastPatente = localStorage.getItem("flotapp_last_patente");
@@ -28,11 +32,7 @@ export default function VehicleSelectorClient({ vehiculos }) {
         
         recognitionRef.current.onresult = (event) => {
           const transcript = event.results[0][0].transcript;
-          
-          // Limpiamos todo menos letras y números
           const cleanText = transcript.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-          
-          // Buscar coincidencia exacta o contenida dentro del dictado
           let match = vehiculos.find(v => cleanText.includes(v.patente));
           
           if (match) {
@@ -76,8 +76,38 @@ export default function VehicleSelectorClient({ vehiculos }) {
     }
 
     localStorage.setItem("flotapp_last_patente", exists.patente);
+
+    if (exists.tipo === 'EXTERNO') {
+        const storedName = localStorage.getItem("flotapp_externo_nombre");
+        if (storedName) {
+           setNombreExterno(storedName);
+        }
+        setSelectedVehicle(exists);
+        setShowExternoNameModal(true);
+        setLoading(false);
+        return;
+    }
+
     router.push(`/driver/form?v=${exists.id}`); 
-    // Do not set loading false here because we want it to stay loading until page unmounts
+  };
+
+  const confirmarExterno = async () => {
+      if (!nombreExterno.trim()) {
+         setError("Debes ingresar tu nombre y apellido");
+         return;
+      }
+      setLoading(true);
+      localStorage.setItem("flotapp_externo_nombre", nombreExterno);
+      
+      try {
+         // Llamada a server action para setear cookie flotapp_externo_session
+         const { setExternoSession } = await import("@/lib/actions");
+         await setExternoSession(nombreExterno);
+      } catch (e) {
+         console.log(e);
+      }
+
+      router.push(`/driver/form?v=${selectedVehicle.id}`);
   };
 
   return (
@@ -146,6 +176,46 @@ export default function VehicleSelectorClient({ vehiculos }) {
           )}
         </button>
       </form>
+
+      {/* Modal Chofer Externo */}
+      {showExternoNameModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-300">
+           <div className="bg-gray-900 border border-gray-700 rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30">
+                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              </div>
+              <h3 className="text-xl font-black text-white text-center uppercase tracking-tight mb-2">Identidad Flexible</h3>
+              <p className="text-sm text-gray-400 text-center mb-6">Confirma quién conduce la unidad <span className="text-white font-bold">{selectedVehicle?.patente}</span></p>
+
+              <div className="mb-6">
+                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2 text-center">Tu Nombre y Apellido</label>
+                 <input 
+                   type="text" 
+                   value={nombreExterno}
+                   onChange={(e) => setNombreExterno(e.target.value)}
+                   placeholder="Ej. Juan Pérez"
+                   className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-4 text-white focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold"
+                 />
+              </div>
+
+              <div className="flex gap-3">
+                 <button 
+                   onClick={() => setShowExternoNameModal(false)}
+                   className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-4 rounded-xl transition-colors"
+                 >
+                   Cancelar
+                 </button>
+                 <button 
+                   onClick={confirmarExterno}
+                   disabled={loading || !nombreExterno.trim()}
+                   className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 flex justify-center items-center"
+                 >
+                   {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : "Confirmar"}
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
