@@ -20,7 +20,7 @@ export default async function DriverForm({ searchParams }) {
 
   const chofer = await prisma.chofer.findUnique({
      where: { id: parseInt(driverIdStr) },
-     select: { id: true, nombre: true } 
+     select: { id: true, nombre: true, activo: true } 
   });
   if (!chofer || !chofer.activo) redirect("/driver/entry");
 
