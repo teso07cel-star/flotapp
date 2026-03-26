@@ -457,7 +457,7 @@ export async function handleDriverEntry(formData) {
   const res = await getVehiculoByPatente(patente);
   if (res.success && res.data) {
     const { redirect } = await import("next/navigation");
-    redirect(`/driver/form?patente=${encodeURIComponent(patente)}`);
+    redirect(`/driver/form?v=${res.data.id}`);
   } else {
     return { success: false, error: res.error || "Vehículo no encontrado" };
   }
