@@ -11,16 +11,16 @@ export default async function AdminLayout({ children }) {
   // Si no queremos mostrar el sidebar en /login, lo ocultamos aqu
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row font-sans text-gray-900 dark:text-gray-100 selection:bg-blue-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-emerald-950 flex flex-col md:flex-row font-sans text-gray-900 dark:text-emerald-50 selection:bg-emerald-500/30 relative overflow-hidden">
       {/* Sidebar */}
       {isAuth && (
-        <aside className="w-full md:w-64 bg-white dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800 flex-shrink-0 z-20">
+        <aside className="w-full md:w-64 bg-white/80 dark:bg-emerald-950/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-emerald-100 dark:border-emerald-900/50 flex-shrink-0 z-20 shadow-2xl shadow-emerald-900/20">
           <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
-               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-                 F
+            <div className="p-6 border-b border-emerald-100 dark:border-emerald-900/50 flex items-center gap-3">
+               <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold shadow-lg shadow-emerald-500/30">
+                 $
                </div>
-               <span className="text-xl font-bold tracking-tight">FlotaAdmin</span>
+               <span className="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-100">FlotaAdmin</span>
             </div>
             
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -63,8 +63,18 @@ export default async function AdminLayout({ children }) {
       )}
 
       {/* Main content */}
-      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-950 relative">
-         <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-blue-600/5 to-transparent pointer-events-none" />
+      <main className="flex-1 overflow-x-hidden overflow-y-auto relative z-10">
+         <div className="absolute inset-0 pointer-events-none opacity-5 dark:opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(16, 185, 129, 0.4) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+         <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-emerald-600/10 to-transparent pointer-events-none" />
+         
+         {/* Marcas de agua de Dólar Blue */}
+         <div className="fixed top-[20%] right-[5%] text-emerald-500/10 w-64 h-64 pointer-events-none transform rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+         </div>
+         <div className="fixed bottom-[10%] left-[10%] text-emerald-500/5 w-96 h-96 pointer-events-none transform -rotate-6">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+         </div>
+
          <div className="p-4 md:p-8 xl:p-12 max-w-7xl mx-auto relative z-10">
            {children}
          </div>
