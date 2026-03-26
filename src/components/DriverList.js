@@ -50,11 +50,11 @@ export default function DriverList({ initialDrivers }) {
             </p>
             {d.passkeyId ? (
               <span className="inline-block mt-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-green-200 dark:border-green-800">
-                ✅ Huella Vinculada
+                ✅ Face ID Vinculado
               </span>
             ) : (
               <span className="inline-block mt-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 outline-dashed outline-amber-200 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-                ⚠️ Sin Huella
+                ⚠️ Sin Face ID
               </span>
             )}
           </div>
