@@ -13,7 +13,7 @@ export default function WebAuthnLogin({ choferes }) {
 
   const handleLogin = async () => {
     setError("");
-    setStatus("Esperando tu huella...");
+    setStatus("Analizando rostro / Face ID...");
     try {
       // 1. Get options from server
       const optRes = await getAuthenticationOptions();
@@ -33,7 +33,7 @@ export default function WebAuthnLogin({ choferes }) {
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "No pudimos leer tu huella. Intenta de nuevo.");
+      setError(err.message || "No pudimos validar tu rostro. Intenta de nuevo.");
       setStatus("");
     }
   };
@@ -44,7 +44,7 @@ export default function WebAuthnLogin({ choferes }) {
        return;
     }
     setError("");
-    setStatus("Acerca tu huella/rostro...");
+    setStatus("Iniciando validación facial...");
     try {
       // 1. Get options from server
       const optRes = await getRegistrationOptions(selectedChofer);
@@ -79,10 +79,10 @@ export default function WebAuthnLogin({ choferes }) {
       >
         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="w-24 h-24 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6 shadow-inner backdrop-blur-md border border-white/20">
-          <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" /></svg>
+          <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V6a2 2 0 012-2h2M4 16v2a2 2 0 002 2h2M16 4h2a2 2 0 012 2v2M16 20h2a2 2 0 002-2v-2M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
         </div>
         <h2 className="text-2xl font-black text-white tracking-widest uppercase">Toca para Ingresar</h2>
-        <p className="text-blue-200 text-sm font-medium mt-2">Usa tu Huella o FaceID</p>
+        <p className="text-blue-200 text-sm font-medium mt-2">Usa Reconocimiento Facial</p>
       </button>
 
       {/* Mensajes de Status */}
