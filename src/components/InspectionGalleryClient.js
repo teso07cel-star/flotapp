@@ -54,7 +54,7 @@ export default function InspectionGalleryClient({ inspecciones }) {
                  </div>
                  <div>
                    <h2 className="text-xl font-black text-gray-900 dark:text-white capitalize">{getMesString(inspeccion.mes)} {inspeccion.anio}</h2>
-                   <p className="text-xs text-gray-500 font-bold mt-1">Conductor: <span className="text-emerald-600 dark:text-emerald-400">{inspeccion.chofer?.nombre || "No registrado"}</span></p>
+                   <p className="text-xs text-gray-500 font-bold mt-1">Conductor: <span className="text-emerald-600 dark:text-emerald-400">{inspeccion.chofer?.nombre || inspeccion.nombreConductor || "No registrado"}</span></p>
                    <p className="text-xs text-gray-500 mt-1">Fecha de carga: {new Date(inspeccion.fecha).toLocaleDateString()}</p>
                  </div>
               </div>
