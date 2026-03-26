@@ -47,7 +47,7 @@ export default async function DriversManager() {
                    Agregar Conductor
                  </button>
                  <p className="text-[10px] uppercase font-bold text-gray-400 mt-4 text-center">
-                   El conductor podrá vincular su huella una vez creado.
+                   El conductor podrá vincular su reconocimiento facial una vez creado.
                  </p>
               </form>
             </div>
