@@ -18,13 +18,15 @@ export default async function DriverForm({ searchParams }) {
 
   const cookieStore = await cookies();
   const driverIdStr = cookieStore.get("flotapp_driver_session")?.value;
-  if (!driverIdStr) redirect("/driver/entry");
+  const externoName = cookieStore.get("flotapp_externo_session")?.value;
 
-  const chofer = await prisma.chofer.findUnique({
-     where: { id: parseInt(driverIdStr) },
-     select: { id: true, nombre: true, activo: true } 
-  });
-  if (!chofer || !chofer.activo) redirect("/driver/entry");
+  let chofer = null;
+  if (driverIdStr) {
+     chofer = await prisma.chofer.findUnique({
+        where: { id: parseInt(driverIdStr) },
+        select: { id: true, nombre: true, activo: true } 
+     });
+  }
 
   const [vehiculoRes, sucursalesRes] = await Promise.all([
     getVehiculoById(vId),
@@ -36,6 +38,18 @@ export default async function DriverForm({ searchParams }) {
   }
 
   const vehiculo = vehiculoRes.data;
+
+  // Validación combinada
+  if (!chofer) {
+     if (vehiculo.tipo === 'EXTERNO' && externoName) {
+         chofer = { id: null, nombre: externoName, activo: true };
+     } else {
+         redirect("/driver/entry");
+     }
+  } else if (!chofer.activo) {
+     redirect("/driver/entry");
+  }
+
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
   const lastLog = vehiculo.registros?.[0];
 
