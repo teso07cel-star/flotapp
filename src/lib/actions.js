@@ -186,6 +186,8 @@ export async function createRegistroDiario(data) {
       });
     }
 
+    const sucursalIds = data.sucursalCounts ? Object.keys(data.sucursalCounts).map(id => parseInt(id)) : [];
+    
     const registro = await prisma.registroDiario.create({
       data: {
         vehiculoId,
@@ -193,15 +195,99 @@ export async function createRegistroDiario(data) {
         novedades: data.novedades || null,
         nombreConductor: data.nombreConductor || null,
         choferId: data.choferId ? parseInt(data.choferId) : null,
+        // Legacy array para retrocompatibilidad
         sucursales: {
-          connect: data.sucursalIds ? data.sucursalIds.map(id => ({ id: parseInt(id) })) : []
-        }
+          connect: sucursalIds.map(id => ({ id }))
+        },
+        // Nuevo historial con cantidades
+        visitasSucursales: {
+          create: Object.entries(data.sucursalCounts || {}).map(([id, count]) => ({
+            sucursalId: parseInt(id),
+            cantidadVisitas: count
+          }))
+        },
+        // Externos (opcional)
+        esExterno: data.esExterno || false,
+        nivelCombustible: data.nivelCombustible || null,
+        lugarGuarda: data.lugarGuarda || null,
+        montoCombustible: data.montoCombustible ? parseFloat(data.montoCombustible) : null,
+        fotoTicketCombustible: data.fotoTicketCombustible || null
       }
     });
     revalidatePath("/admin");
     return { success: true, data: registro };
   } catch (error) {
     console.error("Error creating registro:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createInspeccionMensual(data) {
+  try {
+    const vehiculoId = parseInt(data.vehiculoId);
+    if (isNaN(vehiculoId)) throw new Error("ID de vehículo inválido.");
+    
+    const now = new Date();
+    const mes = now.getMonth() + 1;
+    const anio = now.getFullYear();
+
+    const inspeccion = await prisma.inspeccionMensual.create({
+      data: {
+        vehiculoId,
+        choferId: data.choferId ? parseInt(data.choferId) : null,
+        mes,
+        anio,
+        fotoFrente: data.frente || null,
+        fotoTrasera: data.trasera || null,
+        fotoLateralIzq: data.lateralIzq || null,
+        fotoLateralDer: data.lateralDer || null,
+        fotoVTV: data.vtv || null,
+        fotoSeguro: data.seguro || null,
+        lugarGuardaFijo: data.lugarGuardaFijo || null,
+        lugarGuardaResguardo: data.lugarGuardaResguardo || null
+      }
+    });
+
+    revalidatePath("/admin");
+    return { success: true, data: inspeccion };
+  } catch(error) {
+    console.error("Error creating inspeccion:", error);
+    if (error.code === 'P2002') return { success: false, error: "Ya existe una inspección para este vehículo en este mes." };
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createMantenimiento(data) {
+  try {
+    const vehiculoId = parseInt(data.vehiculoId);
+    if (isNaN(vehiculoId)) throw new Error("ID de vehículo inválido.");
+    
+    // Primero, crear el registro de historial
+    const mantenimiento = await prisma.mantenimiento.create({
+      data: {
+        vehiculoId,
+        fecha: data.fecha ? new Date(data.fecha) : new Date(),
+        tipoServicio: data.tipoServicio,
+        descripcion: data.descripcion || null,
+        taller: data.taller || null,
+        costo: data.costo ? parseFloat(data.costo) : null,
+        kilometraje: data.kilometraje ? parseInt(data.kilometraje) : null,
+      }
+    });
+
+    // Lógica Inteligente: Actualizar semáforos del vehículo según el servicio
+    if (data.tipoServicio.toLowerCase().includes("cubiertas") && data.kilometraje) {
+       await prisma.vehiculo.update({
+          where: { id: vehiculoId },
+          data: { ultimoCambioCubiertasKm: parseInt(data.kilometraje) }
+       });
+    }
+
+    revalidatePath(`/admin/maintenance/${vehiculoId}`, "page");
+    revalidatePath("/admin/maintenance");
+    return { success: true, data: mantenimiento };
+  } catch(error) {
+    console.error("Error creating mantenimiento:", error);
     return { success: false, error: error.message };
   }
 }
