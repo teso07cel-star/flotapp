@@ -60,10 +60,13 @@ export default function VehicleSelectorClient({ vehiculos }) {
     }
   };
 
-  const submitPatente = (finalPatente) => {
+  const submitPatente = (eOrString) => {
+    if (eOrString && eOrString.preventDefault) eOrString.preventDefault();
     setLoading(true);
-    // Validar si existe realmente en caso de tipeo manual
-    const upperPatente = finalPatente.trim().toUpperCase();
+    
+    // Si viene del dictado de voz, es un string. Si viene del form, usamos el estado.
+    const patenteToUse = (typeof eOrString === 'string' ? eOrString : patente) || "";
+    const upperPatente = patenteToUse.replace(/\s/g, '').toUpperCase();
     const exists = vehiculos.find(v => v.patente === upperPatente);
     
     if (!exists) {
@@ -73,7 +76,8 @@ export default function VehicleSelectorClient({ vehiculos }) {
     }
 
     localStorage.setItem("flotapp_last_patente", exists.patente);
-    router.push(`/driver/form?v=${exists.id}`); // Enviamos el ID en vez de patente por seguridad
+    router.push(`/driver/form?v=${exists.id}`); 
+    // Do not set loading false here because we want it to stay loading until page unmounts
   };
 
   return (
@@ -109,13 +113,13 @@ export default function VehicleSelectorClient({ vehiculos }) {
         </button>
       </div>
 
-      <div className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl">
+      <form onSubmit={submitPatente} className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl">
         <div className="mb-6">
           <div className="text-center mb-4"><span className="text-xs font-bold text-gray-500 uppercase tracking-widest">O escribe manual</span></div>
           <div className="relative group">
             <input
               value={patente}
-              onChange={(e) => setPatente(e.target.value)}
+              onChange={(e) => setPatente(e.target.value.toUpperCase())}
               type="text"
               placeholder="Ej. AF668JR"
               className="block w-full px-5 py-4 bg-gray-950 border border-gray-800 rounded-2xl text-white text-3xl text-center tracking-widest uppercase transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-800 font-black"
@@ -130,7 +134,7 @@ export default function VehicleSelectorClient({ vehiculos }) {
         </div>
 
         <button
-          onClick={() => submitPatente(patente)}
+          type="submit"
           disabled={loading || !patente}
           className="w-full h-16 bg-white hover:bg-gray-100 text-gray-900 font-black text-lg tracking-widest uppercase rounded-2xl transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center group"
         >
@@ -141,7 +145,7 @@ export default function VehicleSelectorClient({ vehiculos }) {
             </span>
           )}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
