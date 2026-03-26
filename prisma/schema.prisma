@@ -11,44 +11,112 @@ datasource db {
 }
 
 model Vehiculo {
-  id                Int      @id @default(autoincrement())
-  patente           String   @unique
-  vtvVencimiento    DateTime?
-  seguroVencimiento DateTime?
-  proximoServiceKm  Int?
-  activo            Boolean  @default(true)
-  codigoAutorizacion String?
-  registros         RegistroDiario[]
-  gastos            Gasto[]
+  id                        Int               @id @default(autoincrement())
+  patente                   String            @unique
+  tipo                      String            @default("INTERNO") // "INTERNO" | "EXTERNO"
+  vtvVencimiento            DateTime?
+  seguroVencimiento         DateTime?
+  proximoServiceKm          Int?
+  ultimoCambioCubiertasKm   Int?
+  kmParaCambioCubiertas     Int?              @default(60000)
+  activo                    Boolean           @default(true)
+  codigoAutorizacion        String?
+  registros                 RegistroDiario[]
+  gastos                    Gasto[]
+  mantenimientos            Mantenimiento[]
+  inspecciones              InspeccionMensual[]
 }
 
 model Sucursal {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  direccion String?
-  registros RegistroDiario[]
+  id                 Int                @id @default(autoincrement())
+  nombre             String
+  direccion          String?
+  registros          RegistroDiario[]   // Legacy implicit relationship
+  visitasConteo      RegistroSucursal[] // New explicit relationship with counter
 }
 
 model Chofer {
-  id              Int      @id @default(autoincrement())
-  nombre          String   @unique
-  activo          Boolean  @default(true)
-  passkeyId       String?  @unique
+  id              Int               @id @default(autoincrement())
+  nombre          String            @unique
+  activo          Boolean           @default(true)
+  passkeyId       String?           @unique
   passkeyPubKey   Bytes?
   registros       RegistroDiario[]
+  inspecciones    InspeccionMensual[]
 }
 
 model RegistroDiario {
+  id                    Int      @id @default(autoincrement())
+  fecha                 DateTime @default(now())
+  kmActual              Int
+  novedades             String?
+  nombreConductor       String?
+  choferId              Int?
+  chofer                Chofer?  @relation(fields: [choferId], references: [id])
+  vehiculoId            Int
+  vehiculo              Vehiculo @relation(fields: [vehiculoId], references: [id])
+  
+  // Legacy branches
+  sucursales            Sucursal[]
+  
+  // New counted branches
+  visitasSucursales     RegistroSucursal[]
+  
+  // External Driver specific fields
+  esExterno             Boolean  @default(false)
+  nivelCombustible      String?  // "Vacio", "1/4", "Medio", "3/4", "Lleno"
+  lugarGuarda           String?  // "Fijo", "Resguardo", "Otro"
+  fotoTicketCombustible String?  // URL of the uploaded receipt
+  montoCombustible      Float?
+}
+
+model RegistroSucursal {
+  id              Int            @id @default(autoincrement())
+  registroId      Int
+  sucursalId      Int
+  cantidadVisitas Int            @default(1)
+  registro        RegistroDiario @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  sucursal        Sucursal       @relation(fields: [sucursalId], references: [id], onDelete: Cascade)
+}
+
+model InspeccionMensual {
+  id                    Int      @id @default(autoincrement())
+  vehiculoId            Int
+  vehiculo              Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  choferId              Int?
+  chofer                Chofer?  @relation(fields: [choferId], references: [id], onDelete: SetNull)
+  mes                   Int
+  anio                  Int
+  fecha                 DateTime @default(now())
+  
+  // Fotos del vehículo
+  fotoFrente            String?
+  fotoTrasera           String?
+  fotoLateralIzq        String?
+  fotoLateralDer        String?
+  
+  // Documentación obligatoria (mensual)
+  fotoVTV               String?
+  fotoSeguro            String?
+  
+  // Ubicaciones de Guarda
+  lugarGuardaFijo       String?
+  lugarGuardaResguardo  String?
+
+  @@unique([vehiculoId, mes, anio]) // Solo una inspección por mes por vehículo
+}
+
+model Mantenimiento {
   id              Int      @id @default(autoincrement())
-  fecha           DateTime @default(now())
-  kmActual        Int
-  novedades       String?
-  nombreConductor String?
-  choferId        Int?
-  chofer          Chofer?  @relation(fields: [choferId], references: [id])
   vehiculoId      Int
-  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[]
+  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  fecha           DateTime @default(now())
+  
+  tipoServicio    String   // Ej: "Tren Delantero", "Cambio Aceite", "Cubiertas"
+  descripcion     String?
+  taller          String?
+  costo           Float?
+  kilometraje     Int?
 }
 
 model Gasto {
@@ -58,5 +126,5 @@ model Gasto {
   descripcion String
   tipo        String   
   vehiculoId  Int
-  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
