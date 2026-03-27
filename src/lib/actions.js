@@ -693,3 +693,15 @@ export async function getDailyReport(dateString) {
     return { success: false, error: error.message };
   }
 }
+
+export async function setExternoSession(nombre) {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  cookieStore.set("flotapp_externo_session", nombre, { 
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365
+  });
+  return { success: true };
+}
