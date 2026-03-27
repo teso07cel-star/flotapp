@@ -134,7 +134,7 @@ export default function VehicleSelectorClient({ vehiculos, isExternoFlow = false
          return;
       }
 
-      router.push(`/driver/form?v=${vehicleIdToUse}`);
+      router.push(`/driver/external?v=${vehicleIdToUse}`);
   };
 
   return (
