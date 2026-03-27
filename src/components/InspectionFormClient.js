@@ -31,7 +31,7 @@ export default function InspectionFormClient({ vehiculo, chofer }) {
     }
   };
 
-  const isFormComplete = Object.values(fotos).every(f => f !== "") && ubicaciones.fijo !== "" && ubicaciones.resguardo !== "";
+  const isFormComplete = Object.values(fotos).every(f => f !== "") && ubicaciones.fijo !== "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -133,10 +133,9 @@ export default function InspectionFormClient({ vehiculo, chofer }) {
             />
          </div>
          <div className="space-y-3 mt-4">
-            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block">Opción B / De Resguardo</label>
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block">Opción B / De Resguardo (Opcional)</label>
             <input 
               type="text" 
-              required
               value={ubicaciones.resguardo}
               onChange={(e) => setUbicaciones(prev => ({ ...prev, resguardo: e.target.value }))}
               placeholder="Ej. Cochera Padre: San Martín 123" 
