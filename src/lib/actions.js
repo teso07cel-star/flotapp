@@ -89,10 +89,27 @@ export async function getAllVehiculos() {
     const vehiculos = await prisma.vehiculo.findMany({
       orderBy: { id: 'asc' },
       include: {
-        registros: { orderBy: { fecha: 'desc' }, take: 1 }
+        registros: { orderBy: { fecha: 'desc' }, take: 1 },
+        inspecciones: { orderBy: { fecha: 'desc' }, take: 1 }
       }
     });
-    return { success: true, data: vehiculos };
+
+    // Make sure Data serialization works perfectly
+    const prepareSafePayload = (obj) => {
+      if (!obj) return obj;
+      if (obj instanceof Date) {
+        try { return isNaN(obj.getTime()) ? null : obj.toISOString(); } catch { return null; }
+      }
+      if (Array.isArray(obj)) return obj.map(prepareSafePayload);
+      if (typeof obj === 'object') {
+        const newObj = {};
+        for (const key in obj) newObj[key] = prepareSafePayload(obj[key]);
+        return newObj;
+      }
+      return obj;
+    };
+
+    return { success: true, data: prepareSafePayload(vehiculos) };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -300,6 +317,21 @@ export async function createMantenimiento(data) {
   } catch(error) {
     console.error("Error creating mantenimiento:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function deleteMantenimiento(mantenimientoId) {
+  try {
+    const deleted = await prisma.mantenimiento.delete({
+      where: { id: parseInt(mantenimientoId) }
+    });
+    
+    revalidatePath(`/admin/maintenance/${deleted.vehiculoId}`, "page");
+    revalidatePath("/admin/maintenance");
+    return { success: true };
+  } catch(error) {
+    console.error("deleteMantenimiento error:", error);
+    return { success: false, error: "No se pudo eliminar el registro" };
   }
 }
 
