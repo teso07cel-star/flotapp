@@ -12,6 +12,7 @@ export default async function NewVehicle({ searchParams }) {
     "use server";
     const payload = {
       patente: formData.get("patente")?.toString().toUpperCase(),
+      categoria: formData.get("categoria") || "PICKUP",
       vtvVencimiento: formData.get("vtvVencimiento") || null,
       seguroVencimiento: formData.get("seguroVencimiento") || null,
       proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null
@@ -55,6 +56,18 @@ export default async function NewVehicle({ searchParams }) {
               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white font-mono uppercase"
               placeholder="Ej. AB123CD"
             />
+          </div>
+          <div>
+             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Vehículo (Icono)</label>
+             <select 
+               name="categoria" 
+               defaultValue="PICKUP"
+               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white uppercase font-bold text-sm"
+             >
+                <option value="PICKUP">🛻 Pickup</option>
+                <option value="AUTO">🚗 Auto</option>
+                <option value="MOTO">🏍️ Moto</option>
+             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vencimiento VTV</label>
