@@ -71,21 +71,16 @@ export default function VehicleSelectorClient({ vehiculos, isExternoFlow = false
     const exists = vehiculos.find(v => v.patente === upperPatente);
     
     if (!exists) {
-      if (isExternoFlow) {
-         setPatente(upperPatente);
-         setIsNewVehicle(true);
-         const storedName = localStorage.getItem("flotapp_externo_nombre");
-         if (storedName) {
-            setNombreExterno(storedName);
-         }
-         setSelectedVehicle(null);
-         setShowExternoNameModal(true);
-         setLoading(false);
-         return;
-      }
-      setError("La patente no existe en el sistema.");
-      setLoading(false);
-      return;
+       setPatente(upperPatente);
+       setIsNewVehicle(true);
+       const storedName = localStorage.getItem("flotapp_externo_nombre");
+       if (storedName) {
+          setNombreExterno(storedName);
+       }
+       setSelectedVehicle(null);
+       setShowExternoNameModal(true);
+       setLoading(false);
+       return;
     }
 
     localStorage.setItem("flotapp_last_patente", exists.patente);
