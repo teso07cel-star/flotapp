@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { createMantenimiento } from "@/lib/actions";
+import { createMantenimiento, deleteMantenimiento } from "@/lib/actions";
 
 export default function MaintenanceTimelineClient({ vehiculo }) {
   const [loading, setLoading] = useState(false);
@@ -42,11 +42,20 @@ export default function MaintenanceTimelineClient({ vehiculo }) {
     if (res.success) {
       setIsAdding(false);
       setFormData(prev => ({ ...prev, descripcion: "", taller: "", costo: "" }));
-      // El componente se recargará porque el server action revalida la página
     } else {
       setError("Error: " + res.error);
     }
     setLoading(false);
+  };
+
+  const handleDelete = async (mId) => {
+     if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+     setLoading(true);
+     const res = await deleteMantenimiento(mId);
+     if (!res.success) {
+        alert(res.error);
+     }
+     setLoading(false);
   };
 
   return (
@@ -137,7 +146,17 @@ export default function MaintenanceTimelineClient({ vehiculo }) {
                     <div className="absolute -left-[35px] sm:-left-[43px] w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-gray-950 mt-1.5 transition-transform group-hover:scale-125 z-10 shadow-md"></div>
                     
                     <div className="bg-white/60 dark:bg-emerald-900/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-emerald-50 dark:border-emerald-800/30 shadow-sm transition-all hover:shadow-lg group-hover:-translate-y-1">
-                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
+                       
+                       <button 
+                          onClick={() => handleDelete(m.id)}
+                          disabled={loading}
+                          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                          title="Eliminar registro"
+                       >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                       </button>
+
+                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4 pr-8">
                           <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 text-xs font-black uppercase tracking-widest rounded-lg">
                             {m.tipoServicio}
                           </span>
