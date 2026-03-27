@@ -120,6 +120,7 @@ export async function createVehiculo(data) {
     const v = await prisma.vehiculo.create({
       data: {
         patente: data.patente.toUpperCase().trim(),
+        categoria: data.categoria || "PICKUP",
         vtvVencimiento: data.vtvVencimiento ? new Date(data.vtvVencimiento) : null,
         seguroVencimiento: data.seguroVencimiento ? new Date(data.seguroVencimiento) : null,
         proximoServiceKm: data.proximoServiceKm ? parseInt(data.proximoServiceKm) : null,
@@ -140,6 +141,7 @@ export async function updateVehiculo(id, data) {
     if (updateData.vtvVencimiento) updateData.vtvVencimiento = new Date(updateData.vtvVencimiento);
     if (updateData.seguroVencimiento) updateData.seguroVencimiento = new Date(updateData.seguroVencimiento);
     if (updateData.proximoServiceKm !== undefined) updateData.proximoServiceKm = parseInt(updateData.proximoServiceKm) || null;
+    // categoria is string, so it passes natively
 
     const vehiculo = await prisma.vehiculo.update({
       where: { id: parseInt(id) },
@@ -149,6 +151,23 @@ export async function updateVehiculo(id, data) {
     revalidatePath("/admin");
     return { success: true, data: vehiculo };
   } catch (error) {
+    if (error.code === 'P2002') return { success: false, error: "La patente ya existe" };
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createVehiculoExterno(patente, categoria) {
+  try {
+    const v = await prisma.vehiculo.create({
+      data: {
+        patente: patente.toUpperCase().trim(),
+        tipo: "EXTERNO",
+        categoria: categoria || "PICKUP"
+      }
+    });
+    revalidatePath("/admin");
+    return { success: true, data: v };
+  } catch(error) {
     if (error.code === 'P2002') return { success: false, error: "La patente ya existe" };
     return { success: false, error: error.message };
   }
@@ -187,20 +206,21 @@ export async function createRegistroDiario(data) {
     });
 
     if (lastRecord && kmActual <= lastRecord.kmActual) {
-      // Si el kilometraje no aumentó, verificamos el código de autorización
-      const vehiculo = await prisma.vehiculo.findUnique({
-        where: { id: vehiculoId }
-      });
+      // Ignorar si solo es actualización de sucursales durante el turno (que usa el mismo km)
+      if (!data.isBranchUpdateOnly) {
+        const vehiculo = await prisma.vehiculo.findUnique({
+          where: { id: vehiculoId }
+        });
 
-      if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
-        return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+        if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+          return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+        }
+
+        await prisma.vehiculo.update({
+          where: { id: vehiculoId },
+          data: { codigoAutorizacion: null }
+        });
       }
-
-      // Si el código es correcto, lo limpiamos (se usa una sola vez)
-      await prisma.vehiculo.update({
-        where: { id: vehiculoId },
-        data: { codigoAutorizacion: null }
-      });
     }
 
     const sucursalIds = data.sucursalCounts ? Object.keys(data.sucursalCounts).map(id => parseInt(id)) : [];
