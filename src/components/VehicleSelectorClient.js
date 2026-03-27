@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-export default function VehicleSelectorClient({ vehiculos }) {
+export default function VehicleSelectorClient({ vehiculos, isExternoFlow = false }) {
   const [patente, setPatente] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -15,6 +15,7 @@ export default function VehicleSelectorClient({ vehiculos }) {
   const [nombreExterno, setNombreExterno] = useState("");
   const [showExternoNameModal, setShowExternoNameModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isNewVehicle, setIsNewVehicle] = useState(false);
 
   useEffect(() => {
     // Recordar la última patente usada en este celular
@@ -70,6 +71,18 @@ export default function VehicleSelectorClient({ vehiculos }) {
     const exists = vehiculos.find(v => v.patente === upperPatente);
     
     if (!exists) {
+      if (isExternoFlow) {
+         setPatente(upperPatente);
+         setIsNewVehicle(true);
+         const storedName = localStorage.getItem("flotapp_externo_nombre");
+         if (storedName) {
+            setNombreExterno(storedName);
+         }
+         setSelectedVehicle(null);
+         setShowExternoNameModal(true);
+         setLoading(false);
+         return;
+      }
       setError("La patente no existe en el sistema.");
       setLoading(false);
       return;
@@ -97,17 +110,36 @@ export default function VehicleSelectorClient({ vehiculos }) {
          return;
       }
       setLoading(true);
+      setError("");
       localStorage.setItem("flotapp_externo_nombre", nombreExterno);
       
+      let vehicleIdToUse = selectedVehicle?.id;
+
       try {
+         // Si es un vehículo nuevo, lo creamos ahora
+         if (isNewVehicle) {
+            const { createVehiculoExterno } = await import("@/lib/actions");
+            const res = await createVehiculoExterno(patente, "PICKUP");
+            if (res.success) {
+               vehicleIdToUse = res.data.id;
+            } else {
+               setError(res.error);
+               setLoading(false);
+               return;
+            }
+         }
+
          // Llamada a server action para setear cookie flotapp_externo_session
          const { setExternoSession } = await import("@/lib/actions");
          await setExternoSession(nombreExterno);
       } catch (e) {
          console.log(e);
+         setError(e.message || "Error al registrar");
+         setLoading(false);
+         return;
       }
 
-      router.push(`/driver/form?v=${selectedVehicle.id}`);
+      router.push(`/driver/form?v=${vehicleIdToUse}`);
   };
 
   return (
@@ -177,6 +209,8 @@ export default function VehicleSelectorClient({ vehiculos }) {
         </button>
       </form>
 
+
+
       {/* Modal Chofer Externo */}
       {showExternoNameModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-300">
@@ -185,7 +219,7 @@ export default function VehicleSelectorClient({ vehiculos }) {
                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
               </div>
               <h3 className="text-xl font-black text-white text-center uppercase tracking-tight mb-2">Identidad Flexible</h3>
-              <p className="text-sm text-gray-400 text-center mb-6">Confirma quién conduce la unidad <span className="text-white font-bold">{selectedVehicle?.patente}</span></p>
+              <p className="text-sm text-gray-400 text-center mb-6">Confirma quién conduce la unidad <span className="text-white font-bold">{selectedVehicle ? selectedVehicle.patente : patente}</span></p>
 
               <div className="mb-6">
                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2 text-center">Tu Nombre y Apellido</label>
