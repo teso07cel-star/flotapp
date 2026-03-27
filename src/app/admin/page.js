@@ -91,8 +91,11 @@ export default async function AdminDashboard() {
                     return (
                       <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
                         <td className="p-5 pl-8">
-                          <div className="font-mono font-black text-lg tracking-wider">{v.patente}</div>
-                          {kmActual > 0 && <div className="text-[10px] text-gray-400 font-bold uppercase">{kmActual.toLocaleString()} KM</div>}
+                          <div className="font-mono font-black text-lg tracking-wider flex items-center gap-2">
+                             <span className="text-xl">{v.categoria === 'AUTO' ? '🚗' : v.categoria === 'MOTO' ? '🏍️' : '🛻'}</span>
+                             {v.patente}
+                          </div>
+                          {kmActual > 0 && <div className="text-[10px] text-gray-400 font-bold uppercase mt-1">{kmActual.toLocaleString()} KM</div>}
                         </td>
                         <td className="p-5">
                           {isRed ? (
