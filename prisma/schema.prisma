@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
@@ -11,32 +8,48 @@ datasource db {
 }
 
 model Vehiculo {
-  id                Int      @id @default(autoincrement())
-  patente           String   @unique
-  vtvVencimiento    DateTime?
-  seguroVencimiento DateTime?
-  proximoServiceKm  Int?
-  activo            Boolean  @default(true)
-  registros         RegistroDiario[]
-  gastos            Gasto[]
+  id                 Int              @id @default(autoincrement())
+  patente            String           @unique
+  vtvVencimiento     DateTime?
+  seguroVencimiento  DateTime?
+  proximoServiceKm   Int?
+  activo             Boolean          @default(true)
+  codigoAutorizacion String?
+  categoria          String           @default("auto")
+  externo            Boolean          @default(false)
+  gastos             Gasto[]
+  registros          RegistroDiario[]
 }
 
 model Sucursal {
-  id        Int      @id @default(autoincrement())
+  id        Int              @id @default(autoincrement())
   nombre    String
   direccion String?
+  registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
+}
+
+model Chofer {
+  id        Int              @id @default(autoincrement())
+  nombre    String           @unique
+  activo    Boolean          @default(true)
   registros RegistroDiario[]
 }
 
 model RegistroDiario {
-  id              Int      @id @default(autoincrement())
-  fecha           DateTime @default(now())
-  kmActual        Int
-  novedades       String?
-  nombreConductor String?
-  vehiculoId      Int
-  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[]
+  id               Int        @id @default(autoincrement())
+  fecha            DateTime   @default(now())
+  kmActual         Int
+  novedades        String?
+  nombreConductor  String?
+  vehiculoId       Int
+  lugarGuarda      String?
+  nivelCombustible String?
+  motivoUso        String?
+  tipoReporte      String?
+  vehiculo         Vehiculo   @relation(fields: [vehiculoId], references: [id])
+  sucursales       Sucursal[] @relation("RegistroDiarioToSucursal")
+  choferId         Int?
+  chofer           Chofer?    @relation(fields: [choferId], references: [id])
 }
 
 model Gasto {
@@ -44,7 +57,7 @@ model Gasto {
   fecha       DateTime @default(now())
   monto       Float
   descripcion String
-  tipo        String   
+  tipo        String
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
 }

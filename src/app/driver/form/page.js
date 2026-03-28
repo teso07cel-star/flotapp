@@ -1,32 +1,16 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { getVehiculoByPatente, getAllSucursales, createRegistroDiario } from "@/lib/actions";
+import { getVehiculoByPatente, getAllSucursales } from "@/lib/actions";
 import { redirect } from "next/navigation";
-
-async function handleDriverForm(formData) {
-  "use server";
-  const vehiculoId = parseInt(formData.get("vehiculoId"));
-  const nombreConductor = formData.get("nombreConductor");
-  const kmActual = formData.get("kmActual");
-  const novedades = formData.get("novedades");
-  const sucursalIds = formData.getAll("sucursalIds").map(id => parseInt(id));
-
-  const res = await createRegistroDiario({
-    vehiculoId,
-    nombreConductor,
-    kmActual,
-    novedades,
-    sucursalIds
-  });
-
-  if (res.success) {
-    redirect("/?success=true");
-  }
-}
+import DriverFormClient from "@/components/DriverFormClient";
+import { cookies } from "next/headers";
 
 export default async function DriverForm({ searchParams }) {
   const params = await searchParams;
   const patente = params.patente;
+  
+  const cookieStore = await cookies();
+  const identifiedDriver = cookieStore.get("driver_name")?.value;
 
   if (!patente) {
     redirect("/driver/entry");
@@ -66,83 +50,16 @@ export default async function DriverForm({ searchParams }) {
             </div>
             <div>
               <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Bitácora Diaria</h1>
-              <p className="text-sm text-gray-400">Completá los datos de tu jornada</p>
+              <p className="text-sm text-gray-400 font-medium">Completá los datos de tu jornada</p>
             </div>
           </div>
 
-          <form action={handleDriverForm} className="space-y-8">
-            <input type="hidden" name="vehiculoId" value={vehiculo.id} />
-            
-            <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Nombre del Conductor</label>
-              <input
-                name="nombreConductor"
-                type="text"
-                required
-                defaultValue={lastLog?.nombreConductor || ""}
-                className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-medium"
-                placeholder="Ej. Juan Pérez"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Kilometraje Actual</label>
-              <div className="relative group">
-                <input
-                  name="kmActual"
-                  type="number"
-                  required
-                  defaultValue={lastLog?.kmActual || ""}
-                  className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-bold text-xl"
-                  placeholder="Ej. 145000"
-                />
-                <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                  <span className="text-gray-600 font-bold uppercase tracking-widest text-xs">km</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Sucursales Visitadas</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                {sucursales.map(s => (
-                  <label
-                    key={s.id}
-                    className="flex items-center gap-3 p-4 rounded-2xl border border-gray-800 bg-gray-950/50 hover:border-gray-700 transition-all cursor-pointer group"
-                  >
-                    <input 
-                      type="checkbox" 
-                      name="sucursalIds" 
-                      value={s.id}
-                      className="w-5 h-5 rounded-md border-gray-700 bg-gray-950 text-blue-600 focus:ring-blue-500 transition-all"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">{s.nombre}</div>
-                      <div className="text-[10px] text-gray-500 truncate">{s.direccion}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Novedades o Fallas</label>
-              <textarea
-                name="novedades"
-                rows={3}
-                className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none placeholder:text-gray-700 font-medium"
-                placeholder="¿Algún problema con el vehículo?"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-xl shadow-blue-500/25 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 flex justify-center items-center gap-3 group"
-            >
-              ENVIAR BITÁCORA
-              <svg className="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-            </button>
-          </form>
+          <DriverFormClient 
+            vehiculo={vehiculo} 
+            sucursales={sucursales} 
+            lastLog={lastLog} 
+            identifiedDriver={identifiedDriver}
+          />
         </div>
       </div>
     </div>

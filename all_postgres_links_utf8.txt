@@ -1,0 +1,11 @@
+﻿
+C:\Users\USUARIO\Downloads\FLOTAPP (1)\brain\40dc987d-c970-4da5-ba90-db6922ab7fa0\guia_despliegue.md:10:- Copia la 
+**Connection String** (la que empieza con `postgres://...`).
+C:\Users\USUARIO\Downloads\FLOTAPP (1)\brain\40dc987d-c970-4da5-ba90-db6922ab7fa0\guia_despliegue.md.resolved:10:- 
+Copia la **Connection String** (la que empieza con `postgres://...`).
+C:\Users\USUARIO\Downloads\FLOTAPP (1)\brain\40dc987d-c970-4da5-ba90-db6922ab7fa0\guia_despliegue.md.resolved.0:10:- 
+Copia la **Connection String** (la que empieza con `postgres://...`).
+C:\Users\USUARIO\Downloads\FLOTAPP (1)\brain\40dc987d-c970-4da5-ba90-db6922ab7fa0\guia_despliegue.md.resolved.1:10:- 
+Copia la **Connection String** (la que empieza con `postgres://...`).
+C:\Users\USUARIO\Downloads\FLOTAPP (1)\brain\40dc987d-c970-4da5-ba90-db6922ab7fa0\guia_despliegue.md.resolved.2:10:- 
+Copia la **Connection String** (la que empieza con `postgres://...`).

@@ -3,15 +3,15 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 
 const prismaClientSingleton = () => {
-  const envUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  // Usamos esta URL como principal porque es la única que hemos verificado que funciona y tiene los datos
-  const PRIMARY_URL = "postgres://564f7b4126c00bda79772f4de39727a0743bbd1ded5852d4a307c4fa05ef6ffe:sk_djQevXjD3KsSIKiD828jQ@db.prisma.io:5432/postgres?sslmode=require&connect_timeout=300";
+  const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   
-  const connectionString = envUrl && !envUrl.includes("supabase.co") ? envUrl : PRIMARY_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not defined in environment variables");
+  }
   
   const pool = new pg.Pool({ 
     connectionString,
-    connectionTimeoutMillis: 30000, // 30 segundos de timeout
+    connectionTimeoutMillis: 30000, 
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter })
