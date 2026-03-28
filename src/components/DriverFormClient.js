@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { createRegistroDiario } from "@/lib/actions";
 
-export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver }) {
+export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver, isFirstLog }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
@@ -50,23 +50,30 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         </div>
       </div>
 
-      <div className="space-y-3">
-        <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Kilometraje Actual</label>
-        <div className="relative group">
-          <input
-            name="kmActual"
-            type="number"
-            required
-            disabled={loading}
-            defaultValue={lastLog?.kmActual || ""}
-            className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-bold text-xl"
-            placeholder="Ej. 145000"
-          />
-          <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-            <span className="text-gray-600 font-bold uppercase tracking-widest text-xs">km</span>
+      {isFirstLog ? (
+        <div className="space-y-3">
+          <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Kilometraje Actual</label>
+          <div className="relative group">
+            <input
+              name="kmActual"
+              type="number"
+              required
+              disabled={loading}
+              defaultValue={lastLog?.kmActual || ""}
+              className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-bold text-xl"
+              placeholder="Ej. 145000"
+            />
+            <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+              <span className="text-gray-600 font-bold uppercase tracking-widest text-xs">km</span>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
+          <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <p className="text-emerald-400 text-sm font-bold uppercase tracking-wide">Viaje posterior. No es necesario ingresar kilometraje.</p>
+        </div>
+      )}
 
       {showAuth && (
         <div className="space-y-3 p-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-300">

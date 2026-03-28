@@ -7,11 +7,13 @@ import MileageAuth from "@/components/MileageAuth";
 async function saveAction(formData) {
   "use server";
   const id = formData.get("id");
-  const payload = {
-    vtvVencimiento: formData.get("vtvVencimiento") || null,
-    seguroVencimiento: formData.get("seguroVencimiento") || null,
-    proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null
-  };
+    const payload = {
+      vtvVencimiento: formData.get("vtvVencimiento") || null,
+      seguroVencimiento: formData.get("seguroVencimiento") || null,
+      proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null,
+      categoria: formData.get("categoria") || "PICKUP",
+      tipo: formData.get("tipo") || "INTERNO"
+    };
   await updateVehiculo(id, payload);
   revalidatePath(`/admin/vehicles/${id}`);
 }
@@ -58,7 +60,11 @@ export default async function VehicleDetails({ params }) {
                 <span className="px-3 py-1 text-[10px] font-black uppercase bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 rounded-full tracking-widest">Inactivo</span>
               )}
             </div>
-            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-1">Expediente de Unidad</p>
+            <div className="flex gap-2 mt-1">
+              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 font-black uppercase text-[10px] tracking-widest rounded-lg">{vehiculo.categoria}</span>
+              <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 font-black uppercase text-[10px] tracking-widest rounded-lg">{vehiculo.tipo}</span>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-2">Expediente de Unidad</p>
           </div>
         </div>
 
@@ -141,6 +147,29 @@ export default async function VehicleDetails({ params }) {
                   className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
                   placeholder="Ej. 150000"
                 />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Categoría del Vehículo</label>
+                <select
+                  name="categoria"
+                  defaultValue={vehiculo.categoria || "PICKUP"}
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
+                >
+                  <option value="AUTO">Auto</option>
+                  <option value="PICKUP">Pick up</option>
+                  <option value="MOTO">Moto</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Tipo de Vehículo</label>
+                <select
+                  name="tipo"
+                  defaultValue={vehiculo.tipo || "INTERNO"}
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
+                >
+                  <option value="INTERNO">Flota Interna</option>
+                  <option value="EXTERNO">Tercero / Externo</option>
+                </select>
               </div>
 
               <button

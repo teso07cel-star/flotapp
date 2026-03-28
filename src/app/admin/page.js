@@ -170,8 +170,17 @@ export default async function AdminDashboard() {
                     </form>
                   </div>
                 </div>
-                <div className="text-sm font-bold mb-2 flex items-baseline gap-1">
-                  {(r.kmActual || 0).toLocaleString()} <span className="text-[10px] text-gray-500 font-medium">KM</span>
+                <div className="text-sm font-bold mb-2 flex items-center gap-1">
+                  {r.kmActual != null ? (
+                    <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800/50" : "flex items-baseline gap-1 text-gray-900 dark:text-white"}>
+                      {r.kmActual.toLocaleString()} <span className="text-[10px] opacity-70 font-black uppercase">km</span>
+                      {r.kmModificado && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" title="Editado manualmente"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs font-bold uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">Viaje Posterior</span>
+                  )}
                 </div>
                 {r.nombreConductor && (
                   <div className="text-xs text-gray-400 font-bold uppercase tracking-tighter mb-2 flex items-center gap-1.5">

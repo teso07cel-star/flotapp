@@ -4,6 +4,7 @@ import { getVehiculoByPatente, getAllSucursales } from "@/lib/actions";
 import { redirect } from "next/navigation";
 import DriverFormClient from "@/components/DriverFormClient";
 import { cookies } from "next/headers";
+import prisma from "@/lib/prisma";
 
 export default async function DriverForm({ searchParams }) {
   const params = await searchParams;
@@ -28,6 +29,19 @@ export default async function DriverForm({ searchParams }) {
   const vehiculo = vehiculoRes.data;
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
   const lastLog = vehiculo.registros?.[0];
+
+  let isFirstLog = true;
+  if (identifiedDriver) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const logsTodayCount = await prisma.registroDiario.count({
+      where: {
+        nombreConductor: identifiedDriver,
+        fecha: { gte: today }
+      }
+    });
+    isFirstLog = logsTodayCount === 0;
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
@@ -59,6 +73,7 @@ export default async function DriverForm({ searchParams }) {
             sucursales={sucursales} 
             lastLog={lastLog} 
             identifiedDriver={identifiedDriver}
+            isFirstLog={isFirstLog}
           />
         </div>
       </div>

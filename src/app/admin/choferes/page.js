@@ -1,4 +1,4 @@
-import { getAllChoferes, addChofer, deleteChofer } from "@/lib/actions";
+import { getAllChoferes, addChofer, deleteChofer, updateChoferPatente } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 
 export default async function ChoferesAdmin() {
@@ -17,6 +17,13 @@ export default async function ChoferesAdmin() {
     await deleteChofer(id);
   }
 
+  async function assignPatenteAction(formData) {
+    "use server";
+    const id = formData.get("id");
+    const patente = formData.get("patente");
+    await updateChoferPatente(id, patente);
+  }
+
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
@@ -31,6 +38,7 @@ export default async function ChoferesAdmin() {
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase font-black border-b border-gray-200 dark:border-gray-800">
                   <th className="p-5 pl-8 text-gray-900 dark:text-gray-100">Nombre</th>
+                  <th className="p-5 text-gray-900 dark:text-gray-100">Patente Asignada</th>
                   <th className="p-5 text-right pr-8 text-gray-900 dark:text-gray-100">Acciones</th>
                 </tr>
               </thead>
@@ -42,10 +50,24 @@ export default async function ChoferesAdmin() {
                 ) : choferes.map(c => (
                   <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
                     <td className="p-5 pl-8 font-bold text-gray-900 dark:text-gray-100">{c.nombre}</td>
+                    <td className="p-5">
+                      <form action={assignPatenteAction} className="flex items-center gap-2">
+                        <input type="hidden" name="id" value={c.id} />
+                        <input 
+                          name="patente" 
+                          defaultValue={c.patenteAsignada || ""} 
+                          placeholder="Ninguna" 
+                          className="w-24 bg-gray-100 dark:bg-gray-800 border-none rounded-lg px-3 py-2 text-xs uppercase font-mono font-bold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder:font-sans placeholder:capitalize"
+                        />
+                        <button type="submit" className="text-blue-500 hover:text-blue-600 focus:outline-none transition-colors" title="Guardar">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        </button>
+                      </form>
+                    </td>
                     <td className="p-5 pr-8 text-right">
                       <form action={deleteAction} className="inline">
                         <input type="hidden" name="id" value={c.id} />
-                        <button type="submit" className="text-red-500 hover:text-red-600 font-bold text-xs uppercase tracking-widest">Eliminar</button>
+                        <button type="submit" className="text-red-500 hover:text-red-600 font-bold text-xs uppercase tracking-widest transition-colors focus:outline-none focus:underline">Eliminar</button>
                       </form>
                     </td>
                   </tr>

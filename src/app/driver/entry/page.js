@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getAllChoferes, handleDriverEntry } from "@/lib/actions";
 import DriverAuthClient from "@/components/DriverAuthClient";
+import prisma from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 export default async function DriverEntry({ searchParams }) {
   const params = await searchParams;
@@ -8,6 +10,26 @@ export default async function DriverEntry({ searchParams }) {
   
   const choferesRes = await getAllChoferes();
   const choferes = choferesRes.success ? choferesRes.data : [];
+
+  const cookieStore = await cookies();
+  const driverName = cookieStore.get("driver_name")?.value;
+  let defaultPatente = "";
+
+  if (driverName) {
+    try {
+      const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
+      if (choferDB?.patenteAsignada) {
+        defaultPatente = choferDB.patenteAsignada;
+      } else {
+        const lastRec = await prisma.$queryRaw`SELECT v.patente FROM "RegistroDiario" r JOIN "Vehiculo" v ON r."vehiculoId" = v.id WHERE r."nombreConductor" = ${driverName} ORDER BY r.fecha DESC LIMIT 1`;
+        if (lastRec && lastRec.length > 0) {
+          defaultPatente = lastRec[0].patente;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 p-6 selection:bg-blue-500/30">
@@ -43,10 +65,12 @@ export default async function DriverEntry({ searchParams }) {
             </label>
             <div className="relative group">
               <input
+                key={driverName || "empty"}
                 id="patente"
                 name="patente"
                 type="text"
                 placeholder="Ej. AB123CD"
+                defaultValue={defaultPatente}
                 required
                 className="block w-full px-5 py-4 bg-gray-900/50 border border-gray-700/50 rounded-2xl text-white text-xl text-center tracking-widest uppercase transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-600 font-bold"
                 autoComplete="off"

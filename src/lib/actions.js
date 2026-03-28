@@ -91,35 +91,45 @@ export async function addSucursal(nombre, direccion) {
 export async function createRegistroDiario(data) {
   try {
     const vehiculoId = parseInt(data.vehiculoId);
-    const kmActual = parseInt(data.kmActual);
+    let kmActual = data.kmActual ? parseInt(data.kmActual) : null;
+    let kmModificado = false;
 
     // Buscar el último registro para este vehículo
     const lastRecord = await prisma.registroDiario.findFirst({
-      where: { vehiculoId },
+      where: { vehiculoId, kmActual: { not: null } },
       orderBy: { fecha: 'desc' }
     });
 
-    if (lastRecord && kmActual <= lastRecord.kmActual) {
-      // Si el kilometraje no aumentó, verificamos el código de autorización
-      const vehiculo = await prisma.vehiculo.findUnique({
-        where: { id: vehiculoId }
-      });
+    if (kmActual !== null) {
+      if (lastRecord) {
+        if (kmActual < lastRecord.kmActual) {
+          // Auth solo si disminuye porque es un posible error o retroceso
+          const vehiculo = await prisma.vehiculo.findUnique({
+            where: { id: vehiculoId }
+          });
 
-      if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
-        return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+          if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+            return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+          }
+
+          // Si el código es correcto, lo limpiamos
+          await prisma.vehiculo.update({
+            where: { id: vehiculoId },
+            data: { codigoAutorizacion: null }
+          });
+          kmModificado = true;
+        } else if (kmActual !== lastRecord.kmActual) {
+          // Si incrementa o es distinto al de cierre sugerido, lo marcamos modificado
+          kmModificado = true;
+        }
       }
-
-      // Si el código es correcto, lo limpiamos (se usa una sola vez)
-      await prisma.vehiculo.update({
-        where: { id: vehiculoId },
-        data: { codigoAutorizacion: null }
-      });
     }
 
     const registro = await prisma.registroDiario.create({
       data: {
         vehiculoId,
         kmActual,
+        kmModificado,
         novedades: data.novedades || null,
         nombreConductor: data.nombreConductor || null,
         sucursales: {
@@ -495,6 +505,19 @@ export async function deleteChofer(id) {
     });
     revalidatePath("/admin/choferes");
     return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateChoferPatente(id, patenteAsignada) {
+  try {
+    const c = await prisma.chofer.update({
+      where: { id: parseInt(id) },
+      data: { patenteAsignada: patenteAsignada?.trim()?.toUpperCase() || null }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true, data: c };
   } catch (error) {
     return { success: false, error: error.message };
   }
