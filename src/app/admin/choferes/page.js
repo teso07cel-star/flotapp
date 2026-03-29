@@ -3,7 +3,18 @@ import { revalidatePath } from "next/cache";
 
 export default async function ChoferesAdmin() {
   const res = await getAllChoferes();
-  const choferes = res.success ? res.data : [];
+  
+  if (!res.success) {
+    return (
+      <div className="p-10 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-3xl">
+        <h2 className="text-red-600 dark:text-red-400 font-bold uppercase mb-2">Error de Conexión</h2>
+        <p className="text-gray-600 dark:text-gray-400 font-mono text-sm">{res.error}</p>
+        <p className="mt-4 text-xs text-gray-500 italic text-balance">Si ves este error, es probable que la base de datos configurada en Vercel sea incorrecta o esté inaccesible.</p>
+      </div>
+    );
+  }
+
+  const choferes = res.data || [];
 
   async function addAction(formData) {
     "use server";
