@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { processExternalEntry } from "@/lib/externalActions";
+import Image from "next/image";
 
 export default function ExternalEntryPage({ searchParams }) {
   const error = searchParams?.error;
@@ -21,8 +22,8 @@ export default function ExternalEntryPage({ searchParams }) {
         </Link>
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 mb-6 shadow-xl shadow-purple-500/20 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-purple-600 to-pink-500 mb-6 shadow-xl shadow-purple-500/20 overflow-hidden shadow-2xl transition-transform hover:scale-105">
+            <div className="relative w-full h-full"><Image src="/icon.png" alt="FLOTAPP" fill sizes="100%" className="object-cover" /></div>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Conductores Externos</h1>
           <p className="text-gray-400">Portal para camiones y transportes tercerizados</p>

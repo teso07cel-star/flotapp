@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getMonthlySummary, deleteGasto } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import VehicleIcon from "@/components/VehicleIcon";
 
 async function deleteGastoAction(formData) {
   "use server";
@@ -70,7 +71,12 @@ export default async function GlobalExpenses() {
                     <tr key={g.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
                       <td className="p-6 pl-10 text-xs font-bold text-gray-500" suppressHydrationWarning>{new Date(g.fecha).toLocaleDateString()}</td>
                       <td className="p-6">
-                        <div className="font-mono font-black text-sm tracking-widest uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded inline-block">{g.vehiculo?.patente || "???"}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400 dark:text-gray-500">
+                             <VehicleIcon categoria={g.vehiculo?.categoria} className="w-5 h-5" />
+                          </span>
+                          <div className="font-mono font-black text-sm tracking-widest uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded inline-block">{g.vehiculo?.patente || "???"}</div>
+                        </div>
                       </td>
                       <td className="p-6">
                         <span className="text-[10px] bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full font-black uppercase tracking-tighter">

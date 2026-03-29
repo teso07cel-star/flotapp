@@ -7,6 +7,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [error, setError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authCode, setAuthCode] = useState("");
+  const [isFinishingShift, setIsFinishingShift] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,14 +51,20 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         </div>
       </div>
 
-      {isFirstLog ? (
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">Kilometraje Actual</label>
+      {isFirstLog || isFinishingShift ? (
+        <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+          {isFinishingShift && (
+             <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-xl mb-4">
+                <p className="text-pink-400 font-bold uppercase tracking-widest text-[10px]">Cierre de Jornada</p>
+                <p className="text-white text-sm">Ingresá el kilometraje con el que dejás la unidad.</p>
+             </div>
+          )}
+          <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">{isFinishingShift ? "Kilometraje Final" : "Kilometraje Actual"}</label>
           <div className="relative group">
             <input
               name="kmActual"
               type="number"
-              required
+              required={isFirstLog || isFinishingShift}
               disabled={loading}
               defaultValue={lastLog?.kmActual || ""}
               className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-bold text-xl"
@@ -67,11 +74,25 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
               <span className="text-gray-600 font-bold uppercase tracking-widest text-xs">km</span>
             </div>
           </div>
+          {!isFirstLog && (
+             <button type="button" onClick={() => setIsFinishingShift(false)} className="text-[10px] text-gray-500 hover:text-white uppercase font-bold mt-2">
+                Cancelar Cierre de Turno
+             </button>
+          )}
         </div>
       ) : (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
-          <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <p className="text-emerald-400 text-sm font-bold uppercase tracking-wide">Viaje posterior. No es necesario ingresar kilometraje.</p>
+        <div className="p-5 bg-gray-900/50 border border-gray-800 rounded-2xl flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+             <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+             <p className="text-emerald-400 text-sm font-bold uppercase tracking-wide">Viaje posterior. KMs ya registrados hoy.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsFinishingShift(true)}
+            className="w-full bg-pink-600/10 hover:bg-pink-600/20 border border-pink-600/30 text-pink-400 font-bold uppercase tracking-widest text-[11px] py-3 rounded-xl transition-all"
+          >
+            Finalizar Turno (Cargar KM final)
+          </button>
         </div>
       )}
 
@@ -142,7 +163,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         ) : (
           <>
-            {showAuth ? "VERIFICAR Y ENVIAR" : "ENVIAR BITÁCORA"}
+            {showAuth ? "VERIFICAR Y ENVIAR" : (isFinishingShift ? "CONFIRMAR FIN DE TURNO" : "ENVIAR BITÁCORA")}
             <svg className="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
           </>
         )}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllVehiculos, getUltimosRegistros, deleteVehiculo, deleteRegistroDiario } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
+import VehicleIcon from "@/components/VehicleIcon";
 
 async function deleteVehiculoAction(formData) {
   "use server";
@@ -91,8 +92,11 @@ export default async function AdminDashboard() {
                     return (
                       <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
                         <td className="p-5 pl-8">
-                          <div className="font-mono font-black text-lg tracking-wider">{v.patente}</div>
-                          {kmActual > 0 && <div className="text-[10px] text-gray-400 font-bold uppercase">{kmActual.toLocaleString()} KM</div>}
+                          <div className="flex items-center gap-2">
+                             <span className="text-gray-400"><VehicleIcon categoria={v.categoria} className="w-5 h-5"/></span>
+                             <div className="font-mono font-black text-lg tracking-wider">{v.patente}</div>
+                          </div>
+                          {kmActual > 0 && <div className="text-[10px] text-gray-400 font-bold uppercase mt-1 ml-7">{kmActual.toLocaleString()} KM</div>}
                         </td>
                         <td className="p-5">
                           {isRed ? (
@@ -152,9 +156,14 @@ export default async function AdminDashboard() {
             ) : registros.map((r) => (
               <div key={r.id} className="pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0 relative group">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-wider">
-                    {r.vehiculo.patente}
-                  </span>
+                  <div className="flex items-center gap-2">
+                     <span className="text-gray-400">
+                        <VehicleIcon categoria={r.vehiculo.categoria} className="w-4 h-4" />
+                     </span>
+                     <span className="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-wider">
+                       {r.vehiculo.patente}
+                     </span>
+                  </div>
                   <div className="flex items-center gap-3">
                     <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
                         <FormattedDate date={r.fecha} showDate={false} />

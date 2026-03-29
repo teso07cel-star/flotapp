@@ -9,38 +9,42 @@ export async function processExternalEntry(formData) {
     return { success: false, error: "Patente y Nombre son requeridos" };
   }
 
-  try {
-    // 1. Find or Create Vehiculo
-    let vehiculo = await prisma.vehiculo.findUnique({
-      where: { patente }
-    });
-
-    if (!vehiculo) {
-      vehiculo = await prisma.vehiculo.create({
-        data: {
-          patente,
-          externo: true,
-          activo: true,
-          categoria: "PICKUP", 
-          tipo: "EXTERNO"
-        }
+    let redirectTo = "";
+    try {
+      // 1. Find or Create Vehiculo
+      let vehiculo = await prisma.vehiculo.findUnique({
+        where: { patente }
       });
-    } else if (!vehiculo.externo || vehiculo.tipo !== "EXTERNO") {
-       // Si existía pero no estaba marcado como externo, lo marcamos (o podríamos no hacerlo, pero la idea es que queden registrados)
-       await prisma.vehiculo.update({
-         where: { id: vehiculo.id },
-         data: { externo: true, tipo: "EXTERNO" }
-       });
+  
+      if (!vehiculo) {
+        vehiculo = await prisma.vehiculo.create({
+          data: {
+            patente,
+            activo: true,
+            categoria: "PICKUP", 
+            tipo: "EXTERNO"
+          }
+        });
+      } else if (vehiculo.tipo !== "EXTERNO") {
+         // Si existía pero no estaba marcado como externo, lo marcamos (o podríamos no hacerlo, pero la idea es que queden registrados)
+         await prisma.vehiculo.update({
+           where: { id: vehiculo.id },
+           data: { tipo: "EXTERNO" }
+         });
+      }
+  
+      redirectTo = `/external/form?patente=${encodeURIComponent(patente)}&driver=${encodeURIComponent(nombreConductor)}`;
+      
+    } catch (error) {
+      console.error("Error in processExternalEntry:", error);
+      return { success: false, error: error.message || "Error al procesar ingreso" };
     }
-
-    const { redirect } = await import("next/navigation");
-    redirect(`/external/form?patente=${encodeURIComponent(patente)}&driver=${encodeURIComponent(nombreConductor)}`);
-    
-  } catch (error) {
-    console.error("Error in processExternalEntry:", error);
-    return { success: false, error: error.message || "Error al procesar ingreso" };
+  
+    if (redirectTo) {
+      const { redirect } = await import("next/navigation");
+      redirect(redirectTo);
+    }
   }
-}
 
 export async function getExternalVehicleStatus(patente) {
   try {
@@ -113,6 +117,17 @@ export async function submitExternalLog(data) {
     const kmActual = formPayload.kmActual ? parseInt(formPayload.kmActual) : null;
     const montoCombustible = formPayload.montoCombustible ? parseFloat(formPayload.montoCombustible) : null;
 
+    // Primer paso: update fechas del Vehiculo si vienen
+    if (formPayload.vtvVencimiento || formPayload.seguroVencimiento) {
+       await prisma.vehiculo.update({
+         where: { id: parseInt(vehiculoId) },
+         data: {
+           vtvVencimiento: formPayload.vtvVencimiento ? new Date(formPayload.vtvVencimiento) : undefined,
+           seguroVencimiento: formPayload.seguroVencimiento ? new Date(formPayload.seguroVencimiento) : undefined
+         }
+       });
+    }
+
     // First: If Monthly, create InspeccionMensual
     if (requiredFrequency === "mensual") {
         const hoy = new Date();
@@ -122,11 +137,14 @@ export async function submitExternalLog(data) {
                nombreConductor: driver,
                mes: hoy.getMonth() + 1,
                anio: hoy.getFullYear(),
-               fotoVTV: formPayload.vtvStatus === "reconfirm" ? (formPayload.prevVtv || null) : "PENDING",
-               fotoSeguro: formPayload.seguroStatus === "reconfirm" ? (formPayload.prevSeguro || null) : "PENDING",
+               fotoFrente: formPayload.frente || null,
+               fotoTrasera: formPayload.trasera || null,
+               fotoLateralIzq: formPayload.latIzq || null,
+               fotoLateralDer: formPayload.latDer || null,
+               fotoVTV: formPayload.vtv || null,
+               fotoSeguro: formPayload.seguro || null,
                lugarGuardaFijo: formPayload.lugarGuarda === "fija" ? "SI" : "NO",
                lugarGuardaResguardo: formPayload.lugarGuarda === "opcional" ? formPayload.lugarGuardaDetalle : null,
-               // we skip actual photo upload binary storage for now to keep JSON payload lean
             }
         });
     }
@@ -139,10 +157,11 @@ export async function submitExternalLog(data) {
         nombreConductor: driver,
         frecuenciaRegistro: requiredFrequency,
         kmActual: kmActual,
-        nivelCombustible: formPayload.nivelCombustible || null,
+        nivelCombustible: formPayload.nivelCombustible || null, 
         montoCombustible: montoCombustible,
+        fotoTicketCombustible: formPayload.ticket || null,
         motivoUso: formPayload.motivoUso === "otro" ? formPayload.motivoUsoOtro : formPayload.motivoUso,
-        novedades: formPayload.novedades || null, // Visiitas a sucursales u otros
+        novedades: formPayload.novedades || null,
         lugarGuarda: formPayload.lugarGuarda === "opcional" ? formPayload.lugarGuardaDetalle : "Fija"
       }
     });

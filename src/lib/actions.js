@@ -330,6 +330,12 @@ export async function getVehiculoById(id) {
           orderBy: { fecha: 'desc' }, 
           include: { sucursales: true }
         },
+        InspeccionMensual: {
+          orderBy: { fecha: 'desc' }
+        },
+        Mantenimiento: {
+          orderBy: { fecha: 'desc' }
+        }
       }
     });
     return { success: true, data: vehiculo };
@@ -518,6 +524,38 @@ export async function updateChoferPatente(id, patenteAsignada) {
     });
     revalidatePath("/admin/choferes");
     return { success: true, data: c };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function addMantenimiento(data) {
+  try {
+    const { vehiculoId, tipoServicio, descripcion, taller, costo, kilometraje, fecha } = data;
+    const m = await prisma.mantenimiento.create({
+      data: {
+        vehiculoId: parseInt(vehiculoId),
+        tipoServicio,
+        descripcion: descripcion || null,
+        taller: taller || null,
+        costo: costo ? parseFloat(costo) : null,
+        kilometraje: kilometraje ? parseInt(kilometraje) : null,
+        fecha: fecha ? new Date(fecha) : new Date()
+      }
+    });
+
+    // Optionally update vehiculo's last service km
+    if (tipoServicio.toLowerCase() === "service" || tipoServicio.toLowerCase() === "mantenimiento regular") {
+      if (kilometraje) { // update Proximo Service + 10k
+         await prisma.vehiculo.update({
+           where: { id: parseInt(vehiculoId) },
+           data: { proximoServiceKm: parseInt(kilometraje) + 10000 }
+         });
+      }
+    }
+
+    revalidatePath(`/admin/vehicles/${vehiculoId}`);
+    return { success: true, data: m };
   } catch (error) {
     return { success: false, error: error.message };
   }

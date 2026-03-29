@@ -3,6 +3,7 @@ import { getVehiculoById, updateVehiculo } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
 import MileageAuth from "@/components/MileageAuth";
+import MantenimientoSection from "@/components/MantenimientoSection";
 
 async function saveAction(formData) {
   "use server";
@@ -181,28 +182,66 @@ export default async function VehicleDetails({ params }) {
             </form>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-2xl shadow-black/5">
-            <h2 className="text-xl font-black mb-6 uppercase tracking-tighter border-b border-gray-100 dark:border-gray-800 pb-4">Visitas por Sucursal</h2>
-            <div className="space-y-4">
-              {sortedBranches.length === 0 ? (
-                <p className="text-gray-400 text-center font-bold uppercase text-[10px] tracking-widest py-4">Sin datos de visitas</p>
-              ) : sortedBranches.map(([name, count]) => (
-                <div key={name} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                  <span className="font-bold text-sm uppercase tracking-tight">{name}</span>
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black">{count}</span>
-                </div>
+          <div className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-500/10 dark:to-purple-500/10 border border-pink-100 dark:border-pink-500/20 rounded-[2.5rem] p-8 shadow-xl shadow-pink-500/5 font-sans">
+            <h2 className="text-xl font-black mb-6 uppercase tracking-tighter border-b border-pink-200 dark:border-pink-500/20 pb-4 flex items-center justify-between text-pink-600 dark:text-pink-400">
+              Fotos del Mes
+              <span className="text-[10px] bg-white dark:bg-pink-900/30 px-3 py-1 rounded-full text-pink-500 dark:text-pink-300">
+                {vehiculo.InspeccionMensual?.length || 0} Reg.
+              </span>
+            </h2>
+            <div className="space-y-6">
+              {(!vehiculo.InspeccionMensual || vehiculo.InspeccionMensual.length === 0) ? (
+                 <p className="text-pink-400/70 text-center font-bold uppercase text-[10px] tracking-widest py-8">
+                   Sin fotos cargadas este mes
+                 </p>
+              ) : vehiculo.InspeccionMensual.map((insp) => (
+                 <div key={insp.id} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-5 shadow-sm">
+                   <div className="flex justify-between items-start mb-4">
+                     <div>
+                       <h3 className="font-black text-sm text-gray-800 dark:text-white uppercase tracking-tight">Período {insp.mes}/{insp.anio}</h3>
+                       <p className="text-[10px] uppercase font-bold text-gray-400 mt-1"><FormattedDate date={insp.fecha} /></p>
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-2 gap-3">
+                     {[{label: 'Frente', img: insp.fotoFrente}, {label: 'Trasera', img: insp.fotoTrasera}, {label: 'Lat Izq', img: insp.fotoLateralIzq}, {label: 'Lat Der', img: insp.fotoLateralDer}].map(foto => (
+                       <div key={foto.label} className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden group border border-gray-200 dark:border-gray-700">
+                          {foto.img ? (
+                             <a href={foto.img} target="_blank" rel="noreferrer">
+                               <img src={foto.img} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={foto.label}/>
+                             </a>
+                          ) : (
+                             <div className="w-full h-full flex items-center justify-center text-[9px] text-gray-400 font-bold uppercase text-center p-2">Sin Foto</div>
+                          )}
+                          <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] uppercase font-bold text-center py-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                            {foto.label}
+                          </div>
+                       </div>
+                     ))}
+                   </div>
+                   <div className="grid grid-cols-2 gap-3 mt-3">
+                      {insp.fotoVTV && (
+                        <a href={insp.fotoVTV} target="_blank" rel="noreferrer" className="block text-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[9px] font-black uppercase py-2 rounded-lg border border-blue-100 dark:border-blue-800">Ver VTV</a>
+                      )}
+                      {insp.fotoSeguro && (
+                        <a href={insp.fotoSeguro} target="_blank" rel="noreferrer" className="block text-center bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[9px] font-black uppercase py-2 rounded-lg border border-purple-100 dark:border-purple-800">Ver Segu.</a>
+                      )}
+                   </div>
+                 </div>
               ))}
             </div>
           </div>
 
           <MileageAuth vehiculoId={vehiculo.id} initialCode={vehiculo.codigoAutorizacion} />
+          
+          <MantenimientoSection vehiculoId={vehiculo.id} mantenimientos={vehiculo.Mantenimiento || []} />
         </div>
 
         {/* Columna Derecha: Historial */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
+
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-2xl shadow-black/5 font-sans min-h-[600px]">
             <h2 className="text-xl font-black mb-8 uppercase tracking-tighter border-b border-gray-100 dark:border-gray-800 pb-4 flex items-center justify-between">
-              Historial de Uso
+              Historial de Uso (Diarios)
               <span className="text-[10px] bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-gray-500">{vehiculo.registros?.length || 0} Registros</span>
             </h2>
             <div className="space-y-6">
@@ -230,6 +269,12 @@ export default async function VehicleDetails({ params }) {
                          {s.nombre}
                        </span>
                     ))}
+                    {r.fotoTicketCombustible && (
+                       <a href={r.fotoTicketCombustible} target="_blank" rel="noreferrer" className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
+                         <svg className="w-3 h-3 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 5v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                         Ticket Combustible (${r.montoCombustible})
+                       </a>
+                    )}
                   </div>
 
                   {r.novedades && (

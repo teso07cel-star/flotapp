@@ -3,6 +3,7 @@ import { getAllChoferes, handleDriverEntry } from "@/lib/actions";
 import DriverAuthClient from "@/components/DriverAuthClient";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
+import Image from "next/image";
 
 export default async function DriverEntry({ searchParams }) {
   const params = await searchParams;
@@ -48,8 +49,8 @@ export default async function DriverEntry({ searchParams }) {
         </Link>
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mb-6 shadow-xl shadow-blue-500/20 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-blue-600 to-indigo-500 mb-6 shadow-xl shadow-blue-500/20 overflow-hidden shadow-2xl transition-transform hover:scale-105">
+            <div className="relative w-full h-full"><Image src="/icon.png" alt="FLOTAPP" fill sizes="100%" className="object-cover" /></div>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Portal del Conductor</h1>
           <p className="text-gray-400">Identificate e ingresa la patente</p>
@@ -59,41 +60,44 @@ export default async function DriverEntry({ searchParams }) {
           
           <DriverAuthClient choferes={choferes} />
 
-          <div className="mb-8">
-            <label htmlFor="patente" className="block text-sm font-medium text-gray-300 mb-3">
-              Patente del Vehículo
-            </label>
-            <div className="relative group">
-              <input
-                key={driverName || "empty"}
-                id="patente"
-                name="patente"
-                type="text"
-                placeholder="Ej. AB123CD"
-                defaultValue={defaultPatente}
-                required
-                className="block w-full px-5 py-4 bg-gray-900/50 border border-gray-700/50 rounded-2xl text-white text-xl text-center tracking-widest uppercase transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-600 font-bold"
-                autoComplete="off"
-              />
-              <div className="absolute inset-0 -z-10 rounded-2xl opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 bg-gradient-to-r from-blue-500 to-indigo-500 blur-sm pointer-events-none" style={{ margin: "-2px" }} />
-            </div>
-            {error && (
-              <p className="mt-4 text-sm text-red-400 flex items-center justify-center gap-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                {error}
-              </p>
-            )}
-          </div>
+          {driverName && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="mb-8">
+                <label htmlFor="patente" className="block text-sm font-black text-blue-400 mb-3 text-center uppercase tracking-widest">
+                  Vehículo Sugerido (Puedes cambiarlo)
+                </label>
+                <div className="relative group">
+                  <input
+                    key={driverName || "empty"}
+                    id="patente"
+                    name="patente"
+                    type="text"
+                    placeholder="Ej. AB123CD"
+                    defaultValue={defaultPatente}
+                    required
+                    className="block w-full px-5 py-5 bg-gray-900/80 border-2 border-blue-500/30 rounded-2xl text-white text-3xl text-center tracking-[0.2em] uppercase transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none placeholder:text-gray-600 font-black shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+                    autoComplete="off"
+                  />
+                </div>
+                {error && (
+                  <p className="mt-4 text-sm text-red-400 flex items-center justify-center gap-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {error}
+                  </p>
+                )}
+              </div>
 
-          <button
-            type="submit"
-            className="relative w-full overflow-hidden inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform active:scale-[0.98]"
-          >
-            <span className="flex items-center gap-2">
-              Continuar
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </span>
-          </button>
+              <button
+                type="submit"
+                className="relative w-full overflow-hidden inline-flex items-center justify-center px-8 py-5 text-lg font-black tracking-widest uppercase text-white transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transform active:scale-[0.98] shadow-xl shadow-blue-500/20"
+              >
+                <span className="flex items-center gap-3">
+                  Continuar
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

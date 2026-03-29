@@ -10,13 +10,24 @@ export default function DriverAuthClient({ choferes }) {
   const [remember, setRemember] = useState(true);
   const router = useRouter();
 
+  const [fastLoginDriver, setFastLoginDriver] = useState("");
+
   useEffect(() => {
-    // Check if already remembered
+    // Check if already remembered, but don't auto-login immediately! 
+    // Ask them to press the fingerprint instead.
     const saved = localStorage.getItem("flotapp_driver_name");
     if (saved) {
-      setSelectedChofer(saved);
+      setFastLoginDriver(saved);
     }
   }, []);
+
+  const handleFingerprintPress = () => {
+    if (fastLoginDriver) {
+      setSelectedChofer(fastLoginDriver);
+      document.cookie = `driver_name=${fastLoginDriver}; path=/; max-age=31536000`;
+      router.refresh(); 
+    }
+  };
 
   const handleSelect = (e) => {
     const val = e.target.value;
@@ -109,8 +120,35 @@ export default function DriverAuthClient({ choferes }) {
 
   return (
     <div className="mb-8">
+      {fastLoginDriver && !selectedChofer && !isExternal && (
+        <div className="flex flex-col items-center justify-center mb-10 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-8 rounded-[2.5rem] border border-blue-500/20 shadow-xl shadow-blue-500/5 backdrop-blur-md relative overflow-hidden group">
+          <button 
+             onClick={handleFingerprintPress}
+             className="relative z-10 w-28 h-28 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-[0_0_50px_rgba(59,130,246,0.3)] transform transition-transform hover:scale-105 active:scale-95 border-[6px] border-gray-950"
+          >
+             {/* Fingerprint SVG */}
+             <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse">
+               <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
+               <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
+               <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
+               <path d="M2 12a10 10 0 0 1 18-6"/>
+               <path d="M2 16h.01"/>
+               <path d="M21.8 16c.2-2 .131-5.354 0-6"/>
+               <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/>
+               <path d="M8.65 22c.21-.66.45-1.32.57-2"/>
+               <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+             </svg>
+          </button>
+          <div className="mt-5 text-center">
+             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1">Detección Automática</p>
+             <p className="text-white text-2xl font-black uppercase tracking-tight">{fastLoginDriver}</p>
+             <p className="text-xs text-gray-500 mt-2 max-w-[200px] leading-relaxed mx-auto italic">Toca la huella para entrar y continuar con tus datos</p>
+          </div>
+        </div>
+      )}
+
       <label htmlFor="nombreConductorSelector" className="block text-sm font-medium text-gray-300 mb-3">
-        Selecciona tu Nombre
+        {fastLoginDriver ? "O elige otro nombre manual:" : "Selecciona tu Nombre"}
       </label>
       <select
         id="nombreConductorSelector"
