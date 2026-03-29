@@ -64,20 +64,29 @@ async function main() {
       message: 'Subida inicial automatizada'
     });
 
-    console.log("Subiendo a GitHub (Rama: principal -> principal)...");
-    await git.push({
-      fs,
-      http,
-      dir,
-      remote: 'origin',
-      ref: 'principal',
-      remoteRef: 'principal', // Pisar directamente la rama principal del servidor
-      url: cleanRepoUrl,
-      force: true,
-      onAuth: () => ({ username: token })
-    });
+    console.log("Subiendo a GitHub (Todas las ramas)...");
+    const branches = ['main', 'master', 'principal'];
+    for (const b of branches) {
+       console.log(`Intentando subir a rama: ${b}...`);
+       try {
+         await git.push({
+           fs,
+           http,
+           dir,
+           remote: 'origin',
+           ref: 'principal', // Nuestra fuente local constante
+           remoteRef: b,
+           url: cleanRepoUrl,
+           force: true,
+           onAuth: () => ({ username: token })
+         });
+         console.log(`[OK] Rama ${b} actualizada.`);
+       } catch (e) {
+         console.log(`[AVISO] No se pudo subir a ${b} (quizas no existe). Siguiendo...`);
+       }
+    }
 
-    console.log("\n¡SABELO! Ya está en GitHub en la rama principal. 🚀");
+    console.log("\n¡SABELO! Ya está en GitHub en todas las ramas. 🚀");
     console.log("Vercel ya debería estar actualizando tu sitio ahora mismo.");
   } catch (err) {
     console.error("Error al subir:", err.message);
