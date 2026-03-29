@@ -13,7 +13,8 @@ export default async function DriverEntry({ searchParams }) {
   const choferes = choferesRes.success ? choferesRes.data : [];
 
   const cookieStore = await cookies();
-  const driverName = cookieStore.get("driver_name")?.value;
+  const rawDriverName = cookieStore.get("driver_name")?.value;
+  const driverName = rawDriverName ? decodeURIComponent(rawDriverName).trim() : null;
   let defaultPatente = "";
 
   if (driverName) {
