@@ -184,7 +184,10 @@ export default async function AdminDashboard() {
                     <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800/50" : "flex items-baseline gap-1 text-gray-900 dark:text-white"}>
                       {r.kmActual.toLocaleString()} <span className="text-[10px] opacity-70 font-black uppercase">km</span>
                       {r.kmModificado && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" title="Editado manualmente"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span className="flex items-center gap-1 group/tooltip" title="Kilometraje modificado manualmente por el chofer">
+                           <span className="text-orange-500 font-black text-lg animate-pulse">*</span>
+                           <span className="text-[8px] font-black uppercase tracking-tighter text-orange-400 absolute left-full ml-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity bg-orange-950 px-2 py-1 rounded-md whitespace-nowrap z-50">Modificó Km</span>
+                        </span>
                       )}
                     </span>
                   ) : (

@@ -391,8 +391,24 @@ export async function handleDriverEntry(formData) {
 
   const res = await getVehiculoByPatente(patente);
   if (res.success && res.data) {
+    const vehiculo = res.data;
+    
+    // Verificar si es el primer viaje del día (no hay registros hoy)
+    const hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+
+    const registroHoy = await prisma.registroDiario.findFirst({
+      where: {
+        vehiculoId: vehiculo.id,
+        fecha: { gte: hoy, lt: manana }
+      }
+    });
+
+    const isFirstTrip = !registroHoy;
     const { redirect } = await import("next/navigation");
-    redirect(`/driver/form?patente=${encodeURIComponent(patente)}`);
+    redirect(`/driver/form?patente=${encodeURIComponent(patente)}&firstTrip=${isFirstTrip}`);
   } else {
     return { success: false, error: res.error || "Vehículo no encontrado" };
   }

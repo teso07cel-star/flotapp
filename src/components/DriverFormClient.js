@@ -52,14 +52,25 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       </div>
 
       {isFirstLog || isFinishingShift ? (
-        <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-          {isFinishingShift && (
-             <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-xl mb-4">
-                <p className="text-pink-400 font-bold uppercase tracking-widest text-[10px]">Cierre de Jornada</p>
-                <p className="text-white text-sm">Ingresá el kilometraje con el que dejás la unidad.</p>
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+          {isFinishingShift ? (
+             <div className="p-4 bg-pink-500/10 border border-pink-500/20 rounded-2xl mb-2">
+                <p className="text-pink-400 font-black uppercase tracking-widest text-[10px] mb-1">Cierre de Jornada</p>
+                <p className="text-white text-sm font-medium">Ingresá los kilómetros finales con los que entregás la unidad.</p>
+             </div>
+          ) : (
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl mb-2">
+                <p className="text-blue-400 font-black uppercase tracking-widest text-[10px] mb-1">Inicio de Jornada</p>
+                <p className="text-white text-sm font-medium">Verificá si los kilómetros coinciden con el tablero. Si no, corregilos.</p>
+                {lastLog?.kmActual && (
+                  <div className="mt-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                    Cierre anterior: <span className="text-blue-400">{lastLog.kmActual.toLocaleString()} km</span>
+                  </div>
+                )}
              </div>
           )}
-          <label className="text-sm font-bold text-gray-300 uppercase tracking-wider">{isFinishingShift ? "Kilometraje Final" : "Kilometraje Actual"}</label>
+          
+          <label className="text-sm font-bold text-gray-400 uppercase tracking-widest ml-1">{isFinishingShift ? "Kilometraje Final" : "Kilometraje de Inicio"}</label>
           <div className="relative group">
             <input
               name="kmActual"
@@ -67,16 +78,16 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
               required={isFirstLog || isFinishingShift}
               disabled={loading}
               defaultValue={lastLog?.kmActual || ""}
-              className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-700 font-bold text-xl"
-              placeholder="Ej. 145000"
+              className="w-full bg-gray-950/80 border-2 border-gray-800 rounded-2xl px-6 py-5 text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-800 font-black text-3xl shadow-inner shadow-black/40"
+              placeholder="000000"
             />
-            <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-              <span className="text-gray-600 font-bold uppercase tracking-widest text-xs">km</span>
+            <div className="absolute inset-y-0 right-0 pr-6 flex items-center pointer-events-none">
+              <span className="text-gray-600 font-black uppercase tracking-widest text-sm">km</span>
             </div>
           </div>
           {!isFirstLog && (
-             <button type="button" onClick={() => setIsFinishingShift(false)} className="text-[10px] text-gray-500 hover:text-white uppercase font-bold mt-2">
-                Cancelar Cierre de Turno
+             <button type="button" onClick={() => setIsFinishingShift(false)} className="px-4 py-2 text-[10px] text-gray-500 hover:text-red-400 uppercase font-black tracking-widest transition-all">
+                × Cancelar Cierre
              </button>
           )}
         </div>
