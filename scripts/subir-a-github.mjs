@@ -27,8 +27,21 @@ async function main() {
   }
 
   try {
-    console.log("\nIniciando repositorio local...");
+    const cleanRepoUrl = repoUrl.trim().replace(/\.\.git$/, '.git');
+    console.log(`\nIniciando repositorio local (URL: ${cleanRepoUrl})...`);
     await git.init({ fs, dir });
+
+    // Asegurarnos de estar en la rama 'principal' para que Vercel lo vea
+    console.log("Configurando rama 'principal'...");
+    try {
+      await git.branch({ fs, dir, ref: 'principal', checkout: true });
+    } catch (e) {
+      // Si ya existe o falla el checkout, intentamos crearla
+      try {
+        await git.branch({ fs, dir, ref: 'principal' });
+        await git.checkout({ fs, dir, ref: 'principal' });
+      } catch (e2) {}
+    }
 
     console.log("Agregando archivos...");
     const files = fs.readdirSync(dir).filter(f => !['node_modules', '.git', '.next'].includes(f));
@@ -36,7 +49,7 @@ async function main() {
        await git.add({ fs, dir, filepath: file });
     }
 
-    console.log("Creando primer commit...");
+    console.log("Creando commit...");
     await git.commit({
       fs,
       dir,
@@ -44,18 +57,19 @@ async function main() {
       message: 'Subida inicial automatizada'
     });
 
-    console.log("Subiendo a GitHub (Push)...");
+    console.log("Subiendo a GitHub (Rama: principal)...");
     await git.push({
       fs,
       http,
       dir,
       remote: 'origin',
-      url: repoUrl,
+      ref: 'principal',
+      url: cleanRepoUrl,
       force: true,
       onAuth: () => ({ username: token })
     });
 
-    console.log("\n¡SABELO! Ya está en GitHub. 🚀");
+    console.log("\n¡SABELO! Ya está en GitHub en la rama principal. 🚀");
   } catch (err) {
     console.error("Error al subir:", err.message);
   } finally {
