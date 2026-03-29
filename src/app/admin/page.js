@@ -210,6 +210,16 @@ export default async function AdminDashboard() {
                     {r.novedades}
                   </div>
                 )}
+                {/* Visual indicator for photos */}
+                {(r.fotoFrente || r.fotoTrasera || r.fotoLateralIzq || r.fotoLateralDer) && (
+                  <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {[r.fotoFrente, r.fotoTrasera, r.fotoLateralIzq, r.fotoLateralDer].filter(Boolean).map((foto, idx) => (
+                      <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 hover:scale-105 transition-transform">
+                        <img src={foto} className="w-full h-full object-cover" alt="Inspección" />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

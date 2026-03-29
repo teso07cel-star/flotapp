@@ -157,7 +157,8 @@ export default async function VehicleDetails({ params }) {
                   className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
                 >
                   <option value="AUTO">Auto</option>
-                  <option value="PICKUP">Pick up</option>
+                  <option value="PICKUP">Pick up / Camioneta</option>
+                  <option value="UTILITARIO">Utilitario / Van</option>
                   <option value="MOTO">Moto</option>
                 </select>
               </div>
@@ -280,6 +281,25 @@ export default async function VehicleDetails({ params }) {
                   {r.novedades && (
                     <div className="bg-amber-50 dark:bg-amber-500/5 p-4 rounded-2xl border border-amber-100 dark:border-amber-500/10 text-sm font-medium italic text-amber-900 dark:text-amber-200">
                       &quot;{r.novedades}&quot;
+                    </div>
+                  )}
+
+                  {/* Visual indicator for photos in history */}
+                  {(r.fotoFrente || r.fotoTrasera || r.fotoLateralIzq || r.fotoLateralDer) && (
+                    <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+                       {[
+                         {l: 'Frente', img: r.fotoFrente}, 
+                         {l: 'Trasera', img: r.fotoTrasera}, 
+                         {l: 'Lat Izq', img: r.fotoLateralIzq}, 
+                         {l: 'Lat Der', img: r.fotoLateralDer}
+                       ].filter(f => f.img).map((foto, idx) => (
+                         <a key={idx} href={foto.img} target="_blank" rel="noreferrer" className="relative w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 group">
+                           <img src={foto.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt={foto.l} />
+                           <div className="absolute inset-x-0 bottom-0 bg-black/50 text-[8px] text-white text-center py-1 font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                             {foto.l}
+                           </div>
+                         </a>
+                       ))}
                     </div>
                   )}
                 </div>

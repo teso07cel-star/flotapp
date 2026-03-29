@@ -61,6 +61,12 @@ model RegistroDiario {
   esExterno             Boolean            @default(false)
   fotoTicketCombustible String?
   montoCombustible      Float?
+  fotoFrente            String?
+  fotoTrasera           String?
+  fotoLateralIzq        String?
+  fotoLateralDer        String?
+  fotoVTV               String?
+  fotoSeguro            String?
   chofer                Chofer?            @relation(fields: [choferId], references: [id])
   vehiculo              Vehiculo           @relation(fields: [vehiculoId], references: [id])
   RegistroSucursal      RegistroSucursal[]

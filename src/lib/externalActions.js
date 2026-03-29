@@ -25,12 +25,6 @@ export async function processExternalEntry(formData) {
             tipo: "EXTERNO"
           }
         });
-      } else if (vehiculo.tipo !== "EXTERNO") {
-         // Si existía pero no estaba marcado como externo, lo marcamos (o podríamos no hacerlo, pero la idea es que queden registrados)
-         await prisma.vehiculo.update({
-           where: { id: vehiculo.id },
-           data: { tipo: "EXTERNO" }
-         });
       }
   
       redirectTo = `/external/form?patente=${encodeURIComponent(patente)}&driver=${encodeURIComponent(nombreConductor)}`;
@@ -160,6 +154,12 @@ export async function submitExternalLog(data) {
         nivelCombustible: formPayload.nivelCombustible || null, 
         montoCombustible: montoCombustible,
         fotoTicketCombustible: formPayload.ticket || null,
+        fotoFrente: formPayload.frente || null,
+        fotoTrasera: formPayload.trasera || null,
+        fotoLateralIzq: formPayload.latIzq || null,
+        fotoLateralDer: formPayload.latDer || null,
+        fotoVTV: formPayload.vtv || null,
+        fotoSeguro: formPayload.seguro || null,
         motivoUso: formPayload.motivoUso === "otro" ? formPayload.motivoUsoOtro : formPayload.motivoUso,
         novedades: formPayload.novedades || null,
         lugarGuarda: formPayload.lugarGuarda === "opcional" ? formPayload.lugarGuardaDetalle : "Fija"

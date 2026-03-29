@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { submitExternalLog } from "@/lib/externalActions";
 
 export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMonthly, driverName }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -118,7 +120,8 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
 
       const result = await submitExternalLog(payload);
       if (result.success) {
-        window.location.href = "/?success=true";
+        router.push("/?success=true");
+        router.refresh();
       } else {
         setError(result.error);
         setLoading(false);
@@ -362,7 +365,7 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Todo Listo</h3>
-                <p className="text-gray-400 mt-2 text-sm leading-relaxed">Estás a punto de enviar la auditoría vinculada a <strong className="text-white">{vehiculo.patente}</strong> bajo el nombre de <strong className="text-white">{driverName}</strong>.</p>
+                <p className="text-gray-400 mt-2 text-sm leading-relaxed">Estás a punto de enviar la auditoría vinculada a <strong className="text-white">{vehiculo.patente}</strong> ({vehiculo.categoria}) bajo el nombre de <strong className="text-white">{driverName}</strong>.</p>
              </div>
           </div>
         )}

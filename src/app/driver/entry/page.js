@@ -14,12 +14,13 @@ export default async function DriverEntry({ searchParams }) {
 
   const cookieStore = await cookies();
   const rawDriverName = cookieStore.get("driver_name")?.value;
-  const driverName = rawDriverName ? decodeURIComponent(rawDriverName).trim() : null;
+  // Decodificar y normalizar (quitar espacios de más)
+  const driverName = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
   let defaultPatente = "";
 
   if (driverName) {
     try {
-      // Búsqueda insensible a mayúsculas/minúsculas para mayor robustez
+      // Búsqueda robusta insensible y con normalización
       const choferDB = await prisma.chofer.findFirst({ 
         where: { nombre: { equals: driverName, mode: 'insensitive' } } 
       });
