@@ -31,16 +31,23 @@ async function main() {
     console.log(`\nIniciando repositorio local (URL: ${cleanRepoUrl})...`);
     await git.init({ fs, dir });
 
-    // Asegurarnos de estar en la rama 'principal' para que Vercel lo vea
-    console.log("Configurando rama 'principal'...");
+    // Configurar rama principal localmente
+    console.log("Forzando rama 'principal'...");
     try {
-      await git.branch({ fs, dir, ref: 'principal', checkout: true });
+      // Intentamos renombrar master a principal si existe
+      const currentBranch = await git.currentBranch({ fs, dir });
+      if (currentBranch === 'master') {
+         await git.deleteBranch({ fs, dir, ref: 'principal' }).catch(() => {});
+         await git.branch({ fs, dir, ref: 'principal' });
+         await git.checkout({ fs, dir, ref: 'principal' });
+      } else if (currentBranch !== 'principal') {
+         await git.branch({ fs, dir, ref: 'principal' });
+         await git.checkout({ fs, dir, ref: 'principal' });
+      }
     } catch (e) {
-      // Si ya existe o falla el checkout, intentamos crearla
-      try {
-        await git.branch({ fs, dir, ref: 'principal' });
-        await git.checkout({ fs, dir, ref: 'principal' });
-      } catch (e2) {}
+      // Si falla lo anterior, simplemente intentamos crearla y saltar a ella
+      await git.branch({ fs, dir, ref: 'principal' }).catch(() => {});
+      await git.checkout({ fs, dir, ref: 'principal' }).catch(() => {});
     }
 
     console.log("Agregando archivos...");
@@ -57,19 +64,21 @@ async function main() {
       message: 'Subida inicial automatizada'
     });
 
-    console.log("Subiendo a GitHub (Rama: principal)...");
+    console.log("Subiendo a GitHub (Rama: principal -> principal)...");
     await git.push({
       fs,
       http,
       dir,
       remote: 'origin',
       ref: 'principal',
+      remoteRef: 'principal', // Pisar directamente la rama principal del servidor
       url: cleanRepoUrl,
       force: true,
       onAuth: () => ({ username: token })
     });
 
     console.log("\n¡SABELO! Ya está en GitHub en la rama principal. 🚀");
+    console.log("Vercel ya debería estar actualizando tu sitio ahora mismo.");
   } catch (err) {
     console.error("Error al subir:", err.message);
   } finally {
