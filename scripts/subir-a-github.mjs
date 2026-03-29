@@ -51,6 +51,7 @@ async function main() {
       dir,
       remote: 'origin',
       url: repoUrl,
+      force: true,
       onAuth: () => ({ username: token })
     });
 
