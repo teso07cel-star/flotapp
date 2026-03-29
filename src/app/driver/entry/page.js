@@ -18,17 +18,26 @@ export default async function DriverEntry({ searchParams }) {
 
   if (driverName) {
     try {
-      const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
+      // Búsqueda insensible a mayúsculas/minúsculas para mayor robustez
+      const choferDB = await prisma.chofer.findFirst({ 
+        where: { nombre: { equals: driverName, mode: 'insensitive' } } 
+      });
+
       if (choferDB?.patenteAsignada) {
         defaultPatente = choferDB.patenteAsignada;
       } else {
-        const lastRec = await prisma.$queryRaw`SELECT v.patente FROM "RegistroDiario" r JOIN "Vehiculo" v ON r."vehiculoId" = v.id WHERE r."nombreConductor" = ${driverName} ORDER BY r.fecha DESC LIMIT 1`;
-        if (lastRec && lastRec.length > 0) {
-          defaultPatente = lastRec[0].patente;
+        // Si no tiene asignada, buscar el último vehículo que usó
+        const lastRec = await prisma.registroDiario.findFirst({
+          where: { nombreConductor: driverName },
+          orderBy: { fecha: 'desc' },
+          include: { vehiculo: true }
+        });
+        if (lastRec?.vehiculo?.patente) {
+          defaultPatente = lastRec.vehiculo.patente;
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error al buscar patente sugerida:", e);
     }
   }
 
@@ -77,7 +86,13 @@ export default async function DriverEntry({ searchParams }) {
                     required
                     className="block w-full px-5 py-5 bg-gray-900/80 border-2 border-blue-500/30 rounded-2xl text-white text-3xl text-center tracking-[0.2em] uppercase transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none placeholder:text-gray-600 font-black shadow-[0_0_30px_rgba(59,130,246,0.1)]"
                     autoComplete="off"
+                    autoFocus={!!driverName}
                   />
+                  <div className="mt-2 text-center">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                      {defaultPatente ? "Sugerida por tu registro" : "Ingresa la patente del vehículo"}
+                    </p>
+                  </div>
                 </div>
                 {error && (
                   <p className="mt-4 text-sm text-red-400 flex items-center justify-center gap-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
