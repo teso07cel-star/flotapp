@@ -20,15 +20,25 @@ export default async function DriverEntry({ searchParams }) {
 
   if (driverName) {
     try {
-      // Búsqueda robusta insensible y con normalización
-      const choferDB = await prisma.chofer.findFirst({ 
+      // 1. Intento de coincidencia exacta (normalizada)
+      let choferDB = await prisma.chofer.findFirst({ 
         where: { nombre: { equals: driverName, mode: 'insensitive' } } 
       });
+
+      // 2. Si falla, búsqueda flexible (quitando acentos y caracteres especiales)
+      if (!choferDB) {
+        const normalize = (str) => str.toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+          .replace(/[^a-z0-9]/g, ""); // Solo letras y números
+
+        const normalizedSearch = normalize(driverName);
+        choferDB = choferes.find(c => normalize(c.nombre) === normalizedSearch);
+      }
 
       if (choferDB?.patenteAsignada) {
         defaultPatente = choferDB.patenteAsignada;
       } else {
-        // Si no tiene asignada, buscar el último vehículo que usó
+        // Fallback: Si no tiene asignada o es nuevo, buscar el último vehículo que usó
         const lastRec = await prisma.registroDiario.findFirst({
           where: { nombreConductor: driverName },
           orderBy: { fecha: 'desc' },

@@ -21,7 +21,7 @@ export async function processExternalEntry(formData) {
           data: {
             patente,
             activo: true,
-            categoria: "PICKUP", 
+            categoria: (patente.length > 6) ? "PICKUP" : "AUTO", 
             tipo: "EXTERNO"
           }
         });
@@ -162,7 +162,7 @@ export async function submitExternalLog(data) {
         fotoSeguro: formPayload.seguro || null,
         motivoUso: formPayload.motivoUso === "otro" ? formPayload.motivoUsoOtro : formPayload.motivoUso,
         novedades: formPayload.novedades || null,
-        lugarGuarda: formPayload.lugarGuarda === "opcional" ? formPayload.lugarGuardaDetalle : "Fija"
+        lugarGuarda: formPayload.lugarGuardaDetalle || "No especificado"
       }
     });
 

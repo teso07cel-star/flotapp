@@ -190,19 +190,17 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
               </select>
             </div>
 
-            {formData.lugarGuarda === "opcional" && (
-              <div className="animate-in fade-in">
-                <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Dirección Temporal</label>
-                <input
-                  name="lugarGuardaDetalle"
-                  type="text"
-                  value={formData.lugarGuardaDetalle}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-3 text-white focus:ring-2 focus:ring-pink-500"
-                  placeholder="Calle y Número / Barrio"
-                />
-              </div>
-            )}
+            <div className="animate-in fade-in">
+              <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Dirección / Referencia de Ubicación</label>
+              <input
+                name="lugarGuardaDetalle"
+                type="text"
+                value={formData.lugarGuardaDetalle}
+                onChange={handleInputChange}
+                className="w-full bg-gray-950/50 border border-gray-800 rounded-2xl px-5 py-3 text-white focus:ring-2 focus:ring-pink-500 font-bold"
+                placeholder="Ej: Base Av. Colon / Hotel San Juan"
+              />
+            </div>
           </div>
         )}
 
