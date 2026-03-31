@@ -37,10 +37,16 @@ export default async function AdminDashboard() {
           <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Panel General</h1>
           <p className="text-gray-500 dark:text-gray-400">Resumen de la actividad de tu flota.</p>
         </div>
-        <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20 text-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-          VER RESUMEN MENSUAL
-        </Link>
+        <div className="flex flex-wrap gap-4">
+          <Link href="/admin/benefits" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-100 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/><path d="m5 7 3 5-3 5"/><path d="m19 7-3 5 3 5"/></svg>
+            Impacto y ROI
+          </Link>
+          <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+            VER RESUMEN MENSUAL
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -156,13 +162,35 @@ export default async function AdminDashboard() {
             ) : registros.map((r) => (
               <div key={r.id} className="pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0 relative group">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2">
-                     <span className="text-gray-400">
-                        <VehicleIcon categoria={r.vehiculo.categoria} className="w-4 h-4" />
-                     </span>
-                     <span className="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-wider">
-                       {r.vehiculo.patente}
-                     </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                       <span className="text-gray-400">
+                          <VehicleIcon categoria={r.vehiculo.categoria} className="w-4 h-4" />
+                       </span>
+                       <span className="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-wider">
+                         {r.vehiculo.patente}
+                       </span>
+                       {r.tipoReporte && (
+                         <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${
+                           r.tipoReporte === 'INICIO' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                           r.tipoReporte === 'CIERRE' ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' :
+                           'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                         }`}>
+                           {r.tipoReporte}
+                         </span>
+                       )}
+                    </div>
+                    {r.lugarGuarda && (
+                      <a 
+                        href={`https://www.google.com/maps?q=${r.lugarGuarda}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-[9px] text-emerald-500 hover:text-emerald-400 transition-colors font-black uppercase tracking-widest"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Ver Ubicación
+                      </a>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
@@ -184,10 +212,7 @@ export default async function AdminDashboard() {
                     <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800/50" : "flex items-baseline gap-1 text-gray-900 dark:text-white"}>
                       {r.kmActual.toLocaleString()} <span className="text-[10px] opacity-70 font-black uppercase">km</span>
                       {r.kmModificado && (
-                        <span className="flex items-center gap-1 group/tooltip" title="Kilometraje modificado manualmente por el chofer">
-                           <span className="text-orange-500 font-black text-lg animate-pulse">*</span>
-                           <span className="text-[8px] font-black uppercase tracking-tighter text-orange-400 absolute left-full ml-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity bg-orange-950 px-2 py-1 rounded-md whitespace-nowrap z-50">Modificó Km</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" title="Editado manualmente"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                       )}
                     </span>
                   ) : (

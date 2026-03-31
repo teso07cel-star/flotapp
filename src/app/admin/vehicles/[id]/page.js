@@ -270,6 +270,12 @@ export default async function VehicleDetails({ params }) {
                          {s.nombre}
                        </span>
                     ))}
+                    {r.nivelCombustible && (
+                       <span className="bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                         Tanque: {r.nivelCombustible}
+                       </span>
+                    )}
                     {r.fotoTicketCombustible && (
                        <a href={r.fotoTicketCombustible} target="_blank" rel="noreferrer" className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
                          <svg className="w-3 h-3 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 5v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>

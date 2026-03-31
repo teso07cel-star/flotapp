@@ -106,7 +106,7 @@ export default function MantenimientoSection({ vehiculoId, mantenimientos = [] }
                </div>
                <div className="flex flex-col items-end whitespace-nowrap">
                   {m.costo && <div className="text-lg font-black text-gray-900 dark:text-gray-100">${m.costo.toLocaleString()}</div>}
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(m.fecha).toLocaleDateString()}</div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(m.fecha).toLocaleDateString("es-AR")}</div>
                </div>
             </div>
          ))}

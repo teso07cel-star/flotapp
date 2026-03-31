@@ -1,5 +1,6 @@
 "use server";
 import prisma from "./prisma";
+import { revalidatePath } from "next/cache";
 
 export async function processExternalEntry(formData) {
   const patente = formData.get("patente")?.toString().toUpperCase().trim();
@@ -51,7 +52,7 @@ export async function getExternalVehicleStatus(patente) {
         },
         registros: {
           orderBy: { fecha: 'desc' },
-          take: 1
+          take: 5 // Tomamos más para analizar el flujo del día
         }
       }
     });
@@ -59,34 +60,53 @@ export async function getExternalVehicleStatus(patente) {
     if (!vehiculo) return { success: false, error: "Vehículo no encontrado" };
 
     const hoy = new Date();
+    const hoyInicio = new Date(hoy.setHours(0,0,0,0));
     const mesActual = hoy.getMonth() + 1;
     const anioActual = hoy.getFullYear();
 
-    const currentWeekStart = new Date(hoy);
-    currentWeekStart.setDate(hoy.getDate() - hoy.getDay() + 1); // Monday
+    const day = hoy.getDay();
+    const diff = hoy.getDate() - day + (day === 0 ? -6 : 1);
+    const currentWeekStart = new Date(hoy.setDate(diff));
     currentWeekStart.setHours(0,0,0,0);
 
     let requiredFrequency = "diario";
 
-    // 1. Check if needs Monthly
+    // 1. Check if needs Monthly (Si no hay inspección este mes)
     const lastMonthly = vehiculo.InspeccionMensual[0];
-    if (!lastMonthly || lastMonthly.mes !== mesActual || lastMonthly.anio !== anioActual) {
+    const isNewMonth = !lastMonthly || lastMonthly.mes !== mesActual || lastMonthly.anio !== anioActual;
+    
+    if (isNewMonth) {
       requiredFrequency = "mensual";
     } else {
-      // 2. Need Weekly? (Has it logged km this week?)
-      // Check last log that HAS km
+      // 2. Need Weekly? (Si no hay un registro con KM esta semana)
       const lastKmLog = await prisma.registroDiario.findFirst({
         where: { 
           vehiculoId: vehiculo.id,
-          kmActual: { not: null }
+          kmActual: { not: null },
+          fecha: { gte: currentWeekStart }
         },
         orderBy: { fecha: 'desc' }
       });
 
-      if (!lastKmLog || new Date(lastKmLog.fecha) < currentWeekStart) {
-        requiredFrequency = "semanal"; // Not logged km this week
+      if (!lastKmLog) {
+        requiredFrequency = "semanal";
       } else {
-        requiredFrequency = "diario";
+        // 3. Diario: ¿Inicio o Cierre?
+        const lastLogToday = await prisma.registroDiario.findFirst({
+          where: {
+            vehiculoId: vehiculo.id,
+            fecha: { gte: hoyInicio }
+          },
+          orderBy: { fecha: 'desc' }
+        });
+
+        if (!lastLogToday || lastLogToday.frecuenciaRegistro === "mensual" || lastLogToday.frecuenciaRegistro === "semanal") {
+          // Si es el primer toque del día (después de mensual/semanal), es INICIO DIARIO
+          requiredFrequency = "diario_inicio";
+        } else {
+          // Si ya hubo un inicio diario, toca CIERRE DIARIO
+          requiredFrequency = "diario_cierre";
+        }
       }
     }
 
@@ -95,7 +115,8 @@ export async function getExternalVehicleStatus(patente) {
       data: {
         vehiculo,
         requiredFrequency,
-        lastMonthly
+        lastMonthly,
+        needsFullMonthly: isNewMonth
       }
     };
   } catch (error) {
@@ -105,7 +126,7 @@ export async function getExternalVehicleStatus(patente) {
 
 export async function submitExternalLog(data) {
   try {
-    const { vehiculoId, driver, requiredFrequency, ...formPayload } = data;
+    const { vehiculoId, driver, requiredFrequency, confirmPreviousPhotos, gpsLocation, ...formPayload } = data;
     
     // Extract base fields
     const kmActual = formPayload.kmActual ? parseInt(formPayload.kmActual) : null;
@@ -125,20 +146,43 @@ export async function submitExternalLog(data) {
     // First: If Monthly, create InspeccionMensual
     if (requiredFrequency === "mensual") {
         const hoy = new Date();
+        let fotoFrente = formPayload.frente;
+        let fotoTrasera = formPayload.trasera;
+        let fotoLateralIzq = formPayload.latIzq;
+        let fotoLateralDer = formPayload.latDer;
+        let fotoVTV = formPayload.vtv;
+        let fotoSeguro = formPayload.seguro;
+
+        // Si el chofer confirmó que las fotos son las mismas, buscamos la inspección anterior
+        if (confirmPreviousPhotos) {
+          const lastInsp = await prisma.inspeccionMensual.findFirst({
+            where: { vehiculoId: parseInt(vehiculoId) },
+            orderBy: { fecha: 'desc' }
+          });
+          if (lastInsp) {
+            fotoFrente = fotoFrente || lastInsp.fotoFrente;
+            fotoTrasera = fotoTrasera || lastInsp.fotoTrasera;
+            fotoLateralIzq = fotoLateralIzq || lastInsp.fotoLateralIzq;
+            fotoLateralDer = fotoLateralDer || lastInsp.fotoLateralDer;
+            fotoVTV = fotoVTV || lastInsp.fotoVTV;
+            fotoSeguro = fotoSeguro || lastInsp.fotoSeguro;
+          }
+        }
+
         await prisma.inspeccionMensual.create({
             data: {
                vehiculoId: parseInt(vehiculoId),
                nombreConductor: driver,
                mes: hoy.getMonth() + 1,
                anio: hoy.getFullYear(),
-               fotoFrente: formPayload.frente || null,
-               fotoTrasera: formPayload.trasera || null,
-               fotoLateralIzq: formPayload.latIzq || null,
-               fotoLateralDer: formPayload.latDer || null,
-               fotoVTV: formPayload.vtv || null,
-               fotoSeguro: formPayload.seguro || null,
+               fotoFrente,
+               fotoTrasera,
+               fotoLateralIzq,
+               fotoLateralDer,
+               fotoVTV,
+               fotoSeguro,
                lugarGuardaFijo: formPayload.lugarGuarda === "fija" ? "SI" : "NO",
-               lugarGuardaResguardo: formPayload.lugarGuarda === "opcional" ? formPayload.lugarGuardaDetalle : null,
+               lugarGuardaResguardo: gpsLocation || formPayload.lugarGuardaDetalle || null,
             }
         });
     }
@@ -162,10 +206,12 @@ export async function submitExternalLog(data) {
         fotoSeguro: formPayload.seguro || null,
         motivoUso: formPayload.motivoUso === "otro" ? formPayload.motivoUsoOtro : formPayload.motivoUso,
         novedades: formPayload.novedades || null,
-        lugarGuarda: formPayload.lugarGuardaDetalle || "No especificado"
+        lugarGuarda: gpsLocation || formPayload.lugarGuardaDetalle || "No especificado",
+        tipoReporte: requiredFrequency === "diario_inicio" ? "INICIO" : (requiredFrequency === "diario_cierre" ? "CIERRE" : "AUDITORIA")
       }
     });
 
+    revalidatePath("/");
     return { success: true, data: registro };
   } catch (error) {
     console.error("Error submitting external log:", error);

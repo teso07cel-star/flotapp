@@ -130,8 +130,12 @@ export async function createRegistroDiario(data) {
         vehiculoId,
         kmActual,
         kmModificado,
+        nivelCombustible: data.nivelCombustible || null,
+        motivoUso: data.motivoUso || null,
         novedades: data.novedades || null,
         nombreConductor: data.nombreConductor || null,
+        tipoReporte: data.tipoReporte || null,
+        lugarGuarda: data.lugarGuarda || null,
         sucursales: {
           connect: data.sucursalIds ? data.sucursalIds.map(id => ({ id: parseInt(id) })) : []
         }
@@ -391,24 +395,8 @@ export async function handleDriverEntry(formData) {
 
   const res = await getVehiculoByPatente(patente);
   if (res.success && res.data) {
-    const vehiculo = res.data;
-    
-    // Verificar si es el primer viaje del día (no hay registros hoy)
-    const hoy = new Date();
-    hoy.setHours(0,0,0,0);
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
-
-    const registroHoy = await prisma.registroDiario.findFirst({
-      where: {
-        vehiculoId: vehiculo.id,
-        fecha: { gte: hoy, lt: manana }
-      }
-    });
-
-    const isFirstTrip = !registroHoy;
     const { redirect } = await import("next/navigation");
-    redirect(`/driver/form?patente=${encodeURIComponent(patente)}&firstTrip=${isFirstTrip}`);
+    redirect(`/driver/form?patente=${encodeURIComponent(patente)}`);
   } else {
     return { success: false, error: res.error || "Vehículo no encontrado" };
   }

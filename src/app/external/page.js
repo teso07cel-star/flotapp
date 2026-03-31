@@ -2,8 +2,9 @@ import Link from "next/link";
 import { processExternalEntry } from "@/lib/externalActions";
 import Image from "next/image";
 
-export default function ExternalEntryPage({ searchParams }) {
-  const error = searchParams?.error;
+export default async function ExternalEntryPage({ searchParams }) {
+  const params = await searchParams;
+  const error = params?.error;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 p-6 selection:bg-purple-500/30">

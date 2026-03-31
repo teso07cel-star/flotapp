@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }) {
                <div className="relative w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
                   <Image src="/icon.png" alt="FLOTAPP" fill sizes="100%" className="object-cover" />
                </div>
-               <span className="text-xl font-bold tracking-tight">FlotaAdmin</span>
+               <span className="text-xl font-bold tracking-tight">Soy Admin</span>
             </div>
             
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

@@ -24,7 +24,7 @@ export default async function ExternalFormPage({ searchParams }) {
     );
   }
 
-  const { vehiculo, requiredFrequency, lastMonthly } = res.data;
+  const { vehiculo, requiredFrequency, lastMonthly, needsFullMonthly } = res.data;
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-pink-500/30">
@@ -47,6 +47,7 @@ export default async function ExternalFormPage({ searchParams }) {
           requiredFrequency={requiredFrequency} 
           lastMonthly={lastMonthly} 
           driverName={driverName} 
+          needsFullMonthly={needsFullMonthly}
         />
       </div>
     </div>
