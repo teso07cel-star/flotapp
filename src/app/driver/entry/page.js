@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAllChoferes, handleDriverEntry } from "@/lib/actions";
 import DriverAuthClient from "@/components/DriverAuthClient";
+import PatenteSelector from "@/components/PatenteSelector";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 import Image from "next/image";
@@ -25,7 +26,7 @@ export default async function DriverEntry({ searchParams }) {
         where: { nombre: { equals: driverName, mode: 'insensitive' } } 
       });
 
-      // 2. Si falla, búsqueda flexible (quitando acentos y caracteres especiales)
+      // 2. Si falla, búsqueda flexible
       if (!choferDB) {
         const normalize = (str) => str.toLowerCase()
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
@@ -70,61 +71,27 @@ export default async function DriverEntry({ searchParams }) {
         </Link>
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-blue-600 to-indigo-500 mb-6 shadow-xl shadow-blue-500/20 overflow-hidden shadow-2xl transition-transform hover:scale-105">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-blue-600 to-indigo-500 mb-6 shadow-xl shadow-blue-500/20 overflow-hidden transition-transform hover:scale-105 border-4 border-gray-950">
             <div className="relative w-full h-full"><Image src="/icon.png" alt="FLOTAPP" fill sizes="100%" className="object-cover" /></div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Portal del Conductor</h1>
-          <p className="text-gray-400">Identificate e ingresa la patente</p>
+          <h1 className="text-3xl font-black tracking-tighter text-white mb-2 uppercase">Centro Operativo</h1>
+          <p className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400">Identificación de Personal</p>
         </div>
 
-        <form action={handleDriverEntry} className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <form action={handleDriverEntry} className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-[3rem] shadow-2xl relative">
           
           <DriverAuthClient choferes={choferes} />
 
-          {driverName && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-8">
-                <label htmlFor="patente" className="block text-sm font-black text-blue-400 mb-3 text-center uppercase tracking-widest">
-                  Vehículo Sugerido (Puedes cambiarlo)
-                </label>
-                <div className="relative group">
-                  <input
-                    key={driverName || "empty"}
-                    id="patente"
-                    name="patente"
-                    type="text"
-                    placeholder="Ej. AB123CD"
-                    defaultValue={defaultPatente}
-                    required
-                    className="block w-full px-5 py-5 bg-gray-900/80 border-2 border-blue-500/30 rounded-2xl text-white text-3xl text-center tracking-[0.2em] uppercase transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none placeholder:text-gray-600 font-black shadow-[0_0_30px_rgba(59,130,246,0.1)]"
-                    autoComplete="off"
-                    autoFocus={!!driverName}
-                  />
-                  <div className="mt-2 text-center">
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                      {defaultPatente ? "Sugerida por tu registro" : "Ingresa la patente del vehículo"}
-                    </p>
-                  </div>
-                </div>
-                {error && (
-                  <p className="mt-4 text-sm text-red-400 flex items-center justify-center gap-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    {error}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="relative w-full overflow-hidden inline-flex items-center justify-center px-8 py-5 text-lg font-black tracking-widest uppercase text-white transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transform active:scale-[0.98] shadow-xl shadow-blue-500/20"
-              >
-                <span className="flex items-center gap-3">
-                  Continuar
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </span>
-              </button>
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs font-black uppercase tracking-wider text-center animate-bounce">
+              {error}
             </div>
           )}
+
+          {driverName && (
+             <PatenteSelector defaultPatente={defaultPatente} />
+          )}
+
         </form>
       </div>
     </div>

@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
     
     // Paso 1: Home
     console.log("Visitando Home...");
-    await page.goto('http://localhost:3000');
+    await page.goto('https://flotapp-vf7e.vercel.app');
     await new Promise(r => setTimeout(r, 2000));
     await page.screenshot({ path: path.join(__dirname, 'public', 'tutorial_1.png') });
 
@@ -26,13 +26,13 @@ const __dirname = path.dirname(__filename);
 
     // Paso 2: Entry form
     console.log("Visitando Entry...");
-    await page.goto('http://localhost:3000/driver/entry');
+    await page.goto('https://flotapp-vf7e.vercel.app/driver/entry');
     await new Promise(r => setTimeout(r, 2000));
     await page.screenshot({ path: path.join(__dirname, 'public', 'tutorial_2.png') });
 
     // Navegación directa al form de Inicio (Evitar clics con server actions)
     console.log("Navegando al form del primer viaje...");
-    await page.goto('http://localhost:3000/driver/form?patente=INT01');
+    await page.goto('https://flotapp-vf7e.vercel.app/driver/form?patente=INT01');
     await new Promise(r => setTimeout(r, 4000)); 
 
     // Paso 3: First Trip Form
@@ -50,7 +50,7 @@ const __dirname = path.dirname(__filename);
 
     // Volver para la parada (Navegación directa, el backend calculará !!isFirstLog && !isFinishingShift)
     console.log("Volviendo al entry para el segundo paso...");
-    await page.goto('http://localhost:3000/driver/form?patente=INT01');
+    await page.goto('https://flotapp-vf7e.vercel.app/driver/form?patente=INT01');
     await new Promise(r => setTimeout(r, 4000));
 
     // Paso 4: Second Trip Screen

@@ -30,11 +30,12 @@ export default async function DriverForm({ searchParams }) {
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
   const lastLog = vehiculo.registros?.[0];
 
-  let isFirstLog = true;
+  let isFirstLog = false;
   if (identifiedDriver) {
+    // 1. ¿Es el primer log de este chofer CON ESTE VEHICULO hoy?
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const logsTodayCount = await prisma.registroDiario.count({
+    const hasInicioToday = await prisma.registroDiario.findFirst({
       where: {
         vehiculoId: vehiculo.id,
         nombreConductor: identifiedDriver,
@@ -42,8 +43,21 @@ export default async function DriverForm({ searchParams }) {
         tipoReporte: "INICIO"
       }
     });
-    // Si ya existe un INICIO hoy para este chofer y este vehículo, ya no es el primer log.
-    isFirstLog = logsTodayCount === 0;
+
+    // 2. ¿Alguien más usó el vehículo en el medio?
+    const someoneElseUsedIt = lastLog && lastLog.nombreConductor !== identifiedDriver;
+
+
+    // 3. ¿El chofer viene de manejar OTRA unidad?
+    const driverLastLog = await prisma.registroDiario.findFirst({
+       where: { nombreConductor: identifiedDriver },
+       orderBy: { fecha: 'desc' }
+    });
+    const driverChangedVehicle = driverLastLog && driverLastLog.vehiculoId !== vehiculo.id;
+
+    if (!hasInicioToday || someoneElseUsedIt || driverChangedVehicle) {
+      isFirstLog = true;
+    }
   }
 
   return (

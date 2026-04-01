@@ -154,7 +154,13 @@ export default async function AdminDashboard() {
 
         {/* Ultimos Registros */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold uppercase tracking-tight">Actividad</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold uppercase tracking-tight">Actividad</h2>
+            <Link href="/admin/logs" className="text-[10px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest flex items-center gap-1">
+              Ver Todas (Hoy)
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </Link>
+          </div>
           
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">
             {registros.length === 0 ? (
