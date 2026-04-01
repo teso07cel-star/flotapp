@@ -55,7 +55,7 @@
             background: rgba(15, 23, 42, 0.7);
             border: 1px solid rgba(0, 242, 255, 0.2);
             border-radius: 3rem;
-            padding: 3rem;
+            padding: 2.5rem;
             backdrop-filter: blur(20px);
             position: relative;
             overflow: hidden;
@@ -72,9 +72,9 @@
         .glow-text { text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
 
         .img-box {
-            border-radius: 2.5rem;
-            border: 6px solid #1e293b;
-            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+            border-radius: 2rem;
+            border: 4px solid #1e293b;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
             overflow: hidden;
             background: #000;
         }
@@ -145,7 +145,7 @@
             </div>
             
             <div class="space-y-4">
-                <p class="font-futuristic text-cyan-500 font-bold uppercase tracking-[0.5em] text-xs">Internal Driver Protocol v3.0</p>
+                <p class="font-futuristic text-cyan-500 font-bold uppercase tracking-[0.5em] text-xs">Internal Driver Protocol v4.0</p>
                 <h1 class="font-futuristic text-7xl md:text-9xl font-black tracking-tighter leading-none text-white glow-text uppercase">
                     RUTINA<br>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">MAESTRA</span>
@@ -154,13 +154,13 @@
 
             <div class="max-w-2xl mx-auto pt-10">
                 <p class="text-2xl text-slate-400 font-light uppercase tracking-widest leading-relaxed">
-                    Los 3 pasos críticos del <span class="text-white font-bold">Chofer Interno</span> para una ruteada perfecta.
+                    Los <span class="text-white font-bold">4 pasos</span> críticos para una ruteada perfecta.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- FASE 1: EL INICIO -->
+    <!-- PASO 01: EL INICIO -->
     <section class="page bg-slate-900/10">
         <div class="phase-number">01</div>
         <div class="container">
@@ -168,7 +168,7 @@
                 <div class="space-y-8">
                     <div class="step-badge">Fase de Lanzamiento</div>
                     <h2 class="font-futuristic text-6xl font-black text-white leading-tight">INICIO DE JORNADA</h2>
-                    <div class="hud-card !p-8 border-cyan-500/10">
+                    <div class="hud-card border-cyan-500/10">
                         <ul class="space-y-6 text-slate-300 text-lg">
                             <li class="flex items-start gap-4">
                                 <span class="text-cyan-400 font-black">❯</span>
@@ -176,7 +176,7 @@
                             </li>
                             <li class="flex items-start gap-4">
                                 <span class="text-cyan-400 font-black">❯</span>
-                                <span><strong>Kilometraje</strong>: Ingresá el valor exacto del tablero. El sistema valida tu posición GPS automáticamente.</span>
+                                <span><strong>Kilometraje</strong>: Ingresá el valor exacto del tablero.</span>
                             </li>
                         </ul>
                     </div>
@@ -189,54 +189,76 @@
         </div>
     </section>
 
-    <!-- FASE 2: SEGUNDO VIAJE (FLASH) -->
+    <!-- PASO 02: REGISTRO DE BITÁCORA -->
     <section class="page">
         <div class="phase-number">02</div>
         <div class="container">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                <div class="img-box order-last lg:order-first border-emerald-500/20">
-                    <img src="/docs/manuals/assets/7_interno_rapido.png" class="w-full">
+                <div class="img-box order-last lg:order-first border-cyan-500/20">
+                    <img src="/docs/manuals/assets/interno_sucursales.png" class="w-full">
                 </div>
                 <div class="space-y-8">
-                    <div class="step-badge !border-emerald-500 !text-emerald-400">Velocidad Máxima</div>
-                    <h2 class="font-futuristic text-6xl font-black text-emerald-400 leading-tight italic">VIAJE INTERMEDIO <br>(FLUJO FLASH)</h2>
-                    <div class="hud-card !p-8 border-emerald-500/10">
+                    <div class="step-badge !border-cyan-500 !text-cyan-400">Trazabilidad en Vivo</div>
+                    <h2 class="font-futuristic text-6xl font-black text-cyan-400 leading-tight">REGISTRO DE BITÁCORA</h2>
+                    <div class="hud-card border-cyan-500/10">
                         <p class="text-slate-300 text-lg leading-relaxed mb-6">
-                            ¿Hiciste una parada o cambiás de unidad al mediodía? La App te reconoce. No cargues datos de nuevo.
+                            Es vital registrar cada punto de la red para que logística tenga visibilidad de tu recorrido.
                         </p>
                         <ul class="space-y-6 text-slate-300 text-lg">
                             <li class="flex items-start gap-4">
-                                <span class="text-emerald-400 font-black">❯</span>
-                                <span>Tocá el botón gigante <strong class="text-white">"SÍ, CONTINUAR"</strong>.</span>
+                                <span class="text-cyan-400 font-black">❯</span>
+                                <span><strong>Seleccioná</strong> el punto de la lista desplegable.</span>
                             </li>
                             <li class="flex items-start gap-4">
-                                <span class="text-emerald-400 font-black">❯</span>
-                                <span><strong>Bitácora de Visita</strong>: Desplegá la lista de sucursales, seleccioná el punto donde te encontrás y tocá el botón <strong class="text-white">"GUARDAR"</strong>.</span>
-                            </li>
-                            <li class="flex items-start gap-4">
-                                <span class="text-emerald-400 font-black">❯</span>
-                                <span><strong>Confirmación</strong>: Una vez guardado, el sistema registrará tu posición GPS exacta y la hora de llegada, informando a la central automáticamente.</span>
+                                <span class="text-cyan-400 font-black">❯</span>
+                                <span><strong>Guardá</strong> la visita tocando el botón <strong class="text-white">"GUARDAR"</strong>. El sistema registrará tu llegada con GPS.</span>
                             </li>
                         </ul>
                     </div>
-                </div>
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="img-box border-emerald-500/20"><img src="/docs/manuals/assets/7_interno_rapido.png" class="w-full"></div>
-                    <div class="img-box border-emerald-500/20"><img src="/docs/manuals/assets/interno_sucursales.png" class="w-full"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FASE 3: EL CIERRE -->
+    <!-- PASO 03: VIAJE INTERMEDIO (FLASH) -->
     <section class="page bg-slate-900/10">
         <div class="phase-number">03</div>
         <div class="container">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 <div class="space-y-8">
+                    <div class="step-badge !border-emerald-500 !text-emerald-400">Velocidad Máxima</div>
+                    <h2 class="font-futuristic text-6xl font-black text-emerald-400 leading-tight italic text-shadow-glow">FLUJO FLASH</h2>
+                    <div class="hud-card border-emerald-500/10">
+                        <p class="text-slate-300 text-lg leading-relaxed mb-6">
+                            ¿Hiciste una parada o cambiás de unidad al mediodía? La App te reconoce.
+                        </p>
+                        <ul class="space-y-6 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-emerald-400 font-black">❯</span>
+                                <span>No cargues datos de nuevo. Solo tocá <strong class="text-white">"SÍ, CONTINUAR"</strong> y seguí con tu ruteada.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="img-box border-emerald-500/20">
+                    <img src="/docs/manuals/assets/7_interno_rapido.png" class="w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 04: EL CIERRE -->
+    <section class="page">
+        <div class="phase-number">04</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="img-box border-rose-500/20 order-last lg:order-first">
+                    <img src="/docs/manuals/assets/9_interno_finalizar.png" class="w-full">
+                </div>
+                <div class="space-y-8">
                     <div class="step-badge !border-rose-500 !text-rose-400">Misión Cumplida</div>
                     <h2 class="font-futuristic text-6xl font-black text-white leading-tight">CIERRE DE TURNO</h2>
-                    <div class="hud-card !p-8 border-rose-500/10">
+                    <div class="hud-card border-rose-500/10">
                         <ul class="space-y-6 text-slate-300 text-lg">
                             <li class="flex items-start gap-4">
                                 <span class="text-rose-500 font-black">❯</span>
@@ -244,13 +266,10 @@
                             </li>
                             <li class="flex items-start gap-4">
                                 <span class="text-rose-500 font-black">❯</span>
-                                <span>Declará el KM Final y el nivel de Nafta. Con esto liberás la unidad y finalizás tu rastro GPS.</span>
+                                <span>Declará el KM Final y el nivel de Nafta. Con esto liberás la unidad para el siguiente chofer.</span>
                             </li>
                         </ul>
                     </div>
-                </div>
-                <div class="img-box border-rose-500/20">
-                    <img src="/docs/manuals/assets/9_interno_finalizar.png" class="w-full">
                 </div>
             </div>
         </div>
@@ -264,7 +283,7 @@
                 <div class="h-1 w-full max-w-4xl mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
             </div>
 
-            <p class="text-2xl text-slate-400 font-light italic max-w-3xl mx-auto">
+            <p class="text-2xl text-slate-400 font-light italic max-w-3xl mx-auto leading-relaxed">
                 "La eficiencia de nuestra red logística depende de la precisión de tus reportes. Gracias por el compromiso."
             </p>
 
