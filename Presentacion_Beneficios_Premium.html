@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlotApp | Presentación de Beneficios & ROI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --deep-slate: #020617;
+            --accent-green: #10b981;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--deep-slate); 
+            color: #f8fafc; 
+            margin: 0;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+        }
+        .page { 
+            scroll-snap-align: start;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            border-bottom: 2px solid rgba(255,255,255,0.05);
+        }
+        .font-futuristic { font-family: 'Orbitron', sans-serif; }
+
+        /* MATRIX BG */
+        .bg-matrix {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.04) 1px, transparent 1px);
+            background-size: 80px 80px;
+            z-index: -1;
+            transform: perspective(1000px) rotateX(60deg);
+            transform-origin: top;
+            animation: moveGrid 40s linear infinite;
+        }
+        @keyframes moveGrid { 0% { background-position: 0 0; } 100% { background-position: 0 1000px; } }
+
+        .container { max-width: 1200px; margin: 0 auto; z-index: 10; }
+
+        .hud-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 2.5rem;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glow-text { text-shadow: 0 0 15px rgba(0, 242, 255, 0.6); }
+        .accent-text { color: var(--neon-blue); }
+
+        .badge {
+            background: rgba(0, 242, 255, 0.1);
+            border-left: 4px solid var(--neon-blue);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* KPI TABLE */
+        .kpi-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .kpi-table th { padding: 1.5rem; text-align: left; opacity: 0.5; text-transform: uppercase; font-size: 0.7rem; font-family: 'Orbitron', sans-serif; }
+        .kpi-table td { padding: 1.5rem; background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.05); }
+        .kpi-table tr td:first-child { border-radius: 1rem 0 0 1rem; border-left: 4px solid #1e293b; font-weight: 900; }
+        .kpi-table tr td:last-child { border-radius: 0 1rem 1rem 0; color: var(--neon-blue); font-weight: 900; }
+        .kpi-table tr.highlight td:last-child { color: var(--accent-green); }
+
+        .btn-premium {
+            background: white;
+            color: black;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            padding: 1rem 2.5rem;
+            border-radius: 0;
+            skew: -15deg;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            box-shadow: 6px 6px 0 var(--neon-blue);
+        }
+        .btn-premium:hover { background: var(--neon-blue); box-shadow: 0 0 30px var(--neon-blue); }
+
+        @media print {
+            .page { height: auto; min-height: auto; page-break-after: always; color: black; background: white; padding: 2rem; }
+            .bg-matrix, .no-print { display: none; }
+            .hud-panel { background: white; border: 1px solid #ddd; box-shadow: none; color: black; }
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+    <div class="bg-matrix"></div>
+
+    <!-- SLIDE 0: COVER -->
+    <section class="page text-center">
+        <div class="container space-y-12">
+            <div class="inline-block p-1 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-3xl shadow-[0_0_60px_rgba(37,99,235,0.2)] mb-8">
+                <div class="bg-slate-950 p-12 rounded-[calc(1.5rem-2px)]">
+                    <svg class="w-24 h-24 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="badge inline-block">Management Presentation 2026</p>
+                <h1 class="font-futuristic text-7xl md:text-9xl font-black tracking-tighter leading-none text-white glow-text uppercase">
+                    FLOT<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">APP</span>
+                    <br><span class="text-4xl md:text-5xl opacity-40">BENEFICIOS & ROI</span>
+                </h1>
+            </div>
+
+            <p class="text-2xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
+                Transformación digital de la gestión de flota: <br>
+                <span class="text-white font-bold">Visibilidad Total, Eficiencia Máxima.</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- SLIDE 1: CONTROL KM -->
+    <section class="page">
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="badge">Eficacia Operativa</div>
+                    <h2 class="font-futuristic text-5xl font-black text-white leading-tight">Control de Kilometraje e Inteligencia Predictiva</h2>
+                    <ul class="space-y-6 text-slate-400 text-lg">
+                        <li class="flex items-start gap-4">
+                            <span class="text-cyan-400 font-black">❯</span>
+                            <span><strong>Alertas Inteligentes</strong>: Notificación automática ante servicios y vencimientos (VTV, Seguros).</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="text-cyan-400 font-black">❯</span>
+                            <span><strong>Eliminación de Fraude</strong>: Validación algorítmica de odómetros que impide reportes inconsistentes.</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="text-cyan-400 font-black">❯</span>
+                            <span><strong>Ahorro Directo</strong>: Reducción masiva en reparaciones correctivas por cumplimiento estricto de preventivos.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="hud-panel border-cyan-500/30">
+                    <div class="text-center space-y-4">
+                        <div class="text-7xl font-black text-cyan-400 font-futuristic">-20%</div>
+                        <div class="text-sm font-futuristic uppercase tracking-widest text-slate-500">Gastos de Mantenimiento Estimados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: TRAZABILIDAD -->
+    <section class="page bg-slate-900/20">
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="hud-panel order-last md:order-first border-purple-500/30">
+                    <div class="flex justify-center">
+                        <svg class="w-48 h-48 text-purple-500/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <div class="mt-8 p-4 bg-purple-500/10 border-l-4 border-purple-500 text-[10px] font-futuristic uppercase tracking-widest">GPS Tracking Active | 100% Transparency</div>
+                </div>
+                <div class="space-y-8">
+                    <div class="badge !border-purple-500 !text-purple-400">Transparencia</div>
+                    <h2 class="font-futuristic text-5xl font-black text-white leading-tight">Trazabilidad Satelital (Drivers Externos)</h2>
+                    <ul class="space-y-6 text-slate-400 text-lg">
+                        <li class="flex items-start gap-4">
+                            <span class="text-purple-500 font-black">❯</span>
+                            <span><strong>Geolocalización Forzada</strong>: Captura de coordenadas automática en Inicio y Fin de jornada.</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="text-purple-500 font-black">❯</span>
+                            <span><strong>Validación de Rutas</strong>: Certeza total sobre la presencia del proveedor en los puntos de ruteo.</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="text-purple-500 font-black">❯</span>
+                            <span><strong>Rastro Histórico</strong>: Registro imborrable de paradas para auditorías de cumplimiento.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: KPIs -->
+    <section class="page">
+        <div class="container">
+            <div class="text-center mb-16">
+                <div class="badge inline-block mb-4">Analytics & Metrics</div>
+                <h2 class="font-futuristic text-6xl font-black text-white glow-text">Métricas de Transformación</h2>
+            </div>
+
+            <div class="hud-panel max-w-4xl mx-auto">
+                <table class="kpi-table">
+                    <thead>
+                        <tr>
+                            <th>Indicador Clave (KPI)</th>
+                            <th>Estado Anterior</th>
+                            <th>Actual (FlotApp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tiempo de Reporte</td>
+                            <td>5 - 10 Minutos</td>
+                            <td>< 30 Segundos</td>
+                        </tr>
+                        <tr>
+                            <td>Precisión de KM</td>
+                            <td>Manual / Dudoso</td>
+                            <td>Verificado / Preciso</td>
+                        </tr>
+                        <tr>
+                            <td>Control de Vencimientos</td>
+                            <td>Revisión Física</td>
+                            <td>Alertas Automáticas</td>
+                        </tr>
+                        <tr class="highlight">
+                            <td>Trazabilidad Logística</td>
+                            <td>Basada en Confianza</td>
+                            <td>Verificación GPS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: CONCLUSIÓN -->
+    <section class="page text-center bg-slate-950">
+        <div class="container space-y-16">
+            <div class="space-y-6">
+                <h2 class="font-futuristic text-6xl md:text-8xl font-black text-white leading-none">EL FUTURO<br>ESTÁ EN MARCHA</h2>
+                <div class="h-1 w-full max-w-4xl mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+            </div>
+
+            <p class="text-2xl text-slate-400 font-light italic max-w-3xl mx-auto">
+                "Implementar FlotApp no es solo digitalizar papel; es tomar el control directo del activo más crítico de nuestra red logística."
+            </p>
+
+            <div class="pt-12 no-print">
+                <button onclick="window.print()" class="btn-premium">
+                    Descargar Presentación PDF
+                </button>
+            </div>
+
+            <div class="pt-24 opacity-30">
+                <p class="text-[10px] font-futuristic tracking-[1em]">END OF PRESENTATION | CONFIDENTIAL CORPORATE DATA 2026</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

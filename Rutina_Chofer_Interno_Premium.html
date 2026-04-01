@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutina Chofer Interno | FlotApp Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --deep-slate: #020617;
+            --accent-green: #10b981;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--deep-slate); 
+            color: #f8fafc; 
+            margin: 0;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+        }
+        .font-futuristic { font-family: 'Orbitron', sans-serif; }
+        
+        .page { 
+            scroll-snap-align: start;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+        }
+
+        /* MATRIX BG */
+        .bg-matrix {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            transform: perspective(1000px) rotateX(60deg);
+            transform-origin: top;
+            animation: moveGrid 20s linear infinite;
+        }
+        @keyframes moveGrid { 0% { background-position: 0 0; } 100% { background-position: 0 1000px; } }
+
+        .container { max-width: 1200px; margin: 0 auto; z-index: 10; }
+
+        .hud-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 3rem;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        .hud-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            animation: scanline 3s linear infinite;
+        }
+        @keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
+
+        .glow-text { text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+
+        .img-box {
+            border-radius: 2.5rem;
+            border: 6px solid #1e293b;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+            overflow: hidden;
+            background: #000;
+        }
+        .img-box img { transition: transform 0.5s ease; }
+        .img-box:hover img { transform: scale(1.05); }
+
+        .step-badge {
+            background: rgba(0, 242, 255, 0.1);
+            border-left: 4px solid var(--neon-blue);
+            padding: 0.5rem 1.5rem;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .phase-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8rem;
+            line-height: 1;
+            font-weight: 900;
+            opacity: 0.05;
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            z-index: 0;
+            color: var(--neon-blue);
+        }
+
+        .btn-action {
+            background: white;
+            color: black;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            padding: 1.5rem 4rem;
+            skew: -15deg;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            box-shadow: 10px 10px 0 var(--neon-blue);
+            transition: all 0.3s;
+        }
+        .btn-action:hover {
+            background: var(--neon-blue);
+            box-shadow: 0 0 50px var(--neon-blue);
+            transform: translate(5px, 5px);
+        }
+
+        @media print {
+            .page { height: auto; min-height: auto; page-break-after: always; color: black; background: white; padding: 2rem; }
+            .bg-matrix, .no-print, .phase-number { display: none; }
+            .hud-card { background: white; border: 1px solid #ddd; color: black; }
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+    <div class="bg-matrix"></div>
+
+    <!-- PORTADA -->
+    <section class="page text-center">
+        <div class="container space-y-12">
+            <div class="inline-block p-1 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-3xl shadow-[0_0_60px_rgba(37,99,235,0.3)] mb-8">
+                <div class="bg-slate-950 p-12 rounded-[calc(1.5rem-2px)]">
+                    <svg class="w-24 h-24 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="font-futuristic text-cyan-500 font-bold uppercase tracking-[0.5em] text-xs">Internal Driver Protocol v3.0</p>
+                <h1 class="font-futuristic text-7xl md:text-9xl font-black tracking-tighter leading-none text-white glow-text uppercase">
+                    RUTINA<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">MAESTRA</span>
+                </h1>
+            </div>
+
+            <div class="max-w-2xl mx-auto pt-10">
+                <p class="text-2xl text-slate-400 font-light uppercase tracking-widest leading-relaxed">
+                    Los 3 pasos críticos del <span class="text-white font-bold">Chofer Interno</span> para una ruteada perfecta.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FASE 1: EL INICIO -->
+    <section class="page bg-slate-900/10">
+        <div class="phase-number">01</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <div class="step-badge">Fase de Lanzamiento</div>
+                    <h2 class="font-futuristic text-6xl font-black text-white leading-tight">INICIO DE JORNADA</h2>
+                    <div class="hud-card !p-8 border-cyan-500/10">
+                        <ul class="space-y-6 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-cyan-400 font-black">❯</span>
+                                <span><strong>Identificación</strong>: Seleccioná tu nombre y activá la huella digital.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-cyan-400 font-black">❯</span>
+                                <span><strong>Kilometraje</strong>: Ingresá el valor exacto del tablero. El sistema valida tu posición GPS automáticamente.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="img-box"><img src="docs/manuals/assets/2_interno_lista.png" class="w-full"></div>
+                    <div class="img-box hidden md:block"><img src="docs/manuals/assets/5_interno_km.png" class="w-full"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FASE 2: SEGUNDO VIAJE (FLASH) -->
+    <section class="page">
+        <div class="phase-number">02</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="img-box order-last lg:order-first border-emerald-500/20">
+                    <img src="docs/manuals/assets/7_interno_rapido.png" class="w-full">
+                </div>
+                <div class="space-y-8">
+                    <div class="step-badge !border-emerald-500 !text-emerald-400">Velocidad Máxima</div>
+                    <h2 class="font-futuristic text-6xl font-black text-emerald-400 leading-tight italic">VIAJE INTERMEDIO <br>(FLUJO FLASH)</h2>
+                    <div class="hud-card !p-8 border-emerald-500/10">
+                        <p class="text-slate-300 text-lg leading-relaxed mb-6">
+                            ¿Hiciste una parada o cambiás de unidad al mediodía? La App te reconoce. No cargues datos de nuevo.
+                        </p>
+                        <ul class="space-y-6 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-emerald-400 font-black">❯</span>
+                                <span>Tocá el botón gigante <strong class="text-white">"SÍ, CONTINUAR"</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-emerald-400 font-black">❯</span>
+                                <span>Marcá las nuevas sucursales visitadas y listo.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FASE 3: EL CIERRE -->
+    <section class="page bg-slate-900/10">
+        <div class="phase-number">03</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <div class="step-badge !border-rose-500 !text-rose-400">Misión Cumplida</div>
+                    <h2 class="font-futuristic text-6xl font-black text-white leading-tight">CIERRE DE TURNO</h2>
+                    <div class="hud-card !p-8 border-rose-500/10">
+                        <ul class="space-y-6 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-rose-500 font-black">❯</span>
+                                <span>Al terminar, tocá <strong class="text-rose-500">"Cerrar Turno"</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-rose-500 font-black">❯</span>
+                                <span>Declará el KM Final y el nivel de Nafta. Con esto liberás la unidad y finalizás tu rastro GPS.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="img-box border-rose-500/20">
+                    <img src="docs/manuals/assets/9_interno_finalizar.png" class="w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="page text-center bg-slate-950">
+        <div class="container space-y-16">
+            <div class="space-y-6">
+                <h2 class="font-futuristic text-6xl md:text-8xl font-black text-white glow-text uppercase">PROCESO FINALIZADO</h2>
+                <div class="h-1 w-full max-w-4xl mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+            </div>
+
+            <p class="text-2xl text-slate-400 font-light italic max-w-3xl mx-auto">
+                "La eficiencia de nuestra red logística depende de la precisión de tus reportes. Gracias por el compromiso."
+            </p>
+
+            <div class="pt-12 no-print">
+                <button onclick="window.print()" class="btn-action">
+                    DESCARGAR PDF RUTINA
+                </button>
+            </div>
+
+            <div class="pt-24 opacity-30">
+                <p class="text-[10px] font-futuristic tracking-[0.8em]">FLOTAPP | SISTEMA DE GESTIÓN CORPORATIVA 2026</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
