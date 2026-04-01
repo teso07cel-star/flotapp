@@ -9,7 +9,9 @@ export async function GET(request, { params }) {
     'rutina': 'rutina.html',
     'induccion': 'induccion.html',
     'beneficios': 'beneficios.html',
-    'guia': 'guia_maestra.html'
+    'guia': 'guia_maestra.html',
+    'externo': 'externo.html',
+    'app': 'app_overview.html'
   };
 
   const fileName = manuals[slug];
