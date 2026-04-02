@@ -8,7 +8,7 @@ export default function DeleteLogButton({ id }) {
   const router = useRouter();
 
   async function handleDelete() {
-    if (!confirm("¿Estás seguro de que deseas eliminar este registro de la bitácora?")) return;
+    if (!globalThis.confirm?.("¿Estás seguro de que deseas eliminar este registro de la bitácora?")) return;
     
     setIsDeleting(true);
     try {
@@ -16,10 +16,12 @@ export default function DeleteLogButton({ id }) {
       if (res.success) {
         router.refresh();
       } else {
-        alert("Error al eliminar: " + res.error);
+        alert("❌ Error del Servidor: " + res.error);
+        console.error(res.error);
       }
     } catch (error) {
-      alert("Error de conexión");
+      alert("❌ Error de Conexión: No se pudo conectar con el servidor.");
+      console.error(error);
     } finally {
       setIsDeleting(false);
     }

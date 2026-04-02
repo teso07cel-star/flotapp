@@ -245,19 +245,28 @@ export async function generarCodigoAutorizacion(vehiculoId) {
 
 export async function deleteRegistroDiario(id) {
   try {
-    // Primero desconectar las sucursales si es una relación implícita (opcional pero seguro)
-    // En este caso, el cascade de RegistroSucursal (explícito) debería ser suficiente
-    await prisma.registroDiario.delete({ where: { id: parseInt(id) } });
+    const rid = typeof id === 'string' ? parseInt(id) : id;
     
-    // Revalidar todas las rutas que muestran estos datos
-    revalidatePath("/admin");
-    revalidatePath("/admin/reports/daily");
-    revalidatePath("/admin/summary");
+    // 1. Primero desconectamos las sucursales de la relación implícita (para evitar errores FK)
+    await prisma.registroDiario.update({
+      where: { id: rid },
+      data: {
+        sucursales: { set: [] }
+      }
+    });
+
+    // 2. Ahora sí borramos (el cascade de RegistroSucursal explícito se ocupa de esa tabla)
+    await prisma.registroDiario.delete({ where: { id: rid } });
+    
+    // 3. Forzamos revalidación de todas las rutas clave
+    revalidatePath("/admin", "page");
+    revalidatePath("/admin/reports/daily", "page");
+    revalidatePath("/admin/summary", "page");
     
     return { success: true };
   } catch (error) {
-    console.error("Delete Error:", error);
-    return { success: false, error: error.message };
+    console.error("❌ Error de borrado en acción:", error);
+    return { success: false, error: "No se pudo borrar: " + error.message };
   }
 }
 
