@@ -460,20 +460,39 @@ export async function getDailyReport(dateString) {
       orderBy: { fecha: 'asc' }
     });
 
-    // Calcular estadísticas del día con lógica robusta
+    // Calcular estadísticas del día con lógica basada en el estado anterior
     const vehicleData = {};
     const branchBreakdown = {};
     
+    // Obtener IDs de vehículos únicos que tuvieron actividad hoy
+    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId))];
+    
+    // Para cada vehículo, buscar su lectura inmediatamente anterior a hoy
+    const previousKms = {};
+    await Promise.all(vehicleIds.map(async (vId) => {
+      const lastPrev = await prisma.registroDiario.findFirst({
+        where: {
+          vehiculoId: vId,
+          fecha: { lt: startOfDay }
+        },
+        orderBy: { fecha: 'desc' },
+        select: { kmActual: true }
+      });
+      previousKms[vId] = lastPrev?.kmActual || null;
+    }));
+
     registros.forEach(r => {
       if (!r.vehiculoId || !r.vehiculo) return;
 
       const km = r.kmActual || 0;
 
-      // Vehiculos
+      // Vehículos
       if (!vehicleData[r.vehiculoId]) {
-        vehicleData[r.vehiculoId] = { min: km, max: km, visits: 0 };
+        // El punto de partida es la lectura anterior a hoy si existe, o la primera de hoy si no
+        const startKm = previousKms[r.vehiculoId] !== null ? previousKms[r.vehiculoId] : km;
+        vehicleData[r.vehiculoId] = { start: startKm, max: km, visits: 0 };
       }
-      vehicleData[r.vehiculoId].min = Math.min(vehicleData[r.vehiculoId].min, km);
+      
       vehicleData[r.vehiculoId].max = Math.max(vehicleData[r.vehiculoId].max, km);
       vehicleData[r.vehiculoId].visits += (r.sucursales?.length || 0);
 
@@ -485,7 +504,7 @@ export async function getDailyReport(dateString) {
       });
     });
 
-    const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + (v.max - v.min), 0);
+    const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, v.max - v.start), 0);
     const uniqueVehicles = Object.keys(vehicleData).length;
     const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
 
