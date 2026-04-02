@@ -1,6 +1,7 @@
 "use server";
 import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
+import { calculateSequentialRoute } from "./geoUtils";
 
 export async function getVehiculoByPatente(patente) {
   try {
@@ -504,6 +505,14 @@ export async function getDailyReport(dateString) {
       });
     });
 
+    const registrosMapeados = registros.map(r => {
+      const kmTeoricos = calculateSequentialRoute(r.sucursales || []);
+      return { 
+        ...r, 
+        kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) 
+      };
+    });
+
     const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, v.max - v.start), 0);
     const uniqueVehicles = Object.keys(vehicleData).length;
     const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
@@ -511,7 +520,7 @@ export async function getDailyReport(dateString) {
     return { 
       success: true, 
       data: {
-        registros,
+        registros: registrosMapeados,
         stats: {
           totalKm,
           uniqueVehicles,

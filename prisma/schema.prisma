@@ -29,6 +29,8 @@ model Sucursal {
   id               Int                @id @default(autoincrement())
   nombre           String
   direccion        String?
+  lat              Float?
+  lng              Float?
   RegistroSucursal RegistroSucursal[]
   registros        RegistroDiario[]   @relation("RegistroDiarioToSucursal")
 }

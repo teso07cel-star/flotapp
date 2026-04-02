@@ -100,7 +100,8 @@ export default async function DailyReport({ searchParams }) {
               <tr className="bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
                 <th className="p-6 pl-10">Horario</th>
                 <th className="p-6">Vehículo</th>
-                <th className="p-6">KM</th>
+                <th className="p-6">KM Reales</th>
+                <th className="p-6">KM Sugeridos</th>
                 <th className="p-6">Conductor</th>
                 <th className="p-6">Sucursales Visitadas</th>
                 <th className="p-6">Novedades</th>
@@ -122,6 +123,14 @@ export default async function DailyReport({ searchParams }) {
                   </td>
                   <td className="p-6">
                     <div className="font-bold">{(r.kmActual || 0).toLocaleString()}</div>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                       <span className="font-mono text-xs font-black text-blue-500/70">{r.kmTeoricos > 0 ? `${r.kmTeoricos.toLocaleString()} km` : "-"}</span>
+                       {r.kmTeoricos > 0 && r.tipoReporte === "PARADA" && (
+                          <span className="text-[8px] px-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-500 font-bold uppercase tracking-tighter">Teórico</span>
+                       )}
+                    </div>
                   </td>
                   <td className="p-6">
                     <div className="text-xs font-black uppercase tracking-tighter text-gray-600 dark:text-gray-400">{r.nombreConductor || "-"}</div>
