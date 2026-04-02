@@ -245,10 +245,18 @@ export async function generarCodigoAutorizacion(vehiculoId) {
 
 export async function deleteRegistroDiario(id) {
   try {
+    // Primero desconectar las sucursales si es una relación implícita (opcional pero seguro)
+    // En este caso, el cascade de RegistroSucursal (explícito) debería ser suficiente
     await prisma.registroDiario.delete({ where: { id: parseInt(id) } });
+    
+    // Revalidar todas las rutas que muestran estos datos
     revalidatePath("/admin");
+    revalidatePath("/admin/reports/daily");
+    revalidatePath("/admin/summary");
+    
     return { success: true };
   } catch (error) {
+    console.error("Delete Error:", error);
     return { success: false, error: error.message };
   }
 }

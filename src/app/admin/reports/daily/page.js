@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getDailyReport } from "@/lib/actions";
 import Link from "next/link";
 import FormattedDate from "@/components/FormattedDate";

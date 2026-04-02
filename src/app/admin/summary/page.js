@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getMonthlySummary } from "@/lib/actions";
 import Link from "next/link";
 import ShareReportButton from "@/components/ShareReportButton";
