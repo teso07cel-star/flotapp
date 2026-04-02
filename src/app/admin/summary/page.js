@@ -1,5 +1,6 @@
 import { getMonthlySummary } from "@/lib/actions";
 import Link from "next/link";
+import ShareReportButton from "@/components/ShareReportButton";
 
 export default async function MonthlySummary({ searchParams }) {
   const params = await searchParams;
@@ -23,6 +24,19 @@ export default async function MonthlySummary({ searchParams }) {
         <div>
           <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Estado de Flota</h1>
           <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest">Rendimiento Operativo y Financiero</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <ShareReportButton 
+            title="Resumen Mensual FlotApp"
+            data={{ 
+              summary, 
+              totalFleetVisits, 
+              monthName: months[month],
+              year 
+            }}
+            type="monthly"
+          />
         </div>
         
         <form className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5">

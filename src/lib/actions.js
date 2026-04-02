@@ -404,24 +404,10 @@ export async function handleDriverEntry(formData) {
 
 export async function getDailyReport(dateString) {
   try {
-    if (!dateString) {
-        dateString = new Date().toISOString().split('T')[0];
-    }
-    
-    //console.log("Fetching daily report for:", dateString);
-    const targetDate = new Date(dateString);
-    
-    // Check for invalid date
-    if (isNaN(targetDate.getTime())) {
-        return { success: false, error: "Fecha inválida: " + dateString };
-    }
-
-    // Usar una copia para evitar mutaciones que afecten cálculos inesperados
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Procesar la fecha localmente para evitar desfases UTC
+    const [year, month, day] = dateString.split('-').map(Number);
+    const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
 
     const registros = await prisma.registroDiario.findMany({
       where: {

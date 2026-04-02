@@ -1,6 +1,10 @@
 import { getDailyReport } from "@/lib/actions";
 import Link from "next/link";
 import FormattedDate from "@/components/FormattedDate";
+import DeleteLogButton from "@/components/DeleteLogButton";
+import ShareReportButton from "@/components/ShareReportButton";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default async function DailyReport({ searchParams }) {
   const params = await searchParams;
@@ -29,6 +33,17 @@ export default async function DailyReport({ searchParams }) {
         <div>
           <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte Diario</h1>
           <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest">Actividad operativa por fecha</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <ShareReportButton 
+            title="Reporte Diario FlotApp"
+            data={{ 
+              stats, 
+              date: format(new Date(dateStr + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es }) 
+            }}
+            type="daily"
+          />
         </div>
         
         <form className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5">
@@ -87,7 +102,8 @@ export default async function DailyReport({ searchParams }) {
                 <th className="p-6">KM</th>
                 <th className="p-6">Conductor</th>
                 <th className="p-6">Sucursales Visitadas</th>
-                <th className="p-6 text-right pr-10">Novedades</th>
+                <th className="p-6">Novedades</th>
+                <th className="p-6 text-right pr-10">Accion</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-sans">
@@ -118,10 +134,13 @@ export default async function DailyReport({ searchParams }) {
                       ))}
                     </div>
                   </td>
-                  <td className="p-6 pr-10 text-right">
+                  <td className="p-6">
                     {r.novedades ? (
-                        <span className="text-[10px] font-medium italic text-amber-600 dark:text-amber-400 truncate max-w-[200px] inline-block">{r.novedades}</span>
+                        <span className="text-[10px] font-medium italic text-amber-600 dark:text-amber-400 truncate max-w-[150px] inline-block">{r.novedades}</span>
                     ) : "-"}
+                  </td>
+                  <td className="p-6 pr-10 text-right">
+                    <DeleteLogButton id={r.id} />
                   </td>
                 </tr>
               ))}
