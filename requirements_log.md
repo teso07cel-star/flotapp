@@ -8,12 +8,13 @@ Este documento registra los pedidos específicos realizados por audio y su estad
 | :--- | :--- | :--- |
 | **GPS para Internos** | [x] Completado | Captura automática de coordenadas lat/long en Inicio, Parada y Cierre. |
 | **Trazabilidad de Jornada** | [ ] Pendiente | Visualizar el rastro de puntos desde el inicio hasta el fin en el panel admin. |
-| **Video: Inducción Chofer Interno (1ra vez)** | [ ] Pendiente | Mostrar login biométrico + ingreso de KM/Combustible inicial. |
-| **Video: Inducción Chofer Interno (2da+ vez)** | [ ] Pendiente | Mostrar el flujo "Flash" (Ingreso rápido sin repetir KM). |
-| **Video: Inducción Chofer Interno (Cierre)** | [ ] Pendiente | Mostrar el resumen de jornada y kilometraje final. |
-| **Video: Proveedor Externo (Mensual)** | [ ] Pendiente | Auditoría completa con fotos y vencimientos. |
-| **Video: Proveedor Externo (Semanal)** | [ ] Pendiente | Actualización de KM. |
-| **Video: Proveedor Externo (Diario)** | [ ] Pendiente | Ingreso de 1 solo clic. |
+| **Video: Inducción Chofer Interno (1ra vez)** | [x] Completado | Grabado en video_interno.webp |
+| **Video: Inducción Chofer Interno (2da+ vez)** | [x] Completado | Mostrado en video_interno.webp |
+| **Video: Inducción Chofer Interno (Cierre)** | [x] Completado | Grabado en video_interno.webp |
+| **Video: Proveedor Externo (Mensual)** | [x] Completado | Mostrado el dashboard en video_externo.webp |
+| **Video: Proveedor Externo (Semanal)** | [x] Completado | Incluido en manual y video_externo.webp |
+| **Video: Proveedor Externo (Diario)** | [x] Completado | Grabado el One-click Checkin/Checkout en video_externo.webp |
+| **Manuales Visuales (Guía Inducción)**| [x] Completado | Guía maestra futurista HTML y assets generados. |
 | **Video: Beneficios a Gerencia (ROI)** | [ ] Pendiente | Resumen de valor operativo y económico para la toma de decisiones. |
 | **Persistencia de Documentación** | [x] Completado | Creación de este log y actualización del plan. |
 

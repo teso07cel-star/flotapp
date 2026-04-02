@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { getAllVehiculos, getUltimosRegistros, deleteVehiculo, deleteRegistroDiario } from "@/lib/actions";
+import { getAllVehiculos, getUltimosRegistros, deleteVehiculo } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
 import VehicleIcon from "@/components/VehicleIcon";
+import DeleteLogButton from "@/components/DeleteLogButton";
 
 async function deleteVehiculoAction(formData) {
   "use server";
@@ -13,13 +14,7 @@ async function deleteVehiculoAction(formData) {
   redirect("/admin");
 }
 
-async function deleteRegistroAction(formData) {
-  "use server";
-  const id = formData.get("id");
-  await deleteRegistroDiario(id);
-  const { redirect } = await import("next/navigation");
-  redirect("/admin");
-}
+
 
 export default async function AdminDashboard() {
   const [vRes, rRes] = await Promise.all([
@@ -205,12 +200,7 @@ export default async function AdminDashboard() {
                     <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
                         <FormattedDate date={r.fecha} />
                     </div>
-                    <form action={deleteRegistroAction}>
-                      <input type="hidden" name="id" value={r.id} />
-                      <button type="submit" className="text-gray-300 hover:text-red-500 transition-colors" title="Borrar Registro">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                      </button>
-                    </form>
+                    <DeleteLogButton id={r.id} />
                   </div>
                 </div>
                 <div className="text-sm font-bold mb-2 flex items-center gap-1">
