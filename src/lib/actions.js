@@ -245,28 +245,48 @@ export async function generarCodigoAutorizacion(vehiculoId) {
 
 export async function deleteRegistroDiario(id) {
   try {
-    const rid = typeof id === 'string' ? parseInt(id) : id;
+    console.log("⚠️ Iniciando borrado de registro ID:", id);
+    if (!id) {
+       console.error("❌ ID de registro no proporcionado");
+       return { success: false, error: "ID de registro no proporcionado" };
+    }
+
+    const rid = typeof id === 'object' ? parseInt(id.id || id) : parseInt(id);
     
-    // 1. Primero desconectamos las sucursales de la relación implícita (para evitar errores FK)
-    await prisma.registroDiario.update({
-      where: { id: rid },
-      data: {
-        sucursales: { set: [] }
-      }
+    if (!rid || isNaN(rid)) {
+       console.error("❌ ID de registro inválido (NaN)");
+       return { success: false, error: "ID de registro inválido" };
+    }
+
+    // Usamos una transacción para asegurar que todo o nada ocurra
+    const result = await prisma.$transaction(async (tx) => {
+       // 1. Desconectar la relación implícita con sucursales
+       await tx.registroDiario.update({
+         where: { id: rid },
+         data: { sucursales: { set: [] } }
+       });
+
+       // 2. Borrar las entradas en la tabla de unión explícita (aunque tengan Cascade, lo hacemos manual para mayor seguridad)
+       await tx.registroSucursal.deleteMany({
+         where: { registroId: rid }
+       });
+
+       // 3. Borrar el registro principal
+       return await tx.registroDiario.delete({
+         where: { id: rid }
+       });
     });
 
-    // 2. Ahora sí borramos (el cascade de RegistroSucursal explícito se ocupa de esa tabla)
-    await prisma.registroDiario.delete({ where: { id: rid } });
-    
-    // 3. Forzamos revalidación de todas las rutas clave
-    revalidatePath("/admin", "page");
-    revalidatePath("/admin/reports/daily", "page");
-    revalidatePath("/admin/summary", "page");
+    console.log("✅ Registro borrado exitosamente:", rid);
+
+    // Revalidar de manera absoluta (no solo página, sino todo el layout administrativo)
+    revalidatePath("/admin", "layout");
+    revalidatePath("/admin/reports/daily");
     
     return { success: true };
   } catch (error) {
-    console.error("❌ Error de borrado en acción:", error);
-    return { success: false, error: "No se pudo borrar: " + error.message };
+    console.error("🔥 Error FATAL en deleteRegistroDiario:", error);
+    return { success: false, error: `Error detallado: ${error.message}` };
   }
 }
 
