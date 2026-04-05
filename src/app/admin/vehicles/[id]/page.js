@@ -51,21 +51,21 @@ export default async function VehicleDetails({ params }) {
     <div className="space-y-8 max-w-6xl animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 transition-all text-gray-500 shadow-sm">
+          <Link href="/admin" className="p-3 rounded-2xl bg-slate-900/40 bg-[#0f172a] border border-slate-700  hover:bg-slate-800/50 transition-all text-gray-500 shadow-sm">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </Link>
           <div>
             <div className="flex items-center gap-4">
               <h1 className="text-4xl font-black font-mono tracking-tighter uppercase">{vehiculo.patente}</h1>
               {!vehiculo.activo && (
-                <span className="px-3 py-1 text-[10px] font-black uppercase bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 rounded-full tracking-widest">Inactivo</span>
+                <span className="px-3 py-1 text-[10px] font-black uppercase bg-slate-800/50 text-slate-200   rounded-full tracking-widest">Inactivo</span>
               )}
             </div>
             <div className="flex gap-2 mt-1">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 font-black uppercase text-[10px] tracking-widest rounded-lg">{vehiculo.categoria}</span>
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 font-black uppercase text-[10px] tracking-widest rounded-lg">{vehiculo.tipo}</span>
             </div>
-            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-2">Expediente de Unidad</p>
+            <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest mt-2">Expediente de Unidad</p>
           </div>
         </div>
 
@@ -117,8 +117,8 @@ export default async function VehicleDetails({ params }) {
         
         {/* Columna Izquierda: Mantenimiento & Stats */}
         <div className="lg:col-span-1 space-y-8">
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-2xl shadow-black/5">
-            <h2 className="text-xl font-black mb-6 uppercase tracking-tighter border-b border-gray-100 dark:border-gray-800 pb-4">Documentación</h2>
+          <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2.5rem] p-8 shadow-2xl shadow-black/5">
+            <h2 className="text-xl font-black mb-6 uppercase tracking-tighter border-b border-slate-800/50  pb-4">Documentación</h2>
             <form action={saveAction} className="space-y-6">
               <input type="hidden" name="id" value={vehiculo.id} />
               <div>
@@ -127,7 +127,7 @@ export default async function VehicleDetails({ params }) {
                   name="vtvVencimiento"
                   type="date"
                   defaultValue={vtvStr}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
+                  className="w-full bg-slate-800/30  border border-slate-700  rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
                 />
               </div>
               <div>
@@ -136,7 +136,7 @@ export default async function VehicleDetails({ params }) {
                   name="seguroVencimiento"
                   type="date"
                   defaultValue={seguroStr}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
+                  className="w-full bg-slate-800/30  border border-slate-700  rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
                 />
               </div>
               <div>
@@ -145,7 +145,7 @@ export default async function VehicleDetails({ params }) {
                   name="proximoServiceKm"
                   type="number"
                   defaultValue={vehiculo.proximoServiceKm || ""}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
+                  className="w-full bg-slate-800/30  border border-slate-700  rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
                   placeholder="Ej. 150000"
                 />
               </div>
@@ -154,7 +154,7 @@ export default async function VehicleDetails({ params }) {
                 <select
                   name="categoria"
                   defaultValue={vehiculo.categoria || "PICKUP"}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
+                  className="w-full bg-slate-800/30  border border-slate-700  rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
                 >
                   <option value="AUTO">Auto</option>
                   <option value="PICKUP">Pick up / Camioneta</option>
@@ -167,7 +167,7 @@ export default async function VehicleDetails({ params }) {
                 <select
                   name="tipo"
                   defaultValue={vehiculo.tipo || "INTERNO"}
-                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
+                  className="w-full bg-slate-800/30  border border-slate-700  rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold uppercase text-sm"
                 >
                   <option value="INTERNO">Flota Interna</option>
                   <option value="EXTERNO">Tercero / Externo</option>
@@ -186,7 +186,7 @@ export default async function VehicleDetails({ params }) {
           <div className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-500/10 dark:to-purple-500/10 border border-pink-100 dark:border-pink-500/20 rounded-[2.5rem] p-8 shadow-xl shadow-pink-500/5 font-sans">
             <h2 className="text-xl font-black mb-6 uppercase tracking-tighter border-b border-pink-200 dark:border-pink-500/20 pb-4 flex items-center justify-between text-pink-600 dark:text-pink-400">
               Fotos del Mes
-              <span className="text-[10px] bg-white dark:bg-pink-900/30 px-3 py-1 rounded-full text-pink-500 dark:text-pink-300">
+              <span className="text-[10px] bg-slate-900/40 dark:bg-pink-900/30 px-3 py-1 rounded-full text-pink-500 dark:text-pink-300">
                 {vehiculo.InspeccionMensual?.length || 0} Reg.
               </span>
             </h2>
@@ -196,16 +196,16 @@ export default async function VehicleDetails({ params }) {
                    Sin fotos cargadas este mes
                  </p>
               ) : vehiculo.InspeccionMensual.map((insp) => (
-                 <div key={insp.id} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-5 shadow-sm">
+                 <div key={insp.id} className="bg-slate-900/40 bg-[#0f172a] border border-slate-800/50  rounded-[2rem] p-5 shadow-sm">
                    <div className="flex justify-between items-start mb-4">
                      <div>
-                       <h3 className="font-black text-sm text-gray-800 dark:text-white uppercase tracking-tight">Período {insp.mes}/{insp.anio}</h3>
+                       <h3 className="font-black text-sm text-slate-200 dark:text-white uppercase tracking-tight">Período {insp.mes}/{insp.anio}</h3>
                        <p className="text-[10px] uppercase font-bold text-gray-400 mt-1"><FormattedDate date={insp.fecha} /></p>
                      </div>
                    </div>
                    <div className="grid grid-cols-2 gap-3">
                      {[{label: 'Frente', img: insp.fotoFrente}, {label: 'Trasera', img: insp.fotoTrasera}, {label: 'Lat Izq', img: insp.fotoLateralIzq}, {label: 'Lat Der', img: insp.fotoLateralDer}].map(foto => (
-                       <div key={foto.label} className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden group border border-gray-200 dark:border-gray-700">
+                       <div key={foto.label} className="relative aspect-square bg-slate-800/50  rounded-xl overflow-hidden group border border-slate-700 ">
                           {foto.img ? (
                              <a href={foto.img} target="_blank" rel="noreferrer">
                                <img src={foto.img} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={foto.label}/>
@@ -240,16 +240,16 @@ export default async function VehicleDetails({ params }) {
         {/* Columna Derecha: Historial */}
         <div className="lg:col-span-2 space-y-8">
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-2xl shadow-black/5 font-sans min-h-[600px]">
-            <h2 className="text-xl font-black mb-8 uppercase tracking-tighter border-b border-gray-100 dark:border-gray-800 pb-4 flex items-center justify-between">
+          <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2.5rem] p-8 shadow-2xl shadow-black/5 font-sans min-h-[600px]">
+            <h2 className="text-xl font-black mb-8 uppercase tracking-tighter border-b border-slate-800/50  pb-4 flex items-center justify-between">
               Historial de Uso (Diarios)
-              <span className="text-[10px] bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-gray-500">{vehiculo.registros?.length || 0} Registros</span>
+              <span className="text-[10px] bg-slate-800/50  px-3 py-1 rounded-full text-gray-500">{vehiculo.registros?.length || 0} Registros</span>
             </h2>
             <div className="space-y-6">
               {!vehiculo.registros?.length ? (
                 <div className="text-gray-300 text-center py-20 font-black uppercase tracking-widest">Aún no hay actividad</div>
               ) : vehiculo.registros.map(r => (
-                <div key={r.id} className="p-6 bg-gray-50 dark:bg-gray-800/20 rounded-[2rem] border border-gray-100 dark:border-gray-800 group hover:border-blue-200 dark:hover:border-blue-900/30 transition-all">
+                <div key={r.id} className="p-6 bg-slate-800/30 /20 rounded-[2rem] border border-slate-800/50  group hover:border-blue-200 dark:hover:border-blue-900/30 transition-all">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="text-2xl font-black tracking-tighter text-blue-600 dark:text-blue-400">{(r.kmActual || 0).toLocaleString()} <span className="text-xs uppercase ml-1">km</span></div>
@@ -258,7 +258,7 @@ export default async function VehicleDetails({ params }) {
                       </div>
                     </div>
                     {r.nombreConductor && (
-                      <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-gray-100 dark:border-gray-800">
+                      <div className="bg-slate-900/40 bg-[#0f172a] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-slate-800/50 ">
                         {r.nombreConductor}
                       </div>
                     )}
@@ -266,7 +266,7 @@ export default async function VehicleDetails({ params }) {
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {r.sucursales?.map(s => (
-                       <span key={s.id} className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                       <span key={s.id} className="bg-gray-200  text-gray-600  px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
                          {s.nombre}
                        </span>
                     ))}
@@ -299,7 +299,7 @@ export default async function VehicleDetails({ params }) {
                          {l: 'Lat Izq', img: r.fotoLateralIzq}, 
                          {l: 'Lat Der', img: r.fotoLateralDer}
                        ].filter(f => f.img).map((foto, idx) => (
-                         <a key={idx} href={foto.img} target="_blank" rel="noreferrer" className="relative w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 group">
+                         <a key={idx} href={foto.img} target="_blank" rel="noreferrer" className="relative w-20 h-20 rounded-2xl overflow-hidden border border-slate-800/50  flex-shrink-0 group">
                            <img src={foto.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt={foto.l} />
                            <div className="absolute inset-x-0 bottom-0 bg-black/50 text-[8px] text-white text-center py-1 font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                              {foto.l}

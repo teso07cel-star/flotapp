@@ -41,44 +41,44 @@ export default function MantenimientoSection({ vehiculoId, mantenimientos = [] }
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div>
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Servicio / Tipo</label>
-                <select name="tipoServicio" required className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm">
-                  <option value="" disabled selected>Seleccione una opción</option>
-                  <option value="Cambio de aceite y filtros">Cambio de aceite y filtros</option>
-                  <option value="Tren delantero">Tren delantero</option>
-                  <option value="Aire acondicionado">Aire acondicionado</option>
-                  <option value="Embrague">Embrague</option>
-                  <option value="Caja de direccion">Caja de dirección</option>
-                  <option value="Frenos">Frenos</option>
-                  <option value="Alineacion, balanceo y rotacion">Alineación, balanceo y rotación</option>
-                  <option value="Cambio de cubiertas">Cambio de cubiertas</option>
-                  <option value="Problema electrico">Problema eléctrico</option>
-                  <option value="Chapa y pintura">Chapa y pintura</option>
-                  <option value="Luces altas y bajas">Luces altas y bajas</option>
-                  <option value="Luces de posicion">Luces de posición</option>
-                  <option value="Luces de giro">Luces de giro</option>
-                  <option value="Luces de freno">Luces de freno</option>
-                  <option value="Otro">Otro / Varios</option>
+                <select name="tipoServicio" required className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-white appearance-none cursor-pointer">
+                  <option value="" disabled selected className="bg-slate-900">Seleccione una opción</option>
+                  <option value="Cambio de aceite y filtros" className="bg-slate-900">Cambio de aceite y filtros</option>
+                  <option value="Tren delantero" className="bg-slate-900">Tren delantero</option>
+                  <option value="Aire acondicionado" className="bg-slate-900">Aire acondicionado</option>
+                  <option value="Embrague" className="bg-slate-900">Embrague</option>
+                  <option value="Caja de direccion" className="bg-slate-900">Caja de dirección</option>
+                  <option value="Frenos" className="bg-slate-900">Frenos</option>
+                  <option value="Alineacion, balanceo y rotacion" className="bg-slate-900">Alineación, balanceo y rotación</option>
+                  <option value="Cambio de cubiertas" className="bg-slate-900">Cambio de cubiertas</option>
+                  <option value="Problema electrico" className="bg-slate-900">Problema eléctrico</option>
+                  <option value="Chapa y pintura" className="bg-slate-900">Chapa y pintura</option>
+                  <option value="Luces altas y bajas" className="bg-slate-900">Luces altas y bajas</option>
+                  <option value="Luces de posicion" className="bg-slate-900">Luces de posición</option>
+                  <option value="Luces de giro" className="bg-slate-900">Luces de giro</option>
+                  <option value="Luces de freno" className="bg-slate-900">Luces de freno</option>
+                  <option value="Otro" className="bg-slate-900">Otro / Varios</option>
                 </select>
              </div>
              <div>
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Fecha</label>
-                <input name="fecha" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm" />
+                <input name="fecha" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-white" />
              </div>
              <div>
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Kilometraje del Tablero</label>
-                <input name="kilometraje" type="number" placeholder="Ej: 155000" className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm" />
+                <input name="kilometraje" type="number" placeholder="Ej: 155000" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-white" />
              </div>
              <div>
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Costo ($)</label>
-                <input name="costo" type="number" placeholder="Ej: 85000" className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm" />
+                <input name="costo" type="number" placeholder="Ej: 85000" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-white" />
              </div>
              <div className="md:col-span-2">
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Taller / Proveedor (Opcional)</label>
-                <input name="taller" type="text" placeholder="Ej: Neumáticos Centro" className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm" />
+                <input name="taller" type="text" placeholder="Ej: Neumáticos Centro" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-white" />
              </div>
              <div className="md:col-span-2">
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Descripción del Trabajo</label>
-                <textarea name="descripcion" rows="2" placeholder="Detalles de filtros cambiados, repuestos..." className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm resize-none"></textarea>
+                <textarea name="descripcion" rows="2" placeholder="Detalles de filtros cambiados, repuestos..." className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm resize-none text-white"></textarea>
              </div>
            </div>
            <div className="flex justify-end mt-4">

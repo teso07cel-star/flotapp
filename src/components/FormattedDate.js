@@ -5,7 +5,7 @@ export default function FormattedDate({ date, showTime = true, showDate = true }
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   if (!mounted) {

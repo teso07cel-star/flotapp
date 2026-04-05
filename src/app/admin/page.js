@@ -29,15 +29,15 @@ export default async function AdminDashboard() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Panel General</h1>
-          <p className="text-gray-500 dark:text-gray-400">Resumen de la actividad de tu flota.</p>
+          <h1 className="text-3xl font-black tracking-widest mb-2 uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Panel General</h1>
+          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">Centro de Monitoreo Táctico</p>
         </div>
         <div className="flex flex-wrap gap-4">
-          <Link href="/admin/benefits" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-100 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest">
+          <Link href="/admin/benefits" className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 rounded-2xl font-black transition-all shadow-lg text-[10px] uppercase tracking-widest">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/><path d="m5 7 3 5-3 5"/><path d="m19 7-3 5 3 5"/></svg>
             Impacto y ROI
           </Link>
-          <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20 text-sm">
+          <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white rounded-2xl font-bold transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] text-[10px] uppercase tracking-widest backdrop-blur-md">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
             VER RESUMEN MENSUAL
           </Link>
@@ -48,17 +48,17 @@ export default async function AdminDashboard() {
         {/* Vehículos List */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold uppercase tracking-tight">Flota de Vehículos</h2>
-            <Link href="/admin/vehicles/new" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500 transition-colors uppercase tracking-wider">
+            <h2 className="text-xl font-bold uppercase tracking-widest text-slate-200">Flota de Vehículos</h2>
+            <Link href="/admin/vehicles/new" className="text-xs font-bold text-blue-400 bg-blue-500/10 px-4 py-2 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 hover:text-blue-300 transition-colors uppercase tracking-wider">
               + Agregar Vehículo
             </Link>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase font-black border-b border-gray-200 dark:border-gray-800">
+                  <tr className="bg-blue-500/10 text-blue-300 text-[10px] tracking-[0.2em] uppercase font-black border-b border-blue-500/20">
                     <th className="p-5 pl-8">Patente</th>
                     <th className="p-5">Estado</th>
                     <th className="p-5 text-right pr-8">Acciones</th>
@@ -91,48 +91,48 @@ export default async function AdminDashboard() {
                     const isAmber = !isRed && (vtvProxima || seguroProximo || serviceProximo);
 
                     return (
-                      <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
+                      <tr key={v.id} className="hover:bg-blue-500/5 transition-colors group border-b border-blue-500/10 last:border-0">
                         <td className="p-5 pl-8">
-                          <div className="flex items-center gap-2">
-                             <span className="text-gray-400"><VehicleIcon categoria={v.categoria} className="w-5 h-5"/></span>
-                             <div className="font-mono font-black text-lg tracking-wider">{v.patente}</div>
+                          <div className="flex items-center gap-3">
+                             <span className="text-blue-400 opacity-60 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]"><VehicleIcon categoria={v.categoria} className="w-12 h-10"/></span>
+                             <div className="font-mono font-black text-lg tracking-widest text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">{v.patente}</div>
                           </div>
-                          {kmActual > 0 && <div className="text-[10px] text-gray-400 font-bold uppercase mt-1 ml-7">{kmActual.toLocaleString()} KM</div>}
+                          {kmActual > 0 && <div className="text-[10px] text-blue-300/60 font-bold uppercase mt-1 ml-9">{kmActual.toLocaleString()} KM</div>}
                         </td>
                         <td className="p-5">
                           {isRed ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-500/20 tracking-tighter animate-pulse">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-500/10 text-red-400 border border-red-500/30 tracking-widest animate-pulse shadow-[0_0_10px_rgba(248,113,113,0.2)]">
                               Crítico / Vencido
                             </span>
                           ) : isAmber ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 tracking-tighter">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30 tracking-widest">
                               Atención Próxima
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 tracking-tighter">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 tracking-widest pb-[0.2rem]">
                               Al Día
                             </span>
                           )}
-                          <div className="mt-1 flex flex-wrap gap-1">
-                             {vtvVencida && <span className="text-[8px] font-bold text-red-600 uppercase">VTV</span>}
-                             {!vtvVencida && vtvProxima && <span className="text-[8px] font-bold text-amber-600 uppercase">VTV</span>}
-                             {seguroVencido && <span className="text-[8px] font-bold text-red-600 uppercase">Seguro</span>}
-                             {!seguroVencido && seguroProximo && <span className="text-[8px] font-bold text-amber-600 uppercase">Seguro</span>}
-                             {serviceCritico && <span className="text-[8px] font-bold text-red-600 uppercase">Service</span>}
-                             {!serviceCritico && serviceProximo && <span className="text-[8px] font-bold text-amber-600 uppercase">Service</span>}
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                             {vtvVencida && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">VTV</span>}
+                             {!vtvVencida && vtvProxima && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">VTV</span>}
+                             {seguroVencido && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">Seguro</span>}
+                             {!seguroVencido && seguroProximo && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">Seguro</span>}
+                             {serviceCritico && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">Service</span>}
+                             {!serviceCritico && serviceProximo && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">Service</span>}
                           </div>
                         </td>
                         <td className="p-5 pr-8 text-right">
                           <div className="flex items-center justify-end gap-2 text-xs">
-                            <Link href={`/admin/vehicles/${v.id}`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 hover:bg-black hover:text-white dark:hover:bg-gray-800 shadow-sm uppercase tracking-tighter" title="Ver Expediente">
+                            <Link href={`/admin/vehicles/${v.id}`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500 hover:text-white shadow-sm uppercase tracking-tighter" title="Ver Expediente">
                               Ficha
                             </Link>
-                            <Link href={`/admin/vehicles/${v.id}/expenses`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-colors shadow-sm uppercase tracking-tighter" title="Registrar Gastos">
+                            <Link href={`/admin/vehicles/${v.id}/expenses`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 shadow-sm uppercase tracking-tighter" title="Registrar Gastos">
                               $
                             </Link>
                             <form action={deleteVehiculoAction} className="inline">
                               <input type="hidden" name="id" value={v.id} />
-                              <button type="submit" className="h-8 w-8 flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors border border-transparent hover:border-red-100" title="Borrar Vehículo">
+                              <button type="submit" className="h-8 w-8 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-transparent hover:border-red-400 border border-red-500/20 bg-red-500/10" title="Borrar Vehículo">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                               </button>
                             </form>
@@ -150,95 +150,94 @@ export default async function AdminDashboard() {
         {/* Ultimos Registros */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold uppercase tracking-tight">Actividad</h2>
-            <Link href="/admin/logs" className="text-[10px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest flex items-center gap-1">
-              Ver Todas (Hoy)
+            <h2 className="text-xl font-bold uppercase tracking-widest text-slate-200">Actividad</h2>
+            <Link href="/admin/logs" className="text-[10px] font-black text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/30 px-4 py-2 rounded-xl transition-colors uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.2)]">
+              Tracker Operativo
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
           </div>
           
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col gap-6">
             {registros.length === 0 ? (
-              <p className="text-gray-500 text-center py-4 font-medium italic">Aún no hay registros.</p>
+              <p className="text-blue-400/50 text-center py-4 font-bold tracking-widest uppercase text-xs">Sin actividad reciente.</p>
             ) : registros.map((r) => (
-              <div key={r.id} className="pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0 relative group">
+              <div key={r.id} className="pb-6 border-b border-blue-500/10 last:border-0 last:pb-0 relative group">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                       <span className="text-gray-400">
-                          <VehicleIcon categoria={r.vehiculo.categoria} className="w-4 h-4" />
+                       <span className="text-blue-400/60">
+                          <VehicleIcon categoria={r.vehiculo.categoria} className="w-10 h-8" />
                        </span>
-                       <span className="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-wider">
+                       <span className="font-mono text-sm font-black text-cyan-400 tracking-widest drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
                          {r.vehiculo.patente}
                        </span>
                        {r.tipoReporte && (
-                         <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${
-                           r.tipoReporte === 'INICIO' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                           r.tipoReporte === 'CIERRE' ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' :
-                           'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                         <span className={`text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
+                           r.tipoReporte === 'INICIO' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' :
+                           r.tipoReporte === 'CIERRE' ? 'bg-pink-500/10 text-pink-400 border-pink-500/30' :
+                           'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                          }`}>
                            {r.tipoReporte}
                          </span>
                        )}
+                       {r.lugarGuarda && (
+                        <a 
+                          href={`https://www.google.com/maps?q=${r.lugarGuarda}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="ml-auto text-[8px] text-emerald-500 hover:text-emerald-400 transition-colors font-black uppercase tracking-widest flex items-center gap-1 opacity-60 hover:opacity-100"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          GPS
+                        </a>
+                      )}
                     </div>
-                    {r.lugarGuarda && (
-                      <a 
-                        href={`https://www.google.com/maps?q=${r.lugarGuarda}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-[9px] text-emerald-500 hover:text-emerald-400 transition-colors font-black uppercase tracking-widest"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        Ver Ubicación
-                      </a>
-                    )}
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
-                        <FormattedDate date={r.fecha} showDate={false} />
-                    </div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        <FormattedDate date={r.fecha} />
+                    <div className="flex flex-col items-end">
+                      <div className="font-bold text-blue-400 text-sm tracking-widest drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">
+                          <FormattedDate date={r.fecha} showDate={false} />
+                      </div>
                     </div>
                     <DeleteLogButton id={r.id} />
                   </div>
                 </div>
                 <div className="text-sm font-bold mb-2 flex items-center gap-1">
                   {r.kmActual != null ? (
-                    <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800/50" : "flex items-baseline gap-1 text-gray-900 dark:text-white"}>
-                      {r.kmActual.toLocaleString()} <span className="text-[10px] opacity-70 font-black uppercase">km</span>
+                    <span className={r.kmModificado ? "text-amber-400 flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" : "flex items-baseline gap-1 text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] tracking-widest"}>
+                      {r.kmActual.toLocaleString()} <span className="text-[10px] text-blue-300/50 font-black uppercase">km</span>
                       {r.kmModificado && (
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" title="Editado manualmente"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                       )}
                     </span>
                   ) : (
-                    <span className="text-gray-400 text-xs font-bold uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">Viaje Posterior</span>
+                    <span className="text-blue-300/50 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md">Viaje Posterior</span>
                   )}
                 </div>
                 {r.nombreConductor && (
-                  <div className="text-xs text-gray-400 font-bold uppercase tracking-tighter mb-2 flex items-center gap-1.5">
+                  <div className="text-[10px] text-blue-300 font-bold uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5 opacity-80">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     {r.nombreConductor}
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-2">
                   {r.sucursales?.map(s => (
-                    <span key={s.id} className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter">
+                    <span key={s.id} className="text-[9px] bg-blue-500/10 border border-blue-500/20 text-cyan-400 px-2 py-1 rounded-md font-black uppercase tracking-[0.2em]">
                       {s.nombre}
                     </span>
                   ))}
                 </div>
                 {r.novedades && (
-                  <div className="mt-3 text-[10px] bg-amber-50 dark:bg-amber-500/5 text-amber-900 dark:text-amber-200 p-3 rounded-xl border border-amber-100 dark:border-amber-500/20 leading-relaxed font-medium">
-                    <span className="font-black mr-1 uppercase text-[9px]">Aviso:</span>
+                  <div className="mt-3 text-[10px] bg-pink-500/5 text-pink-300 p-3 rounded-xl border border-pink-500/20 leading-relaxed font-bold tracking-wide">
+                    <span className="font-black mr-2 uppercase text-[9px] text-pink-400">INFO TÁCTICA:</span>
                     {r.novedades}
                   </div>
                 )}
                 {/* Visual indicator for photos */}
                 {(r.fotoFrente || r.fotoTrasera || r.fotoLateralIzq || r.fotoLateralDer) && (
-                  <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                     {[r.fotoFrente, r.fotoTrasera, r.fotoLateralIzq, r.fotoLateralDer].filter(Boolean).map((foto, idx) => (
-                      <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 hover:scale-105 transition-transform">
+                      <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-xl overflow-hidden border border-blue-500/30 flex-shrink-0 hover:scale-110 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
                         <img src={foto} className="w-full h-full object-cover" alt="Inspección" />
                       </a>
                     ))}

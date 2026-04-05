@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { bindDriverToDevice, solicitarAutorizacion, checkEstadoAutorizacion } from "@/lib/actions";
 
 export default function DriverAuthClient({ choferes }) {
   const [selectedChofer, setSelectedChofer] = useState("");
@@ -12,48 +13,182 @@ export default function DriverAuthClient({ choferes }) {
   const router = useRouter();
 
   const [fastLoginDriver, setFastLoginDriver] = useState("");
+  
+  // DEVICE AUTH STATE
+  const [isDeviceAuthorized, setIsDeviceAuthorized] = useState(null);
+  const [authStep, setAuthStep] = useState(1); // 1: Pedir Nombre, 2: Pedir Código
+  const [deviceOperatorName, setDeviceOperatorName] = useState("");
+  const [deviceCode, setDeviceCode] = useState("");
+  const [authSuccess, setAuthSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const pollingRef = useRef(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("flotapp_driver_name");
-    if (saved) {
-      setFastLoginDriver(saved);
+    let devId = localStorage.getItem("flotapp_device_id");
+    if (!devId) {
+       // Fallback for non-secure contexts (HTTP) where crypto.randomUUID might be undefined
+       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+          devId = crypto.randomUUID();
+       } else {
+          devId = 'dev-' + Math.random().toString(36).substring(2, 15) + '-' + Date.now();
+       }
+       localStorage.setItem("flotapp_device_id", devId);
+    }
+    console.log("Tactical Device ID:", devId);
+
+    const savedDriver = localStorage.getItem("flotapp_driver_name");
+    let auth = localStorage.getItem("device_authorized_v1");
+    // Auto-authorize if they already used the app
+    if (savedDriver && auth !== "true") {
+       localStorage.setItem("device_authorized_v1", "true");
+       auth = "true";
+    }
+
+    if (auth === "true") {
+      setIsDeviceAuthorized(true);
+      if (savedDriver) {
+        setTimeout(() => setFastLoginDriver(savedDriver), 0);
+      }
+    } else {
+      setIsDeviceAuthorized(false);
     }
   }, []);
 
-  const handleFingerprintPress = () => {
-    if (fastLoginDriver) {
-      setSelectedChofer(fastLoginDriver);
-      document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.refresh(); 
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  const handleDeviceAuthStep1 = async () => {
+    if (deviceOperatorName.trim() !== "") {
+      setIsRequesting(true);
+      setErrorMessage("");
+      const devId = localStorage.getItem("flotapp_device_id");
+      console.log("Enviando solicitud para:", deviceOperatorName.trim(), "ID:", devId);
+      try {
+        const res = await solicitarAutorizacion(deviceOperatorName.trim(), devId);
+        console.log("Respuesta del servidor:", res);
+        if (res.success) {
+          setAuthStep(2);
+        } else {
+          setErrorMessage(res.error || "Error desconocido en el servidor");
+        }
+      } catch (err) {
+        console.error("Error al llamar solicitarAutorizacion:", err);
+        setErrorMessage("Error de conexión: " + err.message);
+      } finally {
+        setIsRequesting(false);
+      }
     }
   };
 
-  const handleSelect = (e) => {
+  useEffect(() => {
+    if (authStep === 2 && !isDeviceAuthorized) {
+       const devId = localStorage.getItem("flotapp_device_id");
+       pollingRef.current = setInterval(async () => {
+          const res = await checkEstadoAutorizacion(devId);
+          if (res.success && res.estado === "APROBADO") {
+             clearInterval(pollingRef.current);
+             setAuthSuccess(true);
+             setTimeout(() => {
+                localStorage.setItem("device_authorized_v1", "true");
+                setIsDeviceAuthorized(true);
+             }, 1800);
+          } else if (res.success && res.estado === "RECHAZADO") {
+             clearInterval(pollingRef.current);
+             alert("Tu solicitud de acceso fue rechazada por administración.");
+             setAuthStep(1);
+          }
+       }, 3000);
+    }
+    return () => {
+       if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [authStep, isDeviceAuthorized]);
+
+  const handleDeviceAuthStep2 = () => {
+     // No longer used, handled by polling
+  };
+
+  const handleFingerprintPress = async () => {
+    if (fastLoginDriver) {
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await bindDriverToDevice(fastLoginDriver, devId);
+      if (!res.success) {
+        alert(res.error);
+        return;
+      }
+      
+      // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const { createRegistroDiario } = await import("@/lib/actions");
+      await createRegistroDiario({
+          nombreConductor: fastLoginDriver,
+          tipoReporte: "INICIO_JORNADA",
+          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+      });
+
+      setSelectedChofer(fastLoginDriver);
+      document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
+      router.push('/driver/form'); // Ir directo al form para Fase 2 
+    }
+  };
+
+  const handleSelect = async (e) => {
     const val = e.target.value;
     if (val === "NUEVO") {
       setIsExternal(true);
       setSelectedChofer("");
     } else {
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await bindDriverToDevice(val, devId);
+      if (!res.success) {
+        alert(res.error);
+        e.target.value = "";
+        return;
+      }
+      
       setIsExternal(false);
       setSelectedChofer(val);
       if (remember && val) {
         localStorage.setItem("flotapp_driver_name", val);
         document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
       }
-      router.refresh();
+
+      // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const { createRegistroDiario } = await import("@/lib/actions");
+      await createRegistroDiario({
+          nombreConductor: val,
+          tipoReporte: "INICIO_JORNADA",
+          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+      });
+
+      router.push('/driver/form');
     }
   };
 
-  const confirmNewDriver = () => {
+  const confirmNewDriver = async () => {
     if (externalName.trim()) {
       const name = externalName.trim();
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await bindDriverToDevice(name, devId);
+      if (!res.success) {
+        alert(res.error);
+        return;
+      }
+
       setIsExternal(false);
       setSelectedChofer(name);
       if (remember) {
         localStorage.setItem("flotapp_driver_name", name);
         document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
       }
-      router.refresh();
+
+      // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const { createRegistroDiario } = await import("@/lib/actions");
+      await createRegistroDiario({
+          nombreConductor: name,
+          tipoReporte: "INICIO_JORNADA",
+          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+      });
+
+      router.push('/driver/form');
     }
   };
 
@@ -66,6 +201,96 @@ export default function DriverAuthClient({ choferes }) {
     setFastLoginDriver("");
     router.refresh();
   };
+
+  if (isDeviceAuthorized === null) {
+    return <div className="h-64 flex items-center justify-center text-blue-500 animate-pulse uppercase font-black text-xs tracking-widest">Verificando enlace físico...</div>;
+  }
+
+  if (isDeviceAuthorized === false) {
+    if (authSuccess) {
+       return (
+          <div className="mb-8 p-10 bg-[#0f172a] border border-emerald-500/20 rounded-[2.5rem] text-center backdrop-blur-xl animate-in flip-in-y duration-700">
+             <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)] border border-emerald-500/50">
+                <svg className="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+             </div>
+             <h2 className="text-2xl font-black text-emerald-400 uppercase tracking-widest mb-2">Desbloqueado</h2>
+             <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em] animate-pulse">Autenticación Táctica Exitosa</p>
+          </div>
+       );
+    }
+
+    return (
+      <div className="mb-8 p-8 bg-[#0f172a] border border-blue-500/20 rounded-[2.5rem] shadow-2xl relative overflow-hidden backdrop-blur-xl">
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500"></div>
+        <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-4 border border-blue-500/20">
+           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+        </div>
+        <h2 className="text-xl font-black text-white text-center uppercase tracking-tighter mb-2">Dispositivo No Enlazado</h2>
+        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest text-center mb-6">Bloqueo Operativo</p>
+        
+        {authStep === 1 ? (
+          <div className="space-y-4 animate-in fade-in zoom-in-95 duration-500">
+            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest text-center mb-2">Identificación de Usuario</label>
+            <input 
+              type="text" 
+              placeholder="NOMBRE Y APELLIDO"
+              value={deviceOperatorName}
+              onChange={(e) => setDeviceOperatorName(e.target.value)}
+              className="w-full bg-[#020617] border-2 border-slate-700/50 rounded-2xl px-5 py-5 text-white focus:border-blue-500 outline-none text-center font-bold"
+            />
+            {errorMessage && (
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
+                <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{errorMessage}</p>
+                <p className="text-[9px] text-red-400/60 mt-2 text-center">Intentá de nuevo o contactá a soporte.</p>
+              </div>
+            )}
+
+            <button 
+              type="button"
+              onClick={handleDeviceAuthStep1}
+              disabled={!deviceOperatorName.trim() || isRequesting}
+              className="w-full py-5 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all text-xs border border-blue-500/50"
+            >
+              {isRequesting ? 'Procesando...' : 'Solicitar Enlace'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+             <div className="flex flex-col items-center justify-center py-8">
+                <div className="relative w-24 h-24 mb-6">
+                   <div className="absolute inset-0 border-4 border-blue-500/20 rounded-full animate-ping"></div>
+                   <div className="absolute inset-2 border-4 border-blue-500/40 rounded-full animate-pulse"></div>
+                   <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-blue-500 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                   </div>
+                </div>
+                
+                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Solicitud Enviada</h3>
+                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.2em] animate-pulse">Esperando Respuesta Táctica...</p>
+             </div>
+
+             <div className="bg-slate-900/50 border border-white/5 p-5 rounded-[2rem] space-y-3">
+                <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest text-center">
+                   El administrador ha recibido tu petición. 
+                   <br/>Mantené esta pantalla abierta.
+                </p>
+             </div>
+
+             <button 
+                type="button"
+                onClick={() => setAuthStep(1)}
+                className="w-full py-4 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+              >
+                &larr; Cancelar Solicitud
+              </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (selectedChofer) {
     return (

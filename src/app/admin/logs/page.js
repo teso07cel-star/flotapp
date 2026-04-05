@@ -21,28 +21,28 @@ export default async function AdminLogs() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700  pb-6 mb-6">
         <div>
           <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Bitácoras del Día</h1>
-          <p className="text-gray-500 dark:text-gray-400">Mostrando todos los {registros.length} registros generados hoy.</p>
+          <p className="text-gray-500 ">Mostrando todos los {registros.length} registros generados hoy.</p>
         </div>
         <Link 
           href="/admin"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-100 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900/40 text-black hover:bg-slate-800/50 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
           Volver al Panel
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">
+      <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">
         {registros.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-sm">No hay bitácoras registradas hoy.</p>
+            <svg className="w-16 h-16 text-gray-300  mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            <p className="text-gray-500  font-bold uppercase tracking-widest text-sm">No hay bitácoras registradas hoy.</p>
           </div>
         ) : registros.map((r) => (
-          <div key={r.id} className="pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0 relative group">
+          <div key={r.id} className="pb-6 border-b border-slate-800/50  last:border-0 last:pb-0 relative group">
             <div className="flex justify-between items-start mb-2">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export default async function AdminLogs() {
                 </div>
                 <form action={deleteRegistroAction}>
                   <input type="hidden" name="id" value={r.id} />
-                  <button type="submit" className="text-gray-400 hover:text-red-500 transition-colors bg-gray-50 dark:bg-gray-800 p-2 rounded-lg" title="Borrar Registro">
+                  <button type="submit" className="text-gray-400 hover:text-red-500 transition-colors bg-slate-800/30  p-2 rounded-lg" title="Borrar Registro">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                   </button>
                 </form>
@@ -90,7 +90,7 @@ export default async function AdminLogs() {
             {/* Kilómetros con alerta visual de modificación */}
             <div className="text-sm font-bold mb-2 flex items-center gap-1 mt-3">
               {r.kmActual != null ? (
-                <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-2 bg-orange-50 dark:bg-orange-900/20 px-3 py-1.5 rounded-lg border border-orange-200 dark:border-orange-800/50 shadow-sm" : "flex items-baseline gap-1 text-gray-900 dark:text-white"}>
+                <span className={r.kmModificado ? "text-orange-600 dark:text-orange-400 flex items-center gap-2 bg-orange-50 dark:bg-orange-900/20 px-3 py-1.5 rounded-lg border border-orange-200 dark:border-orange-800/50 shadow-sm" : "flex items-baseline gap-1 text-slate-100 dark:text-white"}>
                   {r.kmActual.toLocaleString()} <span className="text-[10px] opacity-70 font-black uppercase tracking-tighter">km</span>
                   {r.kmModificado && (
                     <span className="flex items-center gap-1">
@@ -100,12 +100,12 @@ export default async function AdminLogs() {
                   )}
                 </span>
               ) : (
-                <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg">Parada en Ruta</span>
+                <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest bg-slate-800/50  px-3 py-1 rounded-lg">Parada en Ruta</span>
               )}
             </div>
 
             {r.nombreConductor && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-tighter mb-2 flex items-center gap-1.5">
+              <div className="text-xs text-gray-500  font-bold uppercase tracking-tighter mb-2 flex items-center gap-1.5">
                 <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-[8px] font-black">
                   {r.nombreConductor.charAt(0).toUpperCase()}
                 </div>
@@ -115,7 +115,7 @@ export default async function AdminLogs() {
             
             <div className="flex flex-wrap gap-2 mb-2 mt-2">
               {r.sucursales?.map(s => (
-                <span key={s.id} className="text-[9px] bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-md font-bold uppercase tracking-widest shadow-sm">
+                <span key={s.id} className="text-[9px] bg-slate-800/50  border border-slate-700  text-gray-600  px-2 py-1 rounded-md font-bold uppercase tracking-widest shadow-sm">
                   {s.nombre}
                 </span>
               ))}
@@ -138,7 +138,7 @@ export default async function AdminLogs() {
             {(r.fotoFrente || r.fotoTrasera || r.fotoLateralIzq || r.fotoLateralDer) && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {[r.fotoFrente, r.fotoTrasera, r.fotoLateralIzq, r.fotoLateralDer].filter(Boolean).map((foto, idx) => (
-                  <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 hover:scale-105 transition-transform shadow-md">
+                  <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-800/50  flex-shrink-0 hover:scale-105 transition-transform shadow-md">
                     <img src={foto} className="w-full h-full object-cover" alt="Inspección" />
                   </a>
                 ))}

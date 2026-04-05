@@ -2,22 +2,30 @@
 import { useState, useEffect } from "react";
 import { createRegistroDiario } from "@/lib/actions";
 
-export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver, isFirstLog }) {
+
+export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver, isFirstLog, seIngresoKmHoy, phase }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authCode, setAuthCode] = useState("");
   const [isFinishingShift, setIsFinishingShift] = useState(false);
   const [gpsLocation, setGpsLocation] = useState("");
-  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(true);
   
   // Nuevo estado para cambiar vehículo en medio del turno
-  const [changingVehicle, setChangingVehicle] = useState(false);
+  const [changingVehicle, setChangingVehicle] = useState(vehiculo?.id === 0);
   const [newPatente, setNewPatente] = useState("");
+  
+  // El kilometraje solo se edita en fase de INICIALIZACION o si se está CERRANDO el turno
+  const [editKm, setEditKm] = useState(isFirstLog || isFinishingShift);
+
+  useEffect(() => {
+    setEditKm(isFirstLog || isFinishingShift);
+  }, [isFirstLog, isFinishingShift]);
+
 
   useEffect(() => {
     if ("geolocation" in navigator) {
-      setGpsLoading(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude.toFixed(6);
@@ -63,19 +71,26 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       sucursalIds: isFirstLog || isFinishingShift ? [] : formData.getAll("sucursalIds").map(id => parseInt(id)),
       authCode: authCode,
       tipoReporte: isFirstLog ? "INICIO" : (isFinishingShift ? "CIERRE" : "PARADA"),
+      phase: phase, // Reportar fase para trazabilidad
       lugarGuarda: gpsLocation
     };
 
-    if ((isFirstLog || isFinishingShift) && !data.kmActual) {
-      setError("El kilometraje es obligatorio.");
+    if (editKm && !data.kmActual) {
+      setError("El kilometraje es obligatorio para validar el reporte.");
       setLoading(false);
       return;
     }
 
+
     const res = await createRegistroDiario(data);
 
     if (res.success) {
-      window.location.href = "/?success=true";
+      if (isFinishingShift) {
+        document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        window.location.href = "/driver/entry";
+      } else {
+        window.location.href = "/?success=true";
+      }
     } else {
       if (res.error === "MILEAGE_AUTH_REQUIRED") {
         setShowAuth(true);
@@ -94,14 +109,14 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       <form onSubmit={handleSubmit} className="space-y-8 relative max-w-md mx-auto">
         
         {/* OVERLAY EXPLICATIVO PARA EL VIDEO */}
-        <div className="bg-blue-600/20 border border-blue-500/50 backdrop-blur-md p-4 rounded-2xl mb-6 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-          <h4 className="text-blue-400 font-black tracking-widest text-xs uppercase mb-1">
-            {isFirstLog ? "Tutorial 1/3: Inicio de Turno" : (isFinishingShift ? "Tutorial 3/3: Cierre de Turno" : "Tutorial 2/3: Flash Entry Premium")}
+        <div className="bg-blue-600/10 border border-blue-500/30 backdrop-blur-md p-4 rounded-2xl mb-6 shadow-2xl">
+          <h4 className="text-blue-400 font-black tracking-widest text-[10px] uppercase mb-1">
+            {isFirstLog ? "Protocolo: Inicio de Turno" : (isFinishingShift ? "Protocolo: Cierre de Turno" : "Protocolo: Transmisión Activa")}
           </h4>
-          <p className="text-white text-sm font-medium">
-            {isFirstLog ? "Confirma el kilometraje, se detectó un inicio de turno o cambio de unidad." : 
-            (isFinishingShift ? "Ingresá el kilometraje final y combustible para cerrar tu jornada." : 
-            "Reconocimiento biométrico/visual. Confirma si sigues usando la misma unidad.")}
+          <p className="text-white text-[11px] font-medium leading-tight">
+            {isFirstLog ? "Validación de odómetro y unidad identificada para inicio de jornada." : 
+            (isFinishingShift ? "Reporte final de kilometraje y niveles para cierre de transmisión." : 
+            "Actualización táctica de posición y novedades operativas.")}
           </p>
         </div>
 
@@ -116,50 +131,74 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
              
              {/* PREMIUM HEADER - Primer Log */}
-             <div className="text-center space-y-4">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full flex items-center justify-center text-blue-500 mx-auto shadow-inner shadow-blue-500/10 border-2 border-blue-500/30 relative">
-                   <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full" />
-                   <span className="text-4xl font-black text-white relative z-10 drop-shadow-md">{driverInitial}</span>
+             <div className="text-center space-y-6">
+                <div className="relative w-full h-40 flex items-center justify-center z-10 mx-auto pointer-events-none group pt-4">
+
+                    {vehiculo.categoria === "MOTO" ? (
+                      <img src="/icons/moto.png" className="h-20 max-w-[220px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-110 transition-transform duration-700 brightness-110 contrast-125" alt="Moto" />
+                    ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
+                      <img src="/icons/pickup.png" className="h-28 max-w-[300px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-105 transition-transform duration-700 grayscale brightness-[0.8] contrast-[1.1]" alt="Hilux" />
+                    ) : vehiculo.categoria === "AUTO" ? (
+                      <img src="/icons/etios.png" className="h-28 max-w-[280px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-105 transition-transform duration-700 brightness-[1.1] contrast-[1.1]" alt="Etios" />
+                    ) : (
+                      <div className="w-64 h-64 relative flex items-center justify-center bg-[#0f172a] rounded-[2rem] border border-blue-500/20 shadow-2xl">
+                        <img src="/icons/admin_hud.png" className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90" alt="Admin" />
+                      </div>
+                    )}
                 </div>
-                <div className="space-y-1">
-                   <p className="text-blue-400 font-black uppercase tracking-[0.2em] text-[11px]">Operador Identificado</p>
-                   <h3 className="text-white text-3xl font-black tracking-tight">{identifiedDriver || lastLog?.nombreConductor || "Invitado"}</h3>
-                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Iniciando en Unidad {vehiculo.patente.toUpperCase()}</p>
+                <div className="space-y-1 relative z-30 pt-4">
+                   <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">Sincronización Operativa</p>
+                   <h3 className="text-white text-3xl font-black tracking-tight">{identifiedDriver || lastLog?.nombreConductor || "Operador"}</h3>
+                   <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Unidad {vehiculo.patente.toUpperCase()}</p>
                 </div>
+
              </div>
             
-             <div className="p-1 bg-gray-950/50 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto">
-                <div className="flex items-center justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 py-2">
+             <div className="p-1 bg-[#020617]/40 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto">
+                <div className="flex items-center justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 py-2">
                    <span>Señal GPS</span>
-                   <span className={gpsLocation ? "text-emerald-500" : "text-amber-500"}>{gpsLocation ? "Conectado" : "Buscando"}</span>
+                   <span className={gpsLocation ? "text-blue-500" : "text-amber-500"}>{gpsLocation ? "Conectado" : "Buscando"}</span>
                 </div>
-                <div className="h-1 bg-gray-900 rounded-full overflow-hidden mx-3 mb-3">
-                   <div className={`h-full bg-blue-500 transition-all duration-1000 ${gpsLocation ? 'w-full' : 'w-1/3 animate-pulse'}`} />
+                <div className="h-1 bg-slate-900 rounded-full overflow-hidden mx-3 mb-3">
+                   <div className={`h-full bg-blue-500 transition-all duration-1000 ${gpsLocation ? 'w-full shadow-[0_0_8px_#3b82f6]' : 'w-1/3 animate-pulse'}`} />
                 </div>
              </div>
 
-             <div className="space-y-4 bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-2 -translate-y-2">
-                  <svg className="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-               </div>
-               
-               <div className="space-y-3 relative z-10">
-                 <label className="block text-[11px] font-black uppercase text-white tracking-[0.2em] text-center">Confirmar Kilometraje</label>
-                 <div className="relative group">
-                   <input
-                     name="kmActual"
-                     type="number"
-                     required
-                     defaultValue={lastLog?.kmActual || ""}
-                     className="w-full bg-gray-950 text-center border-2 border-blue-500/20 rounded-2xl px-5 py-6 text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-black text-4xl shadow-inner shadow-blue-500/10"
-                     placeholder="000000"
+              <div className="space-y-4 bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-3 -translate-y-3 group-hover:scale-110 transition-transform duration-700">
+                   <img 
+                      src={vehiculo.categoria === "MOTO" ? "/icons/moto.png" : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA") ? "/icons/pickup.png" : "/icons/admin_hud.png"} 
+                      alt="Watermark" 
+                      className="w-32 h-32 object-contain mix-blend-screen opacity-20" 
                    />
-                   <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest">km</div>
-                 </div>
-                 <p className="text-[9px] text-gray-500 font-bold text-center uppercase tracking-widest italic pt-2">Último registro de la unidad: {lastLog?.kmActual?.toLocaleString()} km</p>
-                 <p className="text-[8px] text-orange-500/80 font-bold text-center uppercase tracking-widest italic">Aviso al supervisor automático en caso de cambio.</p>
-               </div>
-             </div>
+                </div>
+                
+               {/* MUESTRA ODÓMETRO SOLO SI ES NECESARIO EN ESTA FASE */}
+               {editKm && (
+                <div className="space-y-3 relative z-10 animate-in fade-in duration-500">
+                  <label className="block text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-4">Validar Odómetro</label>
+                  <div className="relative group overflow-hidden rounded-3xl">
+                    <input
+                      name="kmActual"
+                      type="number"
+                      required
+                      defaultValue={lastLog?.kmActual || ""}
+                      className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-5xl shadow-2xl"
+                      placeholder="000"
+                    />
+                    <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest opacity-50">km</div>
+                  </div>
+                  <div className="flex flex-col items-center gap-2 pt-4">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">
+                       {vehiculo.categoria === "MOTO" ? "Moto Enduro" : 
+                        vehiculo.categoria === "AUTO" ? "Urbano Comfort - Diesel / Gasolina" : 
+                        "Pick-up Diesel"}
+                    </p>
+                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-[0.4em] italic">Última lectura: {lastLog?.kmActual?.toLocaleString()} km</p>
+                  </div>
+                </div>
+               )}
+              </div>
           </div>
         )}
 
@@ -168,81 +207,122 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           <div className="space-y-6 animate-in zoom-in-95 duration-500">
              
              {/* PREMIUM HEADER - Segundo Log */}
-             <div className="flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-[2rem] shadow-xl backdrop-blur-md relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/20 blur-2xl rounded-full" />
-                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-400 relative z-10">
-                   <span className="text-2xl font-black text-white">{driverInitial}</span>
-                </div>
-                <div className="relative z-10">
-                   <p className="text-emerald-400 font-black uppercase tracking-[0.2em] text-[9px] mb-1">Conductor Verificado</p>
+             <div className="flex flex-col items-center gap-4 bg-[#0f172a] border border-blue-500/20 pt-8 pb-4 px-6 rounded-[2rem] shadow-[0_0_30px_rgba(59,130,246,0.15)] relative overflow-hidden group">
+                <div className="absolute -top-10 inset-x-0 h-48 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
+
+                <img 
+                    src={vehiculo.categoria === "MOTO" ? "/icons/moto.png" : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA") ? "/icons/pickup.png" : "/icons/admin_hud.png"} 
+                    alt="Vehiculo Activo" 
+                    className="h-28 max-w-[200px] object-contain mix-blend-screen saturate-0 relative z-20 group-hover:scale-105 transition-transform duration-700" 
+                 />
+                
+                <div className="relative z-30 text-center">
+                   <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[9px] mb-1">Operador Verificado</p>
                    <h3 className="text-white text-xl font-black tracking-tight uppercase">{identifiedDriver || lastLog?.nombreConductor || "Valido"}</h3>
                 </div>
              </div>
 
-             {/* CONFIRMACION DE VEHICULO */}
+             <div className="p-1 bg-[#020617]/40 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto mt-2 mb-2">
+                <div className="flex items-center justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 py-2">
+                   <span>Señal GPS</span>
+                   <span className={gpsLocation ? "text-blue-500" : "text-amber-500"}>{gpsLocation ? "Conectado" : "Buscando"}</span>
+                </div>
+                <div className="h-1 bg-slate-900 rounded-full overflow-hidden mx-3 mb-3">
+                   <div className={`h-full bg-blue-500 transition-all duration-1000 ${gpsLocation ? 'w-full shadow-[0_0_8px_#3b82f6]' : 'w-1/3 animate-pulse'}`} />
+                </div>
+             </div>
+
+             {/* PASO 1: CONFIRMACION DE VEHICULO Y KILOMETRAJE EN UNA SOLA VISTA */}
              <div className="bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group">
                
                {!changingVehicle ? (
                  <div className="space-y-6">
                    <div className="text-center">
-                     <p className="text-gray-400 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Unidad Actual</p>
-                     <h2 className="text-4xl text-white font-black uppercase tracking-[0.3em] font-mono shadow-sm">{vehiculo.patente}</h2>
-                     <p className="text-emerald-400 text-[11px] font-black uppercase tracking-widest mt-4">¿Seguís manejando este vehículo?</p>
-                   </div>
-                   <div className="grid grid-cols-2 gap-3">
-                     <button type="button" onClick={() => setChangingVehicle(true)} className="py-4 rounded-xl border-2 border-gray-700 bg-gray-900 text-gray-400 font-black uppercase tracking-widest text-[10px] hover:border-gray-500 focus:outline-none transition-all active:scale-95">
-                       No, lo cambié
+                     <p className="text-slate-500 text-[10px] uppercase tracking-[0.5em] font-black mb-2">Unidad Activa</p>
+                     <h2 className="text-5xl text-white font-black uppercase tracking-[0.3em] font-mono shadow-sm">{vehiculo.patente}</h2>
+                     <button type="button" onClick={() => setChangingVehicle(true)} className="mt-4 py-2 px-6 rounded-2xl border border-slate-700 bg-slate-900/50 text-slate-500 font-black uppercase tracking-widest text-[9px] hover:text-white transition-all">
+                       Cambiar de Unidad
                      </button>
-                     <div className="py-4 rounded-xl border-2 border-emerald-500/50 bg-emerald-500/10 text-emerald-400 font-black uppercase tracking-widest text-[10px] text-center flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                       Sí, Continuar
-                     </div>
                    </div>
+                   
+                    <div className="pt-2 animate-in fade-in zoom-in-95 duration-500">
+                      {editKm && (
+                        <div className="border-t border-white/10 pt-6">
+                           <p className="text-slate-500 text-[10px] uppercase tracking-[0.5em] font-black mb-4 text-center">Validar Odómetro</p>
+                           
+                           <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                             <div className="relative group overflow-hidden rounded-2xl">
+                               <input
+                                 name="kmActual"
+                                 type="number"
+                                 required
+                                 autoFocus
+                                 defaultValue={lastLog?.kmActual || ""}
+                                 className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-6 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl shadow-inner"
+                                 placeholder="000"
+                               />
+                               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest opacity-50">km</div>
+                             </div>
+                             <button type="button" onClick={() => setEditKm(false)} className="w-full text-slate-500 text-[9px] uppercase tracking-widest font-black hover:text-white transition-colors">Omitir Odómetro (Modo Flash)</button>
+                           </div>
+                         </div>
+                      )}
+                      {!editKm && (
+                        <div className="border-t border-white/10 pt-6 pb-2 text-center animate-in slide-in-from-bottom-2 duration-500">
+                           <p className="text-emerald-500 text-[9px] font-black uppercase tracking-[0.3em] mb-1">Odómetro Sincronizado</p>
+                           <div className="flex items-center justify-center gap-2">
+                              <span className="text-2xl text-white font-black opacity-80">{lastLog?.kmActual || 0} km</span>
+                              <button type="button" onClick={() => setEditKm(true)} className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all">
+                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                              </button>
+                           </div>
+                           <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
+                        </div>
+                      )}
+                    </div>
                  </div>
                ) : (
                  <div className="space-y-4 animate-in fade-in duration-300">
-                   <label className="block text-[10px] font-black uppercase text-blue-400 tracking-widest text-center">Ingresá la Nueva Patente</label>
+                   <label className="block text-[10px] font-black uppercase text-blue-400 tracking-widest text-center">Nueva Patente</label>
                    <input
                      type="text"
                      autoFocus
                      value={newPatente}
                      onChange={(e) => setNewPatente(e.target.value)}
-                     className="w-full bg-gray-950 text-center border-2 border-blue-500/40 rounded-2xl px-5 py-5 text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-black text-3xl uppercase tracking-widest"
-                     placeholder="AB123CD"
+                     className="w-full bg-[#020617] text-center border-2 border-blue-500/40 rounded-2xl px-5 py-6 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl uppercase tracking-widest"
+                     placeholder="X000XX"
                    />
-                   <div className="flex gap-2">
-                     <button type="button" onClick={() => setChangingVehicle(false)} className="flex-1 py-4 bg-gray-900 border border-white/5 rounded-xl text-gray-500 font-black uppercase tracking-widest text-[10px]">Cancelar</button>
-                     <button type="button" onClick={handleChangeVehicleRedirect} disabled={!newPatente.trim()} className="flex-[2] py-4 bg-blue-600 rounded-xl text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20 disabled:opacity-50">Cargar Vehículo</button>
+                   <div className="flex gap-3">
+                     <button type="button" onClick={() => setChangingVehicle(false)} className="flex-1 py-5 bg-slate-900 border border-white/5 rounded-2xl text-slate-500 font-black uppercase tracking-widest text-[10px]">Cancelar</button>
+                     <button type="button" onClick={handleChangeVehicleRedirect} disabled={!newPatente.trim()} className="flex-[2] py-5 bg-blue-600 rounded-2xl text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-blue-500/20 disabled:opacity-50">Buscar Unidad</button>
                    </div>
-                   <p className="text-[8px] text-gray-500 text-center uppercase tracking-widest mt-2 italic">Se te pedirán los kilómetros de la nueva unidad.</p>
                  </div>
                )}
-
              </div>
 
-             {/* LISTA DE SUCURSALES (oculto temporalmente si está cambiando vehículo, para enfocar la vista) */}
+             {/* LISTA DE SUCURSALES */}
              {!changingVehicle && (
                <div className="space-y-4 animate-in slide-in-from-bottom-4">
                  <div className="flex justify-between items-end px-2">
-                   <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] font-sans">Sucursales Visitadas</label>
+                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Nodos de Operativa</label>
                  </div>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar p-1">
                    {sucursales.map(s => (
                      <label
                        key={s.id}
-                       className="flex items-center gap-4 p-5 rounded-[1.8rem] border border-white/5 bg-gray-900/40 hover:bg-gray-800/60 hover:border-emerald-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
+                       className="flex items-center gap-4 p-5 rounded-[2rem] border border-white/5 bg-[#1e293b]/30 hover:bg-[#1e293b]/60 hover:border-blue-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
                      >
                        <div className="relative flex items-center justify-center z-10">
                          <input 
                            type="checkbox" 
                            name="sucursalIds" 
                            value={s.id}
-                           className="w-6 h-6 rounded-lg border-2 border-gray-700 bg-gray-950 text-emerald-500 focus:ring-offset-gray-900 focus:ring-emerald-500 transition-all"
+                           className="w-6 h-6 rounded-lg border-2 border-slate-700 bg-slate-950 text-blue-500 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all cursor-pointer"
                          />
                        </div>
                        <div className="flex-1 z-10">
-                         <div className="text-[11px] font-black text-gray-300 group-hover/item:text-emerald-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
-                         <div className="text-[9px] text-gray-600 font-bold truncate uppercase tracking-tighter">{s.direccion}</div>
+                         <div className="text-[11px] font-black text-slate-300 group-hover/item:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
+                         <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">{s.direccion}</div>
                        </div>
                      </label>
                    ))}
@@ -256,38 +336,46 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         {/* 3. FINALIZAR DÍA: Resumen de cierre */}
         {isFinishingShift && (
           <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-             <div className="p-6 bg-rose-600/10 border border-rose-600/20 rounded-[2.5rem] backdrop-blur-xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 blur-3xl rounded-full" />
-               <div className="flex justify-between items-start mb-4 relative z-10">
-                  <p className="text-rose-500 font-black uppercase tracking-[0.2em] text-[10px]">Cierre del Turno Diario</p>
-                  <button type="button" onClick={() => setIsFinishingShift(false)} className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all">Cancelar</button>
-               </div>
-               <h3 className="text-white font-black text-2xl leading-tight uppercase tracking-tight relative z-10">Unidad {vehiculo.patente}.</h3>
-               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">Completá los datos finales de la jornada</p>
-            </div>
+             <div className="p-6 bg-blue-900/10 border border-blue-500/20 rounded-[2.5rem] backdrop-blur-xl relative overflow-hidden">
 
-            <div className="bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl relative overflow-hidden space-y-8">
-              <div className="space-y-3">
-                <label className="block text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] text-center">Kilometraje Final</label>
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                   <p className="text-blue-500 font-black uppercase tracking-[0.3em] text-[10px]">Cierre de Transmisión</p>
+                   <button type="button" onClick={() => setIsFinishingShift(false)} className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all">Cancelar</button>
+                </div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-tighter relative z-10">Final de Jornada - {vehiculo.patente}.</h3>
+             </div>
+
+             <div className="p-1 bg-[#020617]/40 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto mb-4">
+                <div className="flex items-center justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 py-2">
+                   <span>Señal GPS</span>
+                   <span className={gpsLocation ? "text-blue-500" : "text-amber-500"}>{gpsLocation ? "Conectado" : "Buscando"}</span>
+                </div>
+                <div className="h-1 bg-slate-900 rounded-full overflow-hidden mx-3 mb-3">
+                   <div className={`h-full bg-blue-500 transition-all duration-1000 ${gpsLocation ? 'w-full shadow-[0_0_8px_#3b82f6]' : 'w-1/3 animate-pulse'}`} />
+                </div>
+             </div>
+
+            <div className="bg-white/5 border border-white/10 p-6 rounded-[3rem] shadow-2xl relative overflow-hidden space-y-10">
+              <div className="space-y-4">
+                <label className="block text-[11px] font-black uppercase text-slate-500 tracking-[0.4em] text-center">Kilometraje Final</label>
                 <div className="relative group max-w-xs mx-auto">
                   <input
                     name="kmActual"
                     type="number"
                     required
-                    className="w-full bg-gray-950 text-center border-2 border-rose-500/20 rounded-2xl px-5 py-6 text-white focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all font-black text-4xl shadow-inner shadow-rose-500/5"
-                    placeholder="000000"
+                    className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-5xl shadow-2xl"
+                    placeholder="000"
                   />
-                  <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-rose-500 font-black text-xs uppercase tracking-widest">km</div>
                 </div>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-white/5">
-                <label className="block text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] text-center mb-4">Nivel Tanque Combustible</label>
+              <div className="space-y-6 pt-6 border-t border-white/5 text-center">
+                <label className="text-[11px] font-black uppercase text-slate-500 tracking-[0.4em] mb-6 inline-block">Nivel de Combustible</label>
                 <div className="grid grid-cols-5 gap-2">
                   {["LLENO", "3/4", "1/2", "1/4", "RESERVA"].map((val, idx) => (
                     <label key={val} className="cursor-pointer relative flex flex-col items-center group">
                       <input type="radio" name="nivelCombustible" value={val} defaultChecked={idx===0} className="peer sr-only" required />
-                      <div className="w-full text-center py-6 rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-tighter text-gray-600 bg-gray-950 border border-white/5 peer-checked:bg-rose-600 peer-checked:text-white peer-checked:border-rose-500 peer-checked:shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-all">
+                      <div className="w-full text-center py-5 rounded-xl font-black text-[9px] uppercase text-slate-600 bg-slate-900/50 border border-white/5 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-400 transition-all">
                         {val}
                       </div>
                     </label>
@@ -300,19 +388,19 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
 
         {/* AUTH MODAL & NOVEDADES */}
         {showAuth && (
-          <div className="space-y-4 p-6 bg-amber-500/10 border border-amber-500/20 rounded-3xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-md">
+          <div className="space-y-4 p-8 bg-amber-500/10 border border-amber-500/30 rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-md">
             <div className="text-center">
-               <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-3">
+               <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-4">
                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                </div>
-              <label className="text-[12px] font-black text-amber-500 uppercase tracking-[0.2em]">Autorización Requerida</label>
+              <label className="text-[11px] font-black text-amber-500 uppercase tracking-[0.4em]">Autorización Maestra</label>
             </div>
             <input
               type="text"
               required
               value={authCode}
               onChange={(e) => setAuthCode(e.target.value)}
-              className="w-full bg-gray-950 border-2 border-amber-500/40 rounded-2xl px-5 py-5 text-white font-mono text-4xl tracking-[0.5em] text-center focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all placeholder:text-gray-900"
+              className="w-full bg-slate-950 border-2 border-amber-500/40 rounded-2xl px-5 py-6 text-white font-mono text-5xl tracking-[0.6em] text-center focus:ring-8 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all placeholder:text-slate-900"
               placeholder="0000"
               maxLength={4}
             />
@@ -320,14 +408,14 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         )}
 
         {(isFirstLog || isFinishingShift) && (
-          <div className="space-y-3 animate-in fade-in duration-700 bg-white/5 p-5 rounded-[2rem] border border-white/5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Notas Adicionales (Opcional)</label>
+          <div className="space-y-3 animate-in fade-in duration-700 bg-white/5 p-6 rounded-[2.5rem] border border-white/5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] pl-1">Observaciones</label>
             <textarea
               name="novedades"
               rows={2}
               disabled={loading}
-              className="w-full bg-gray-950 border-2 border-white/5 rounded-2xl px-5 py-4 text-white focus:border-blue-500 outline-none transition-all resize-none placeholder:text-gray-800 text-sm font-medium"
-              placeholder="Algún aviso o falla a registrar..."
+              className="w-full bg-[#020617] border-2 border-white/5 rounded-2xl px-5 py-5 text-white focus:border-blue-500 outline-none transition-all resize-none placeholder:text-slate-800 text-sm font-medium"
+              placeholder="Escribe novedades aquí..."
             />
           </div>
         )}
@@ -335,49 +423,47 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         {/* BOTONES DE ACCIÓN */}
         <div className="pt-4 fixed bottom-6 left-6 right-6 sm:relative sm:inset-0 sm:pt-4 z-50">
           {!isFirstLog && !isFinishingShift && !changingVehicle ? (
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-[2] py-6 px-4 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all bg-emerald-500 hover:bg-emerald-400 text-gray-950 shadow-[0_15px_30px_rgba(16,185,129,0.3)] shadow-emerald-500/20 active:scale-[0.98] flex justify-center items-center gap-2"
+                className="flex-[2] py-6 px-4 rounded-[2rem] text-[12px] font-black uppercase tracking-[0.3em] bg-blue-600 hover:bg-blue-500 text-white shadow-2xl active:scale-[0.98] flex justify-center items-center gap-3 transition-all"
               >
-                {loading ? <div className="h-5 w-5 border-4 border-gray-950/30 border-t-gray-950 rounded-full animate-spin" /> : "Registrar Paradas"}
+                {loading ? <div className="h-5 w-5 border-4 border-white/30 border-t-white rounded-full animate-spin" /> : "Transmitir Parada"}
               </button>
               <button
-                 type="button"
-                 onClick={() => setIsFinishingShift(true)}
-                 className="flex-1 py-6 px-4 rounded-[2rem] text-[9px] font-black uppercase tracking-widest transition-all bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 text-rose-400 hover:text-white shadow-xl active:scale-95 flex flex-col justify-center items-center gap-1 leading-none border-2 border-transparent hover:border-rose-400"
-               >
-                 <svg className="w-4 h-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
-                 Cerrar Turno
+                type="button"
+                onClick={() => setIsFinishingShift(true)}
+                className="flex-1 py-6 px-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest bg-slate-900 border border-slate-700 text-slate-400 hover:border-blue-500 hover:text-white active:scale-95 flex flex-col justify-center items-center gap-1 transition-all"
+              >
+                Cerrar Turno
               </button>
             </div>
           ) : (
             <button
               type="submit"
               disabled={loading || changingVehicle}
-              className={`w-full py-6 px-6 rounded-[2rem] text-[12px] font-black uppercase tracking-[0.3em] transition-all flex justify-center items-center gap-4 active:scale-[0.97] disabled:opacity-50 
-                ${isFinishingShift ? 'bg-gradient-to-r from-rose-600 to-pink-600 shadow-[0_15px_30px_rgba(225,29,72,0.3)]' : 
-                  'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-[0_15px_30px_rgba(37,99,235,0.3)]'} 
-                text-white hover:brightness-110`}
+              className="w-full py-7 px-6 rounded-[2.5rem] text-[13px] font-black uppercase tracking-[0.6em] bg-blue-600 shadow-2xl text-white hover:brightness-110 active:scale-[0.97] transition-all disabled:opacity-50"
             >
               {loading ? (
-                <div className="h-6 w-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="h-6 w-6 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
               ) : (
-                <>
-                  <span className="relative z-10">
-                    {isFirstLog ? "Confirmar Ingreso" : (isFinishingShift ? "Finalizar Transmisión" : "Confirmar")}
-                  </span>
-                  <svg className="h-5 w-5 transition-transform translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                </>
+                <span className="relative z-10">
+                  {isFinishingShift ? "Confirmar Cierre" : "Confirmar Reporte"}
+                </span>
               )}
             </button>
           )}
         </div>
         
-        {/* Padding space for the fixed bottom button on mobile */}
         <div className="h-24 sm:hidden"></div>
       </form>
+      
+      <style jsx global>{`
+        .glow-blue {
+          box-shadow: 0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+      `}</style>
     </div>
   );
 }

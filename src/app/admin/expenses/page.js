@@ -43,20 +43,20 @@ export default async function GlobalExpenses() {
        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Gestión Global de Gastos</h1>
-          <p className="text-gray-500 dark:text-gray-400">Control total de egresos por mantenimiento y operación.</p>
+          <p className="text-gray-500 ">Control total de egresos por mantenimiento y operación.</p>
         </div>
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 px-6 py-4 rounded-3xl shadow-sm">
+        <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  px-6 py-4 rounded-3xl shadow-sm">
            <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Total del Mes</div>
            <div className="text-2xl font-black text-blue-600 dark:text-blue-400">${(totalMensual || 0).toLocaleString()}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/5">
+         <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/5">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+                  <tr className="bg-slate-800/30 /50 text-[10px] font-black uppercase text-gray-500  border-b border-slate-700 ">
                     <th className="p-6 pl-10">Fecha</th>
                     <th className="p-6">Vehículo</th>
                     <th className="p-6">Tipo</th>
@@ -68,14 +68,14 @@ export default async function GlobalExpenses() {
                   {allGastos.length === 0 ? (
                     <tr><td colSpan="5" className="p-20 text-center text-gray-400 font-bold uppercase tracking-widest">No hay gastos registrados.</td></tr>
                   ) : allGastos.map((g) => (
-                    <tr key={g.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
+                    <tr key={g.id} className="hover:bg-slate-800/30 dark:hover:bg-gray-800/20 transition-colors group">
                       <td className="p-6 pl-10 text-xs font-bold text-gray-500" suppressHydrationWarning>{new Date(g.fecha).toLocaleDateString()}</td>
                       <td className="p-6">
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-400 dark:text-gray-500">
+                          <span className="text-gray-400 ">
                              <VehicleIcon categoria={g.vehiculo?.categoria} className="w-5 h-5" />
                           </span>
-                          <div className="font-mono font-black text-sm tracking-widest uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded inline-block">{g.vehiculo?.patente || "???"}</div>
+                          <div className="font-mono font-black text-sm tracking-widest uppercase bg-slate-800/50  px-2 py-1 rounded inline-block">{g.vehiculo?.patente || "???"}</div>
                         </div>
                       </td>
                       <td className="p-6">

@@ -78,7 +78,7 @@ export default function BenefitsPage() {
              </h1>
              <p className="text-gray-400 font-medium max-w-md">Resumen ejecutivo del valor operativo y económico del sistema de gestión de flota.</p>
           </div>
-          <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl backdrop-blur-xl">
+          <div className="bg-slate-900/40/5 border border-white/10 px-6 py-4 rounded-3xl backdrop-blur-xl">
              <div className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Estado de Implementación</div>
              <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -90,7 +90,7 @@ export default function BenefitsPage() {
         {/* KPI Cards */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {kpis.map((kpi, idx) => (
-            <div key={idx} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-md relative overflow-hidden group hover:border-blue-500/30 transition-all">
+            <div key={idx} className="bg-slate-900/40/5 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-md relative overflow-hidden group hover:border-blue-500/30 transition-all">
                 <div className={`absolute top-0 right-0 p-4 opacity-10 text-${kpi.color}-500 transform group-hover:scale-125 transition-transform duration-700`}>
                    {kpi.icon}
                 </div>
@@ -120,14 +120,14 @@ export default function BenefitsPage() {
         </section>
 
         {/* Comparison Table */}
-        <section className="bg-white/5 border border-white/10 rounded-[3rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
+        <section className="bg-slate-900/40/5 border border-white/10 rounded-[3rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
            <div className="p-8 border-b border-white/10">
               <h2 className="text-xl font-black uppercase italic tracking-tighter">Comparativa Operativa (Matriz ROI)</h2>
            </div>
            <div className="overflow-x-auto">
               <table className="w-full text-left">
                  <thead>
-                    <tr className="bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                    <tr className="bg-slate-900/40/5 text-[10px] font-black uppercase tracking-widest text-gray-500">
                        <th className="p-6">Área de Mejora</th>
                        <th className="p-6">Proceso Manual (Anterior)</th>
                        <th className="p-6 text-blue-400">Con FlotApp (Actual)</th>
@@ -165,10 +165,10 @@ export default function BenefitsPage() {
               <div className="space-y-4 max-w-xl text-center md:text-left">
                  <h2 className="text-2xl font-black uppercase tracking-tighter italic">Visión Estratégica</h2>
                  <p className="text-gray-400 text-sm leading-relaxed font-medium italic">
-                    "Implementar FlotApp no solo moderniza la imagen de la empresa, sino que proporciona una herramienta de control directo sobre uno de los activos más críticos de la operación logística."
+                    &quot;Implementar FlotApp no solo moderniza la imagen de la empresa, sino que proporciona una herramienta de control directo sobre uno de los activos más críticos de la operación logística.&quot;
                  </p>
               </div>
-              <Link href="/admin/summary" className="bg-white text-black px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-transform">
+              <Link href="/admin/summary" className="bg-slate-900/40 text-black px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-transform">
                  Ver Reporte Detallado
               </Link>
            </div>

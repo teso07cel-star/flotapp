@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginAdmin } from "@/lib/actions";
+import { AdminFaceIcon } from "@/components/FuturisticIcons";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
@@ -26,28 +27,32 @@ export default function AdminLogin() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mb-6 shadow-xl shadow-blue-500/20 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div className="inline-flex items-center justify-center space-x-4 mb-8">
+             <div className="w-10 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
+             <h2 className="text-3xl font-black tracking-[-0.05em] text-white flex items-center gap-1">
+                FLOT<span className="text-blue-500">APP</span>
+             </h2>
+             <div className="w-10 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Acceso Administrativo</h1>
-          <p className="text-gray-400">Ingresa la clave para gestionar la flota</p>
+          <h1 className="text-4xl font-black tracking-[-0.05em] text-white mb-2 uppercase">Acceso <span className="text-blue-500">Táctico</span></h1>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Gestión de Flota Corporativa</p>
         </div>
 
-        <form action={loginAdmin} suppressHydrationWarning className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl">
-          <div className="mb-8">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-3">
-              Contraseña
+        <form action={loginAdmin} suppressHydrationWarning className="glass-panel p-10 rounded-[3rem] blue-glow-border relative overflow-hidden">
+          <div className="mb-8 relative z-10">
+            <label htmlFor="password" className="block text-[11px] font-black uppercase text-slate-500 tracking-[0.2em] mb-4 text-center">
+              Clave de Autorización
             </label>
             <input
               id="password"
               name="password"
               type="password"
-              placeholder="••••••••"
-              className="block w-full px-5 py-4 bg-gray-900/50 border border-gray-700/50 rounded-2xl text-white text-xl text-center transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-700 font-bold"
+              placeholder="••••"
+              className="block w-full px-5 py-6 bg-[#020617] border-2 border-blue-500/20 rounded-3xl text-white text-4xl text-center transition-all duration-300 focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none placeholder:text-slate-900 font-mono tracking-[0.5em]"
               autoComplete="current-password"
             />
             {error && (
-              <p className="mt-4 text-sm text-red-400 flex items-center justify-center gap-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
+              <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-red-500 flex items-center justify-center gap-2 bg-red-500/10 py-3 px-4 rounded-xl border border-red-500/20 animate-bounce">
                 {error}
               </p>
             )}
@@ -55,9 +60,9 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full py-4 text-base font-semibold text-white transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl hover:from-blue-500 hover:to-indigo-500 transform active:scale-[0.98]"
+            className="w-full py-6 text-[13px] font-black uppercase tracking-[0.4em] text-white transition-all duration-300 bg-blue-600 rounded-3xl hover:bg-blue-500 shadow-2xl active:scale-[0.97]"
           >
-            Ingresar
+            Validar
           </button>
         </form>
       </div>

@@ -57,8 +57,7 @@ export default function PatenteSelector({ defaultPatente }) {
   // Si tiene asignada y !showInput
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col items-center justify-center p-8 bg-blue-600/10 border border-blue-500/30 rounded-[2.5rem] mb-8 shadow-xl shadow-blue-500/5 backdrop-blur-md relative overflow-hidden group">
-         <div className="absolute -top-10 -right-10 w-24 h-24 bg-blue-500/20 blur-2xl rounded-full pointer-events-none" />
+      <div className="flex flex-col items-center justify-center p-8 bg-blue-600/10 border border-blue-500/30 rounded-[2.5rem] mb-8 relative overflow-hidden group">
          
          <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-center">Unidad Asignada</p>
          <h3 className="text-white text-4xl font-black uppercase tracking-[0.2em] mb-1 text-center font-mono">

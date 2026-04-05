@@ -24,11 +24,17 @@ const prismaClientSingleton = () => {
   return new PrismaClient({ adapter })
 }
 
+export function resetPrismaInstance() {
+  console.log("♻️ Reseteando instancia de Prisma Client...");
+  globalThis.prisma = undefined;
+}
+
 const globalForPrisma = globalThis
 
 const prisma = new Proxy({}, {
   get(target, prop) {
     if (prop === 'then') return undefined;
+    if (prop === '$reset') return resetPrismaInstance;
 
     if (!globalForPrisma.prisma) {
       globalForPrisma.prisma = prismaClientSingleton();

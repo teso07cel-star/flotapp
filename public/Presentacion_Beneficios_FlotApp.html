@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficios Corporativos | FlotApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --panel: rgba(15, 23, 42, 0.9);
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 80px 20px; }
+        
+        .header { text-align: center; margin-bottom: 80px; }
+        .header h1 { font-size: 4.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -2px; }
+        .header span { color: var(--accent); }
+        .header p { color: var(--text-dim); text-transform: uppercase; letter-spacing: 8px; font-size: 0.8rem; font-weight: 700; margin-top: 10px; }
+
+        .big-card {
+            background: var(--panel);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            padding: 60px;
+            margin-bottom: 40px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .benefit-grid { display: grid; grid-template-cols: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .benefit-item {
+            padding: 30px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.4s ease;
+        }
+        .benefit-item:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.03); }
+
+        .icon { width: 50px; height: 50px; background: var(--accent); color: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-bottom: 20px; box-shadow: 0 10px 20px var(--accent-glow); }
+
+        h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 15px; color: white; }
+        p { font-size: 1.05rem; color: var(--text-dim); }
+
+        .security-focus {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(2, 6, 23, 0.4));
+            border: 1px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        .security-focus::after {
+            content: "SECURED";
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: var(--accent);
+            padding: 5px 40px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            transform: rotate(45deg);
+        }
+
+        .dynamic-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .footer { text-align: center; margin-top: 60px; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p>Reporte de Valor Estratégico</p>
+            <h1>Flot<span>App</span> Power</h1>
+        </div>
+
+        <div class="big-card security-focus">
+            <div class="dynamic-badge">Protocolo de Seguridad</div>
+            <h2>Blindaje de Datos e Integridad</h2>
+            <p>La seguridad no es una opción, es la base de FlotApp. Implementamos validación de identidad biométrica y rastro de hardware. Esto significa que la aplicación solo puede ser operada en dispositivos autorizados, eliminando el riesgo de reportes fraudulentos o manipulación de datos GPS. Cada kilómetro es una verdad auditada.</p>
+        </div>
+
+        <div class="benefit-grid">
+            <div class="benefit-item">
+                <div class="icon">01</div>
+                <h2>Optimización de Tiempos</h2>
+                <p>El "Modo Flash" permite a los conductores reportar en segundos, no en minutos. Menos tiempo cargando datos significa más tiempo en ruta y mayor eficiencia logística por unidad.</p>
+            </div>
+            <div class="benefit-item">
+                <div class="icon">02</div>
+                <h2>Visibilidad Patrimonial</h2>
+                <p>Auditorías periódicas automáticas mantienen el registro visual de cada vehículo. Gestión de siniestros y mantenimientos preventivos basados en datos reales, no estimaciones.</p>
+            </div>
+            <div class="benefit-item">
+                <div class="icon">03</div>
+                <h2>Estructura Evolutiva</h2>
+                <p>FlotApp no es un software estático. Está diseñado para rediseñarse y escalar constantemente según las necesidades de la empresa, optimizando la estructura organizacional de transporte a medida que el negocio crece.</p>
+            </div>
+        </div>
+
+        <div class="big-card" style="margin-top: 40px; background: rgba(59, 130, 246, 0.02);">
+            <h2 style="text-align: center; margin-bottom: 20px;">Retorno de Inversión (ROI)</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto;">Al optimizar la gestión de recursos móviles y garantizar la trazabilidad total mediante el rastro GPS activo, la empresa logra una reducción significativa de costos operativos y una mayor transparencia en cada jornada desde el primer día de implementación.</p>
+        </div>
+
+        <div class="footer">
+            Sistemas de Inteligencia Logística | FlotApp
+        </div>
+    </div>
+</body>
+</html>

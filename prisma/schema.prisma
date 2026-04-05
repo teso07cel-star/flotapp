@@ -53,7 +53,7 @@ model RegistroDiario {
   kmModificado          Boolean            @default(false)
   novedades             String?
   nombreConductor       String?
-  vehiculoId            Int
+  vehiculoId            Int?
   lugarGuarda           String?
   nivelCombustible      String?
   motivoUso             String?
@@ -70,7 +70,7 @@ model RegistroDiario {
   fotoVTV               String?
   fotoSeguro            String?
   chofer                Chofer?            @relation(fields: [choferId], references: [id])
-  vehiculo              Vehiculo           @relation(fields: [vehiculoId], references: [id])
+  vehiculo              Vehiculo?          @relation(fields: [vehiculoId], references: [id])
   RegistroSucursal      RegistroSucursal[]
   sucursales            Sucursal[]         @relation("RegistroDiarioToSucursal")
 }
@@ -126,4 +126,12 @@ model RegistroSucursal {
   cantidadVisitas Int            @default(1)
   RegistroDiario  RegistroDiario @relation(fields: [registroId], references: [id], onDelete: Cascade)
   Sucursal        Sucursal       @relation(fields: [sucursalId], references: [id], onDelete: Cascade)
+}
+
+model AutorizacionDispositivo {
+  id                Int      @id @default(autoincrement())
+  nombreSolicitante String
+  deviceId          String   @unique
+  estado            String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  fechaSolicitud    DateTime @default(now())
 }

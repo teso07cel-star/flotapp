@@ -1,11 +1,11 @@
 {
   "name": "FLOTAPP",
   "short_name": "FLOTAPP",
-  "description": "Gestión de Flota Vehicular",
+  "description": "Gestión Estratégica de Flota Vehicular",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#030712",
-  "theme_color": "#2563eb",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
   "icons": [
     {
       "src": "icon.png",
@@ -20,12 +20,12 @@
   ],
   "shortcuts": [
     {
-      "name": "Portal Chofer",
+      "name": "Conductor Estratégico",
       "url": "/driver/entry",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Panel Admin",
+      "name": "Gestión Administrativa",
       "url": "/admin",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     }

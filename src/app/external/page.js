@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { processExternalEntry } from "@/lib/externalActions";
 import Image from "next/image";
+import { LuxurySedanIcon } from "@/components/FuturisticIcons";
 
 export default async function ExternalEntryPage({ searchParams }) {
   const params = await searchParams;
@@ -23,14 +24,15 @@ export default async function ExternalEntryPage({ searchParams }) {
         </Link>
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-purple-600 to-pink-500 mb-6 shadow-xl shadow-purple-500/20 overflow-hidden shadow-2xl transition-transform hover:scale-105">
-            <div className="relative w-full h-full"><Image src="/icon.png" alt="FLOTAPP" fill sizes="100%" className="object-cover" /></div>
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-slate-500/10 border border-slate-500/20 mb-8 shadow-2xl relative group">
+             <div className="absolute inset-0 bg-slate-500/5 blur-xl group-hover:bg-slate-500/10 transition-all rounded-full" />
+             <LuxurySedanIcon className="w-12 h-12 text-slate-300 relative z-10" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Conductores Externos</h1>
-          <p className="text-gray-400">Portal para camiones y transportes tercerizados</p>
+          <h1 className="text-4xl font-black tracking-[-0.05em] text-white mb-2 uppercase">Movilidad <span className="text-slate-400">Inteligente</span></h1>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Red de Transporte y Logística Externa</p>
         </div>
 
-        <form action={processExternalEntry} className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl space-y-6">
+        <form action={processExternalEntry} className="glass-panel p-10 rounded-[3rem] silver-glow-border relative overflow-hidden space-y-8">
           
           <div>
             <label htmlFor="patente" className="block text-sm font-medium text-gray-300 mb-3">
@@ -71,12 +73,9 @@ export default async function ExternalEntryPage({ searchParams }) {
 
           <button
             type="submit"
-            className="relative w-full overflow-hidden inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform active:scale-[0.98]"
+            className="w-full py-6 text-[13px] font-black uppercase tracking-[0.4em] text-white transition-all duration-300 bg-slate-700 hover:bg-slate-600 rounded-2xl shadow-2xl active:scale-[0.97]"
           >
-            <span className="flex items-center gap-2">
-              Continuar a Bitácora
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </span>
+            Acceso Externo
           </button>
         </form>
       </div>

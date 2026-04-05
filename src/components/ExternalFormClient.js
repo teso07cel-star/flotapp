@@ -15,7 +15,7 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
   // Al montar, intentamos obtener el GPS
   useEffect(() => {
     if ("geolocation" in navigator) {
-      setGpsLoading(true);
+      setTimeout(() => setGpsLoading(true), 0);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude.toFixed(6);
@@ -46,11 +46,13 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
   });
 
   useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      vtvVencimiento: vehiculo.vtvVencimiento ? new Date(vehiculo.vtvVencimiento).toISOString().split('T')[0] : "",
-      seguroVencimiento: vehiculo.seguroVencimiento ? new Date(vehiculo.seguroVencimiento).toISOString().split('T')[0] : ""
-    }));
+    setTimeout(() => {
+      setFormData(prev => ({
+        ...prev,
+        vtvVencimiento: vehiculo.vtvVencimiento ? new Date(vehiculo.vtvVencimiento).toISOString().split('T')[0] : "",
+        seguroVencimiento: vehiculo.seguroVencimiento ? new Date(vehiculo.seguroVencimiento).toISOString().split('T')[0] : ""
+      }));
+    }, 0);
   }, [vehiculo.vtvVencimiento, vehiculo.seguroVencimiento]);
 
   const [photos, setPhotos] = useState({
@@ -209,7 +211,7 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
           <div className="space-y-8 py-4 animate-in zoom-in-95 duration-500">
              <div className="text-center space-y-4">
                 <div className="w-20 h-20 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-3xl flex items-center justify-center text-pink-500 mx-auto shadow-inner shadow-pink-500/10 border border-pink-500/20 relative">
-                   <div className="absolute inset-0 bg-pink-500/10 blur-xl rounded-full" />
+
                    <svg className="w-12 h-12 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 20c4.33 0 8.058-2.73 9.473-6.571M12 4c4.33 0 8.058 2.73 9.473 6.571M12 4C8.667 4 5.333 4 2 4m10 0v16" /></svg>
                 </div>
                 <div className="space-y-1">
@@ -420,7 +422,7 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
           <div className="space-y-6 animate-in slide-in-from-right-8 duration-500">
             <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] mb-4">Verificación Final</p>
             <div className="space-y-4 bg-gray-950/80 border border-white/5 p-6 rounded-3xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 blur-2xl rounded-full" />
+
                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-1">
                     <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest">Patente</p>
