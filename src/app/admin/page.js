@@ -253,6 +253,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
     </div>
+    );
   } catch (error) {
     console.error("CRITICAL ADMIN ERROR:", error);
     return (
