@@ -6,12 +6,26 @@ import { calculateSequentialRoute } from "./geoUtils";
 export async function getVehiculoByPatente(patente) {
   try {
     if (!patente) return { success: false, error: "Patente requerida" };
-    const vehiculo = await prisma.vehiculo.findUnique({
-      where: { patente: patente.toUpperCase().trim() },
+    const cleanPatente = patente.replace(/\s+/g, '').toUpperCase().trim();
+    
+    // Intentar encontrar por patente exacta o sin espacios
+    let vehiculo = await prisma.vehiculo.findUnique({
+      where: { patente: cleanPatente },
       include: {
         registros: { orderBy: { fecha: 'desc' }, take: 1 },
       }
     });
+
+    if (!vehiculo) {
+        // Fallback: buscar cualquier vehículo que contenga la patente limpia
+        vehiculo = await prisma.vehiculo.findFirst({
+            where: { patente: { contains: cleanPatente, mode: 'insensitive' } },
+            include: {
+                registros: { orderBy: { fecha: 'desc' }, take: 1 },
+            }
+        });
+    }
+
     return { success: true, data: vehiculo };
   } catch (error) {
     return { success: false, error: error.message };

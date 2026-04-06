@@ -16,35 +16,67 @@ export default async function DriverForm({ searchParams }) {
   const rawDriverName = cookieStore.get("driver_name")?.value;
   const identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
 
+  // LÓGICA DE PROTOCOLO DE 4 PUNTOS: Recuperar identidad y vehículo automáticamente
   if (!patente && identifiedDriver) {
-     // 1. Priorizar Patente Asignada en el modelo Chofer (Base de Datos)
-     let choferDB = await prisma.chofer.findFirst({ 
-        where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
-     });
+    const searchName = identifiedDriver.toLowerCase().trim();
 
-     let suggestedPatente = null;
-     if (choferDB?.patenteAsignada) {
-        suggestedPatente = choferDB.patenteAsignada;
-     } else {
-        // 2. Si no hay asignada, buscar el último vehículo utilizado por el chofer
-        const lastRec = await prisma.registroDiario.findFirst({
-           where: { nombreConductor: identifiedDriver },
-           orderBy: { fecha: 'desc' },
-           include: { vehiculo: true }
-        });
-        
-        if (lastRec?.vehiculo?.patente) {
-           suggestedPatente = lastRec.vehiculo.patente;
-        }
-     }
+    try {
+      // 1. Buscar en tabla Chofer (Mapeo Oficial) - PRIORIDAD MÁXIMA
+      const choferDB = await prisma.chofer.findFirst({ 
+          where: { nombre: { contains: searchName, mode: 'insensitive' } } 
+      });
 
-     if (suggestedPatente) {
-        redirect(`/driver/form?patente=${suggestedPatente}`);
-     }
+      if (choferDB?.patenteAsignada) {
+          patente = choferDB.patenteAsignada;
+      } 
+      
+      if (!patente) {
+          // 2. Buscar en Historial (Último vehículo utilizado por este chofer)
+          const lastRec = await prisma.registroDiario.findFirst({
+            where: { 
+                nombreConductor: { contains: searchName, mode: 'insensitive' },
+                vehiculoId: { not: null }
+            },
+            orderBy: { fecha: 'desc' },
+            include: { vehiculo: true }
+          });
+          
+          if (lastRec?.vehiculo?.patente) {
+            patente = lastRec.vehiculo.patente;
+          }
+      }
+
+      // 3. Fallback Global: Último vehículo usado en el sistema
+      if (!patente) {
+          const globalLastRec = await prisma.registroDiario.findFirst({
+              where: { vehiculoId: { not: null } },
+              orderBy: { fecha: 'desc' },
+              include: { vehiculo: true }
+          });
+          if (globalLastRec?.vehiculo?.patente) {
+              patente = globalLastRec.vehiculo.patente;
+          }
+      }
+
+      // 4. Último Recurso: Cualquier vehículo activo del sistema
+      if (!patente) {
+          const anyVehicle = await prisma.vehiculo.findFirst({ where: { activo: true }, orderBy: { id: 'asc' } });
+          if (anyVehicle) {
+              patente = anyVehicle.patente;
+          }
+      }
+    } catch (e) {
+      console.error("Error in driver/vehicle mapping:", e);
+    }
+
+    // Si encontramos una patente por cualquier vía, redirigimos para que la URL sea oficial
+    if (patente) {
+       return redirect(`/driver/form?patente=${patente}`);
+    }
   }
 
   if (!patente && !identifiedDriver) {
-    redirect("/driver/entry");
+    return redirect("/driver/entry");
   }
 
   const [vehiculoRes, sucursalesRes] = await Promise.all([
@@ -54,7 +86,7 @@ export default async function DriverForm({ searchParams }) {
 
   let vehiculo = vehiculoRes.success ? vehiculoRes.data : null;
   if (!vehiculo) {
-      vehiculo = { patente: "SIN ASIGNAR", categoria: "AUTO", id: 0 };
+      vehiculo = { patente: "", categoria: "AUTO", id: 0 };
   }
 
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
@@ -63,21 +95,20 @@ export default async function DriverForm({ searchParams }) {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  // 1. Determinar si es el PRIMER VIAJE operativo del día (Estado 1 vs Estado 2)
-  const tripHoy = (identifiedDriver) ? await prisma.registroDiario.findFirst({
+  // 1. Determinar fase del flujo de 4 puntos:
+  // INICIO_JORNADA (Punto 0) -> INICIO (Punto 1: Patente/KM) -> RITMO (Punto 2: Patente/Sin KM)
+  
+  const operacionHoy = identifiedDriver ? await prisma.registroDiario.findFirst({
     where: { 
       nombreConductor: identifiedDriver,
       fecha: { gte: todayStart },
-      tipoReporte: { in: ['INICIO', 'PARADA', 'CIERRE'] }
-    },
-    orderBy: { fecha: 'desc' }
+      tipoReporte: { in: ['INICIO', 'PARADA'] }
+    }
   }) : null;
 
-  const yaInicioViaje = !!tripHoy;
-  // Fase 1: INICIO (Pide KM y Patente)
-  // Fase 2: RITMO (No pide KM, pregunta si misma patente)
-  const phase = yaInicioViaje ? "RITMO" : "INICIO";
-  const isFirstLog = !yaInicioViaje;
+  const yaHizoPrimerViaje = !!operacionHoy;
+  const phase = yaHizoPrimerViaje ? "RITMO" : "INICIO";
+  const isFirstLog = !yaHizoPrimerViaje;
 
 
   return (
@@ -90,26 +121,28 @@ export default async function DriverForm({ searchParams }) {
         <div className="glass-panel p-8 sm:p-12 rounded-[3.5rem] blue-glow-border relative overflow-hidden">
           <div className="absolute top-0 right-0 p-6 opacity-30 pointer-events-none mix-blend-screen overflow-visible">
              {vehiculo.categoria === "MOTO" ? (
-               <img src="/icons/moto.png" className="w-56 grayscale contrast-125 brightness-110" alt="Moto" />
-             ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
-               <img src="/icons/pickup.png" className="w-80 relative top-4 right-4 grayscale brightness-[0.7] contrast-[1.2]" alt="Hilux" />
-             ) : vehiculo.categoria === "AUTO" ? (
-               <img src="/icons/etios.png" className="w-72 relative top-8 right-4 brightness-125 contrast-125" alt="Etios" />
-             ) : (
-               <div className="w-64 h-64 relative flex items-center justify-center mr-2 mt-2 bg-[#0f172a] rounded-3xl">
-                 <img 
-                   src="/icons/admin_hud.png" 
-                   className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
-                   alt="Operator Verified" 
-                 />
-               </div>
-             )}
+                <img src="/icons/moto_tactic.png" className="w-64 grayscale contrast-[1.4] brightness-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" alt="Moto" />
+              ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente?.startsWith("INT")) ? (
+                <img src="/icons/pickup_tactic.png" className="w-80 relative top-2 right-2 grayscale brightness-[0.8] contrast-[1.3] drop-shadow-[0_0_30px_rgba(59,130,246,0.2)]" alt="Hilux" />
+              ) : (vehiculo.categoria === "AUTO" || (vehiculo.patente && vehiculo.patente.length > 0)) ? (
+                <img src="/icons/etios_tactic_v2.png" className="w-72 relative top-4 right-2 brightness-110 contrast-[1.2] drop-shadow-[0_0_25px_rgba(255,255,255,0.1)]" alt="Etios" />
+              ) : (
+                <div className="w-64 h-64 relative flex items-center justify-center mr-2 mt-2 bg-[#0f172a] rounded-3xl">
+                  <img 
+                    src="/icons/admin_hud.png" 
+                    className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
+                    alt="Operator Verified" 
+                  />
+                </div>
+              )}
           </div>
           
           <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
             <div className="h-16 w-24 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-all" />
-               <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">{vehiculo.patente}</span>
+               <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">
+                 {vehiculo.patente || "SCAN"}
+               </span>
             </div>
             <div>
               <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>

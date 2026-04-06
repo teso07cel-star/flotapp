@@ -1,7 +1,7 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -51,25 +51,25 @@ model RegistroDiario {
   id                    Int                @id @default(autoincrement())
   fecha                 DateTime           @default(now())
   kmActual              Int?
-  kmModificado          Boolean            @default(false)
   novedades             String?
   nombreConductor       String?
   vehiculoId            Int?
   lugarGuarda           String?
   nivelCombustible      String?
-  motivoUso             String?
-  tipoReporte           String?
-  frecuenciaRegistro    String?
   choferId              Int?
   esExterno             Boolean            @default(false)
   fotoTicketCombustible String?
   montoCombustible      Float?
+  frecuenciaRegistro    String?
+  kmModificado          Boolean            @default(false)
+  motivoUso             String?
+  tipoReporte           String?
   fotoFrente            String?
-  fotoTrasera           String?
-  fotoLateralIzq        String?
   fotoLateralDer        String?
-  fotoVTV               String?
+  fotoLateralIzq        String?
   fotoSeguro            String?
+  fotoTrasera           String?
+  fotoVTV               String?
   chofer                Chofer?            @relation(fields: [choferId], references: [id])
   vehiculo              Vehiculo?          @relation(fields: [vehiculoId], references: [id])
   RegistroSucursal      RegistroSucursal[]
@@ -133,6 +133,6 @@ model AutorizacionDispositivo {
   id                Int      @id @default(autoincrement())
   nombreSolicitante String
   deviceId          String   @unique
-  estado            String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  estado            String   @default("PENDIENTE")
   fechaSolicitud    DateTime @default(now())
 }
