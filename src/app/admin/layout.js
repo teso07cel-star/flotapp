@@ -6,17 +6,13 @@ import Image from "next/image";
 import { AdminFaceIcon, StrategicGearIcon } from "@/components/FuturisticIcons";
 
 export default async function AdminLayout({ children }) {
-  const cookieStore = await cookies();
-  const isAuth = cookieStore.get("flotapp_admin_auth")?.value === "true";
-  
-  // Si no hay cookie de auth, solo mostramos el contenido (el middleware se encarga de redirigir si no es /login)
-  // Si no queremos mostrar el sidebar en /login, lo ocultamos aqu
+  // El middleware se encarga de la redirección y seguridad.
+  // Si llegamos aquí, el usuario está autenticado.
   
   return (
     <div className="min-h-screen bg-[#0f172a] flex flex-col md:flex-row font-sans text-gray-100 selection:bg-blue-500/30">
-      {/* Sidebar */}
-      {isAuth && (
-        <aside className="w-full md:w-64 bg-[#0f172a]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-blue-500/20 flex-shrink-0 z-20">
+      {/* Sidebar - Siempre visible en admin si pasó el middleware */}
+      <aside className="w-full md:w-64 bg-[#0f172a]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-blue-500/20 flex-shrink-0 z-20">
           <div className="h-full flex flex-col">
             <div className="p-6 border-b border-blue-500/20 flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-transparent">
                <div className="relative w-11 h-11 flex items-center justify-center bg-slate-900 border border-slate-700 group overflow-hidden grayscale opacity-90 transition-all hover:grayscale-0 hover:opacity-100 rounded-sm">
@@ -113,7 +109,6 @@ export default async function AdminLayout({ children }) {
             </div>
           </div>
         </aside>
-      )}
 
       {/* Main content */}
       <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#0f172a] relative">

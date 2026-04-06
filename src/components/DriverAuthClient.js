@@ -22,6 +22,33 @@ export default function DriverAuthClient({ choferes }) {
   const [authSuccess, setAuthSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const pollingRef = useRef(null);
+  
+  // GPS PARA IDENTIFICACION (Estado 0)
+  const [idGps, setIdGps] = useState(null);
+  const [gpsAttempt, setGpsAttempt] = useState(0);
+
+  useEffect(() => {
+    if (isDeviceAuthorized === true) {
+      const fetchGps = () => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+              setIdGps(coords);
+              console.log("📍 GPS Identificación ONLINE:", coords);
+            },
+            (err) => {
+              console.warn("⚠️ GPS Denegado/Error. Reintentando...", err);
+              // Reintentar en 3 segundos si falla o se deniega
+              setTimeout(() => setGpsAttempt(prev => prev + 1), 3000);
+            },
+            { enableHighAccuracy: true, timeout: 6000 }
+          );
+        }
+      };
+      fetchGps();
+    }
+  }, [isDeviceAuthorized, gpsAttempt]);
 
   useEffect(() => {
     let devId = localStorage.getItem("flotapp_device_id");
@@ -120,6 +147,11 @@ export default function DriverAuthClient({ choferes }) {
 
   const handleFingerprintPress = async () => {
     if (fastLoginDriver) {
+      if (!idGps) {
+        alert("SEÑAL GPS REQUERIDA. Por favor, habilite los permisos de ubicación.");
+        return;
+      }
+
       const devId = localStorage.getItem("flotapp_device_id");
       const res = await bindDriverToDevice(fastLoginDriver, devId);
       if (!res.success) {
@@ -127,18 +159,17 @@ export default function DriverAuthClient({ choferes }) {
         return;
       }
       
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const gps = await getGPS();
+      // REGISTRAR INICIO DE JORNADA (Estado 0)
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: fastLoginDriver,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: gps
+          lugarGuarda: idGps
       });
 
       setSelectedChofer(fastLoginDriver);
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.push('/'); // Volver al inicio para separar INICIO JORNADA de BITÁCORA
+      router.push('/'); // Regresar a la Home para que entre a "Conductor Estratégico"
     }
   };
 
@@ -148,6 +179,12 @@ export default function DriverAuthClient({ choferes }) {
       setIsExternal(true);
       setSelectedChofer("");
     } else {
+      if (!idGps) {
+        alert("PROTOCOLO BLOQUEADO: Se requiere señal GPS para identificación.");
+        e.target.value = "";
+        return;
+      }
+
       const devId = localStorage.getItem("flotapp_device_id");
       const res = await bindDriverToDevice(val, devId);
       if (!res.success) {
@@ -163,13 +200,12 @@ export default function DriverAuthClient({ choferes }) {
         document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
       }
 
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const gps = await getGPS();
+      // REGISTRAR INICIO DE JORNADA (Estado 0)
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: val,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: gps
+          lugarGuarda: idGps
       });
 
       router.push('/');
@@ -178,6 +214,11 @@ export default function DriverAuthClient({ choferes }) {
 
   const confirmNewDriver = async () => {
     if (externalName.trim()) {
+      if (!idGps) {
+        alert("BLOQUEO DE SEGURIDAD: GPS obligatorio para registro de nuevo perfil.");
+        return;
+      }
+
       const name = externalName.trim();
       const devId = localStorage.getItem("flotapp_device_id");
       const res = await bindDriverToDevice(name, devId);
@@ -193,13 +234,12 @@ export default function DriverAuthClient({ choferes }) {
         document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
       }
 
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const gps = await getGPS();
+      // REGISTRAR INICIO DE JORNADA (Estado 0)
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: name,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: gps
+          lugarGuarda: idGps
       });
 
       router.push('/');
@@ -377,7 +417,16 @@ export default function DriverAuthClient({ choferes }) {
                <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
              </svg>
           </button>
-          <div className="mt-8 text-center">
+          
+          {/* HUD TACTICO GPS */}
+          <div className="mt-4 flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${idGps ? 'bg-emerald-500 animate-pulse' : 'bg-red-500 shadow-[0_0_8px_red]'}`} />
+            <span className={`text-[9px] font-black uppercase tracking-widest ${idGps ? 'text-emerald-500' : 'text-red-500'}`}>
+              {idGps ? 'Sincronización GPS: ONLINE' : 'Esperando Señal GPS (Obligatorio)'}
+            </span>
+          </div>
+
+          <div className="mt-6 text-center">
              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-400 mb-2">Sesión Recordada</p>
              <p className="text-white text-3xl font-black uppercase tracking-tight">{fastLoginDriver}</p>
              <p className="text-[10px] text-gray-500 mt-4 max-w-[220px] leading-relaxed mx-auto font-bold uppercase tracking-wider italic">Toca la huella para confirmación biométrica</p>

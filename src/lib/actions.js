@@ -94,33 +94,41 @@ export async function createRegistroDiario(data) {
     const vehiculoId = data.vehiculoId ? parseInt(data.vehiculoId) : null;
     let kmActual = data.kmActual ? parseInt(data.kmActual) : null;
     let kmModificado = false;
+    let finalVehiculoId = vehiculoId;
 
-    // Solo buscar último registro si hay un vehiculoId válido
-    if (vehiculoId) {
+    // Si viene una patente nueva (Cambio inline en Estado 2)
+    if (data.newPatente) {
+      const v = await prisma.vehiculo.findFirst({
+        where: { patente: { equals: data.newPatente, mode: 'insensitive' } }
+      });
+      if (v) {
+        finalVehiculoId = v.id;
+      }
+    }
+
+    if (finalVehiculoId && finalVehiculoId !== 0) {
       const lastRecord = await prisma.registroDiario.findFirst({
-        where: { vehiculoId, kmActual: { not: null } },
+        where: { vehiculoId: finalVehiculoId, kmActual: { not: null } },
         orderBy: { fecha: 'desc' }
       });
 
-      if (kmActual !== null) {
-        if (lastRecord) {
-          if (kmActual < lastRecord.kmActual) {
-            const vehiculo = await prisma.vehiculo.findUnique({
-              where: { id: vehiculoId }
-            });
+      if (kmActual !== null && lastRecord) {
+        if (kmActual < lastRecord.kmActual) {
+          const vehiculo = await prisma.vehiculo.findUnique({
+            where: { id: finalVehiculoId }
+          });
 
-            if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
-              return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
-            }
-
-            await prisma.vehiculo.update({
-              where: { id: vehiculoId },
-              data: { codigoAutorizacion: null }
-            });
-            kmModificado = true;
-          } else if (kmActual !== lastRecord.kmActual) {
-            kmModificado = true;
+          if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+            return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
           }
+
+          await prisma.vehiculo.update({
+            where: { id: finalVehiculoId },
+            data: { codigoAutorizacion: null }
+          });
+          kmModificado = true;
+        } else if (kmActual !== lastRecord.kmActual) {
+          kmModificado = true;
         }
       }
     }
@@ -139,8 +147,8 @@ export async function createRegistroDiario(data) {
       }
     };
 
-    if (vehiculoId) {
-      registroData.vehiculoId = vehiculoId;
+    if (finalVehiculoId && finalVehiculoId !== 0) {
+      registroData.vehiculoId = finalVehiculoId;
     }
 
     const registro = await prisma.registroDiario.create({

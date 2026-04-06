@@ -63,24 +63,21 @@ export default async function DriverForm({ searchParams }) {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  // 1. Verificar si ya validó el KM de ESTE vehículo hoy
-  const logKmHoy = (identifiedDriver && vehiculo?.id) ? await prisma.registroDiario.findFirst({
+  // 1. Determinar si es el PRIMER VIAJE operativo del día (Estado 1 vs Estado 2)
+  const tripHoy = (identifiedDriver) ? await prisma.registroDiario.findFirst({
     where: { 
       nombreConductor: identifiedDriver,
-      vehiculoId: vehiculo.id,
-      kmActual: { not: null },
-      fecha: { gte: todayStart }
+      fecha: { gte: todayStart },
+      tipoReporte: { in: ['INICIO', 'PARADA', 'CIERRE'] }
     },
     orderBy: { fecha: 'desc' }
   }) : null;
 
-  const yaValidoKm = !!logKmHoy;
-  const seIngresoKmHoy = yaValidoKm;
-
-  // Fase A: INICIALIZACION (Pide KM) si no validó KM hoy
-  // Fase B: OPERATIVO (No pide KM) si ya validó el odómetro de esta unidad hoy
-  const phase = yaValidoKm ? "OPERATIVO" : "INICIALIZACION";
-  const isFirstLog = !yaValidoKm;
+  const yaInicioViaje = !!tripHoy;
+  // Fase 1: INICIO (Pide KM y Patente)
+  // Fase 2: RITMO (No pide KM, pregunta si misma patente)
+  const phase = yaInicioViaje ? "RITMO" : "INICIO";
+  const isFirstLog = !yaInicioViaje;
 
 
   return (
@@ -125,8 +122,7 @@ export default async function DriverForm({ searchParams }) {
             sucursales={sucursales} 
             lastLog={lastLog} 
             identifiedDriver={identifiedDriver}
-            isFirstLog={isFirstLog}
-            seIngresoKmHoy={seIngresoKmHoy}
+            phase={phase}
           />
         </div>
       </div>
