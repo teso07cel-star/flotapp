@@ -16,12 +16,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [changingVehicle, setChangingVehicle] = useState(vehiculo?.id === 0);
   const [newPatente, setNewPatente] = useState("");
   
-  // El kilometraje solo se edita en fase de INICIALIZACION o si se está CERRANDO el turno
-  const [editKm, setEditKm] = useState(isFirstLog || isFinishingShift);
+  // El kilometraje solo se edita inicialmente si se está CERRANDO el turno (o si en isFirstLog se marca 'No')
+  const [editKm, setEditKm] = useState(isFinishingShift);
 
   useEffect(() => {
-    setEditKm(isFirstLog || isFinishingShift);
-  }, [isFirstLog, isFinishingShift]);
+    setEditKm(isFinishingShift);
+  }, [isFinishingShift]);
 
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                 </div>
                 
                {/* MUESTRA ODÓMETRO SOLO SI ES NECESARIO EN ESTA FASE */}
-               {editKm && (
+               {editKm ? (
                 <div className="space-y-3 relative z-10 animate-in fade-in duration-500">
                   <label className="block text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-4">Validar Odómetro</label>
                   <div className="relative group overflow-hidden rounded-3xl">
@@ -196,6 +196,31 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                     </p>
                     <p className="text-[8px] text-slate-600 font-bold uppercase tracking-[0.4em] italic">Última lectura: {lastLog?.kmActual?.toLocaleString()} km</p>
                   </div>
+                </div>
+               ) : (
+                <div className="space-y-4 relative z-10 animate-in fade-in duration-500 pt-2">
+                   <p className="text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-6">Confirmación de Odómetro</p>
+                   
+                   <div className="flex flex-col items-center bg-[#020617]/50 rounded-2xl p-6 border border-white/5 mb-4">
+                      <span className="text-4xl text-emerald-400 font-black mb-2 opacity-90">{lastLog?.kmActual || 0} km</span>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.4em]">Lectura Sugerida</p>
+                   </div>
+                   
+                   <div className="flex items-center justify-between px-2 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 hover:bg-emerald-500/20 transition-all">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-[#020617]">
+                            <svg className="w-5 h-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                         </div>
+                         <div>
+                            <p className="text-emerald-400 text-xs font-black uppercase tracking-widest">Correcto</p>
+                            <p className="text-emerald-500/60 text-[9px] font-bold uppercase tracking-[0.2em]">Omitir edición manual</p>
+                         </div>
+                      </div>
+                      <div onClick={() => setEditKm(true)} className="px-4 py-2 border border-slate-700 bg-[#020617] rounded-xl text-slate-400 hover:text-white hover:border-slate-500 transition-all font-black text-[9px] uppercase tracking-widest cursor-pointer whitespace-nowrap">
+                         Editar (No)
+                      </div>
+                   </div>
+                   <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
                 </div>
                )}
               </div>
@@ -245,41 +270,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                      </button>
                    </div>
                    
-                    <div className="pt-2 animate-in fade-in zoom-in-95 duration-500">
-                      {editKm && (
-                        <div className="border-t border-white/10 pt-6">
-                           <p className="text-slate-500 text-[10px] uppercase tracking-[0.5em] font-black mb-4 text-center">Validar Odómetro</p>
-                           
-                           <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-                             <div className="relative group overflow-hidden rounded-2xl">
-                               <input
-                                 name="kmActual"
-                                 type="number"
-                                 required
-                                 autoFocus
-                                 defaultValue={lastLog?.kmActual || ""}
-                                 className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-6 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl shadow-inner"
-                                 placeholder="000"
-                               />
-                               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest opacity-50">km</div>
-                             </div>
-                             <button type="button" onClick={() => setEditKm(false)} className="w-full text-slate-500 text-[9px] uppercase tracking-widest font-black hover:text-white transition-colors">Omitir Odómetro (Modo Flash)</button>
-                           </div>
-                         </div>
-                      )}
-                      {!editKm && (
-                        <div className="border-t border-white/10 pt-6 pb-2 text-center animate-in slide-in-from-bottom-2 duration-500">
-                           <p className="text-emerald-500 text-[9px] font-black uppercase tracking-[0.3em] mb-1">Odómetro Sincronizado</p>
-                           <div className="flex items-center justify-center gap-2">
-                              <span className="text-2xl text-white font-black opacity-80">{lastLog?.kmActual || 0} km</span>
-                              <button type="button" onClick={() => setEditKm(true)} className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all">
-                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                              </button>
-                           </div>
-                           <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
-                        </div>
-                      )}
-                    </div>
+                   <div className="pt-2 animate-in fade-in zoom-in-95 duration-500">
+                      <div className="text-center">
+                         <p className="text-blue-500/60 text-[8px] font-black uppercase tracking-[0.3em] mb-1">Odómetro interno mantenido por sistema</p>
+                         <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
+                      </div>
+                   </div>
                  </div>
                ) : (
                  <div className="space-y-4 animate-in fade-in duration-300">
