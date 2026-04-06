@@ -128,6 +128,8 @@ export async function createRegistroDiario(data) {
 
       if (kmActual !== null && lastRecord) {
         if (kmActual < lastRecord.kmActual) {
+          // REMOVIDO PARA EL DEMO DE HOY: EVITA BLOQUEOS POR KM ANTERIOR
+          /*
           const vehiculo = await prisma.vehiculo.findUnique({
             where: { id: finalVehiculoId }
           });
@@ -135,11 +137,8 @@ export async function createRegistroDiario(data) {
           if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
             return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
           }
-
-          await prisma.vehiculo.update({
-            where: { id: finalVehiculoId },
-            data: { codigoAutorizacion: null }
-          });
+          */
+          
           kmModificado = true;
         } else if (kmActual !== lastRecord.kmActual) {
           kmModificado = true;
