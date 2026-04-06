@@ -17,25 +17,29 @@ export default async function DriverForm({ searchParams }) {
   const identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
 
   if (!patente && identifiedDriver) {
-     const lastRec = await prisma.registroDiario.findFirst({
-        where: { nombreConductor: identifiedDriver },
-        orderBy: { fecha: 'desc' },
-        include: { vehiculo: true }
+     // 1. Priorizar Patente Asignada en el modelo Chofer (Base de Datos)
+     let choferDB = await prisma.chofer.findFirst({ 
+        where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
      });
-     
-     if (lastRec?.vehiculo?.patente) {
-        patente = lastRec.vehiculo.patente;
-        redirect(`/driver/form?patente=${patente}`);
+
+     let suggestedPatente = null;
+     if (choferDB?.patenteAsignada) {
+        suggestedPatente = choferDB.patenteAsignada;
      } else {
-        let choferDB = await prisma.chofer.findFirst({ 
-          where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
+        // 2. Si no hay asignada, buscar el último vehículo utilizado por el chofer
+        const lastRec = await prisma.registroDiario.findFirst({
+           where: { nombreConductor: identifiedDriver },
+           orderBy: { fecha: 'desc' },
+           include: { vehiculo: true }
         });
-        if (choferDB?.patenteAsignada) {
-           patente = choferDB.patenteAsignada;
-           redirect(`/driver/form?patente=${patente}`);
-        } else {
-           patente = "NUEVA";
+        
+        if (lastRec?.vehiculo?.patente) {
+           suggestedPatente = lastRec.vehiculo.patente;
         }
+     }
+
+     if (suggestedPatente) {
+        redirect(`/driver/form?patente=${suggestedPatente}`);
      }
   }
 

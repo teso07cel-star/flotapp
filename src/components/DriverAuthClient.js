@@ -126,7 +126,7 @@ export default function DriverAuthClient({ choferes }) {
 
       setSelectedChofer(fastLoginDriver);
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.push('/driver/form'); // Ir directo al form para Fase 2 
+      router.push('/'); // Volver al inicio para separar INICIO JORNADA de BITÁCORA
     }
   };
 
@@ -159,7 +159,7 @@ export default function DriverAuthClient({ choferes }) {
           lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
       });
 
-      router.push('/driver/form');
+      router.push('/');
     }
   };
 
@@ -188,7 +188,7 @@ export default function DriverAuthClient({ choferes }) {
           lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
       });
 
-      router.push('/driver/form');
+      router.push('/');
     }
   };
 
