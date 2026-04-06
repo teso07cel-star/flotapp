@@ -68,7 +68,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       nivelCombustible: formData.get("nivelCombustible"),
       motivoUso: formData.get("motivoUso"),
       novedades: formData.get("novedades"),
-      sucursalIds: isFirstLog || isFinishingShift ? [] : formData.getAll("sucursalIds").map(id => parseInt(id)),
+      sucursalIds: isFinishingShift ? [] : formData.getAll("sucursalIds").map(id => parseInt(id)),
       authCode: authCode,
       tipoReporte: isFirstLog ? "INICIO" : (isFinishingShift ? "CIERRE" : "PARADA"),
       phase: phase, // Reportar fase para trazabilidad
@@ -284,8 +284,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                      type="text"
                      autoFocus
                      value={newPatente}
-                     onChange={(e) => setNewPatente(e.target.value)}
-                     className="w-full bg-[#020617] text-center border-2 border-blue-500/40 rounded-2xl px-5 py-6 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl uppercase tracking-widest"
+                     onChange={(e) => setNewPatente(e.target.value.toUpperCase())}
+                     className="w-full bg-[#020617] text-center border-2 border-blue-500/40 rounded-2xl px-5 py-6 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl tracking-widest"
                      placeholder="X000XX"
                    />
                    <div className="flex gap-3">
@@ -296,38 +296,38 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                )}
              </div>
 
-             {/* LISTA DE SUCURSALES */}
-             {!changingVehicle && (
-               <div className="space-y-4 animate-in slide-in-from-bottom-4">
-                 <div className="flex justify-between items-end px-2">
-                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Nodos de Operativa</label>
-                 </div>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar p-1">
-                   {sucursales.map(s => (
-                     <label
-                       key={s.id}
-                       className="flex items-center gap-4 p-5 rounded-[2rem] border border-white/5 bg-[#1e293b]/30 hover:bg-[#1e293b]/60 hover:border-blue-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
-                     >
-                       <div className="relative flex items-center justify-center z-10">
-                         <input 
-                           type="checkbox" 
-                           name="sucursalIds" 
-                           value={s.id}
-                           className="w-6 h-6 rounded-lg border-2 border-slate-700 bg-slate-950 text-blue-500 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all cursor-pointer"
-                         />
-                       </div>
-                       <div className="flex-1 z-10">
-                         <div className="text-[11px] font-black text-slate-300 group-hover/item:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
-                         <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">{s.direccion}</div>
-                       </div>
-                     </label>
-                   ))}
-                 </div>
-               </div>
-             )}
+           </div>
+         )}
 
-          </div>
-        )}
+         {/* LISTA DE SUCURSALES (COMÚN PARA PRIMER Y SEGUNDO VIAJE) */}
+         {!isFinishingShift && !changingVehicle && (
+           <div className="space-y-4 animate-in slide-in-from-bottom-4">
+             <div className="flex justify-between items-end px-2 mt-4">
+               <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Nodos de Operativa</label>
+             </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar p-1">
+               {sucursales.map(s => (
+                 <label
+                   key={s.id}
+                   className="flex items-center gap-4 p-5 rounded-[2rem] border border-white/5 bg-[#1e293b]/30 hover:bg-[#1e293b]/60 hover:border-blue-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
+                 >
+                   <div className="relative flex items-center justify-center z-10">
+                     <input 
+                       type="checkbox" 
+                       name="sucursalIds" 
+                       value={s.id}
+                       className="w-6 h-6 rounded-lg border-2 border-slate-700 bg-slate-950 text-blue-500 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all cursor-pointer"
+                     />
+                   </div>
+                   <div className="flex-1 z-10">
+                     <div className="text-[11px] font-black text-slate-300 group-hover/item:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
+                     <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">{s.direccion}</div>
+                   </div>
+                 </label>
+               ))}
+             </div>
+           </div>
+         )}
 
         {/* 3. FINALIZAR DÍA: Resumen de cierre */}
         {isFinishingShift && (
@@ -403,8 +403,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           </div>
         )}
 
-        {(isFirstLog || isFinishingShift) && (
-          <div className="space-y-3 animate-in fade-in duration-700 bg-white/5 p-6 rounded-[2.5rem] border border-white/5">
+        {(!isFinishingShift && !changingVehicle || isFinishingShift) && (
+          <div className="space-y-3 animate-in fade-in duration-700 bg-white/5 p-6 rounded-[2.5rem] border border-white/5 mt-4">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] pl-1">Observaciones</label>
             <textarea
               name="novedades"
