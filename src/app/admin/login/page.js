@@ -10,7 +10,9 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleAction = async (formData) => {
+  const handleAction = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
     const pwd = formData.get("password")?.toString();
     const res = await loginAdmin(formData);
     if (res && !res.success) {
@@ -38,7 +40,7 @@ export default function AdminLogin() {
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Gestión de Flota Corporativa</p>
         </div>
 
-        <form action={loginAdmin} suppressHydrationWarning className="glass-panel p-10 rounded-[3rem] blue-glow-border relative overflow-hidden">
+        <form onSubmit={handleAction} suppressHydrationWarning className="glass-panel p-10 rounded-[3rem] blue-glow-border relative overflow-hidden">
           <div className="mb-8 relative z-10">
             <label htmlFor="password" className="block text-[11px] font-black uppercase text-slate-500 tracking-[0.2em] mb-4 text-center">
               Clave de Autorización

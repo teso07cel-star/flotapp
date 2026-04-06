@@ -235,7 +235,7 @@ export default function DriverAuthClient({ choferes }) {
               type="text" 
               placeholder="NOMBRE Y APELLIDO"
               value={deviceOperatorName}
-              onChange={(e) => setDeviceOperatorName(e.target.value)}
+              onChange={(e) => setDeviceOperatorName(e.target.value.toUpperCase())}
               className="w-full bg-[#020617] border-2 border-slate-700/50 rounded-2xl px-5 py-5 text-white focus:border-blue-500 outline-none text-center font-bold"
             />
             {errorMessage && (
@@ -323,7 +323,7 @@ export default function DriverAuthClient({ choferes }) {
             required
             autoFocus
             value={externalName}
-            onChange={(e) => setExternalName(e.target.value)}
+            onChange={(e) => setExternalName(e.target.value.toUpperCase())}
             className="w-full bg-gray-950/50 border-2 border-indigo-500/20 rounded-2xl px-6 py-4 text-white text-lg text-center font-bold focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-700"
             placeholder="NOMBRE Y APELLIDO"
           />

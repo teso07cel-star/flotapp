@@ -555,7 +555,7 @@ export async function getAllChoferes() {
 export async function addChofer(nombre) {
   try {
     const c = await prisma.chofer.create({
-      data: { nombre }
+      data: { nombre: nombre.toUpperCase().trim() }
     });
     revalidatePath("/admin/choferes");
     return { success: true, data: c };
