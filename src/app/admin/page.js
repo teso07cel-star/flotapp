@@ -17,13 +17,17 @@ async function deleteVehiculoAction(formData) {
 
 
 export default async function AdminDashboard() {
-  const [vRes, rRes] = await Promise.all([
-    getAllVehiculos(),
-    getUltimosRegistros(10)
-  ]);
-  
-  const vehiculos = vRes.success ? vRes.data : [];
-  const registros = rRes.success ? rRes.data : [];
+  try {
+    const [vRes, rRes] = await Promise.all([
+      getAllVehiculos(),
+      getUltimosRegistros(10)
+    ]);
+    
+    if (!vRes.success) throw new Error("Vehiculos: " + vRes.error);
+    if (!rRes.success) throw new Error("Registros: " + rRes.error);
+
+    const vehiculos = vRes.data || [];
+    const registros = rRes.data || [];
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -249,5 +253,17 @@ export default async function AdminDashboard() {
         </div>
       </div>
     </div>
-  );
+  } catch (error) {
+    console.error("CRITICAL ADMIN ERROR:", error);
+    return (
+      <div className="p-10 bg-red-950/20 border border-red-500 rounded-3xl text-red-500">
+        <h1 className="text-2xl font-black mb-4 uppercase">Error de Sistema Táctico</h1>
+        <p className="font-mono text-xs bg-black/50 p-4 rounded-xl mb-4">{error.message}</p>
+        <pre className="text-[10px] opacity-70 overflow-auto">{error.stack}</pre>
+        <div className="mt-6">
+           <a href="/api/debug-db" className="text-blue-400 underline uppercase text-xs font-black">Revisar Conexión de Base de Datos</a>
+        </div>
+      </div>
+    );
+  }
 }
