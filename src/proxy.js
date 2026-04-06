@@ -2,11 +2,20 @@ import { NextResponse } from 'next/server';
 
 export default function proxy(request) {
   const { pathname } = request.nextUrl;
+  const isAuth = request.cookies.get('flotapp_admin_auth')?.value === 'true';
 
-  // Protect all /admin routes except /admin/login
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const authCookie = request.cookies.get('flotapp_admin_auth');
-    if (authCookie?.value !== 'true') {
+  // 1. Proteger todas las rutas /admin
+  if (pathname.startsWith('/admin')) {
+    // Si ya está autenticado y trata de ir al login, redirigir al panel
+    if (pathname === '/admin/login') {
+      if (isAuth) {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
+      return NextResponse.next();
+    }
+
+    // Si NO está autenticado, forzar login
+    if (!isAuth) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
