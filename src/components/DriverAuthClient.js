@@ -107,6 +107,17 @@ export default function DriverAuthClient({ choferes }) {
      // No longer used, handled by polling
   };
 
+  const getGPS = () => {
+    return new Promise((resolve) => {
+      if (!("geolocation" in navigator)) return resolve("UBICACIÓN GPS AUTOMÁTICA");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(`${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`),
+        (err) => resolve("UBICACIÓN DESCONOCIDA"),
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    });
+  };
+
   const handleFingerprintPress = async () => {
     if (fastLoginDriver) {
       const devId = localStorage.getItem("flotapp_device_id");
@@ -117,11 +128,12 @@ export default function DriverAuthClient({ choferes }) {
       }
       
       // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const gps = await getGPS();
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: fastLoginDriver,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+          lugarGuarda: gps
       });
 
       setSelectedChofer(fastLoginDriver);
@@ -152,11 +164,12 @@ export default function DriverAuthClient({ choferes }) {
       }
 
       // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const gps = await getGPS();
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: val,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+          lugarGuarda: gps
       });
 
       router.push('/');
@@ -181,11 +194,12 @@ export default function DriverAuthClient({ choferes }) {
       }
 
       // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const gps = await getGPS();
       const { createRegistroDiario } = await import("@/lib/actions");
       await createRegistroDiario({
           nombreConductor: name,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+          lugarGuarda: gps
       });
 
       router.push('/');

@@ -126,127 +126,25 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           </div>
         )}
 
-        {/* 1. INICIO DE JORNADA / CAMBIO DE VEHICULO */}
-        {isFirstLog && (
-          <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
+                {/* 1. Y 2. FLUJO OPERATIVO UNIFICADO (PRIMER Y SEGUNDO VIAJE) */}
+        {!isFinishingShift && (
+          <div className="space-y-6 animate-in fade-in duration-500">
              
-             {/* PREMIUM HEADER - Primer Log */}
-             <div className="text-center space-y-6">
-                <div className="relative w-full h-40 flex items-center justify-center z-10 mx-auto pointer-events-none group pt-4">
-
-                    {vehiculo.categoria === "MOTO" ? (
-                      <img src="/icons/moto.png" className="h-20 max-w-[220px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-110 transition-transform duration-700 brightness-110 contrast-125" alt="Moto" />
-                    ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
-                      <img src="/icons/pickup.png" className="h-28 max-w-[300px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-105 transition-transform duration-700 grayscale brightness-[0.8] contrast-[1.1]" alt="Hilux" />
-                    ) : vehiculo.categoria === "AUTO" ? (
-                      <img src="/icons/etios.png" className="h-28 max-w-[280px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] relative z-20 group-hover:scale-105 transition-transform duration-700 brightness-[1.1] contrast-[1.1]" alt="Etios" />
-                    ) : (
-                      <div className="w-64 h-64 relative flex items-center justify-center bg-[#0f172a] rounded-[2rem] border border-blue-500/20 shadow-2xl">
-                        <img src="/icons/admin_hud.png" className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90" alt="Admin" />
-                      </div>
-                    )}
-                </div>
-                <div className="space-y-1 relative z-30 pt-4">
-                   <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">Sincronización Operativa</p>
-                   <h3 className="text-white text-3xl font-black tracking-tight">{identifiedDriver || lastLog?.nombreConductor || "Operador"}</h3>
-                   <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Unidad {vehiculo.patente.toUpperCase()}</p>
-                </div>
-
-             </div>
-            
-             <div className="p-1 bg-[#020617]/40 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto">
-                <div className="flex items-center justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 py-2">
-                   <span>Señal GPS</span>
-                   <span className={gpsLocation ? "text-blue-500" : "text-amber-500"}>{gpsLocation ? "Conectado" : "Buscando"}</span>
-                </div>
-                <div className="h-1 bg-slate-900 rounded-full overflow-hidden mx-3 mb-3">
-                   <div className={`h-full bg-blue-500 transition-all duration-1000 ${gpsLocation ? 'w-full shadow-[0_0_8px_#3b82f6]' : 'w-1/3 animate-pulse'}`} />
-                </div>
-             </div>
-
-              <div className="space-y-4 bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-3 -translate-y-3 group-hover:scale-110 transition-transform duration-700">
-                   <img 
-                      src={vehiculo.categoria === "MOTO" ? "/icons/moto.png" : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA") ? "/icons/pickup.png" : "/icons/admin_hud.png"} 
-                      alt="Watermark" 
-                      className="w-32 h-32 object-contain mix-blend-screen opacity-20" 
-                   />
-                </div>
-                
-               {/* MUESTRA ODÓMETRO SOLO SI ES NECESARIO EN ESTA FASE */}
-               {editKm ? (
-                <div className="space-y-3 relative z-10 animate-in fade-in duration-500">
-                  <label className="block text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-4">Validar Odómetro</label>
-                  <div className="relative group overflow-hidden rounded-3xl">
-                    <input
-                      name="kmActual"
-                      type="number"
-                      required
-                      defaultValue={lastLog?.kmActual || ""}
-                      className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-5xl shadow-2xl"
-                      placeholder="000"
-                    />
-                    <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest opacity-50">km</div>
-                  </div>
-                  <div className="flex flex-col items-center gap-2 pt-4">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">
-                       {vehiculo.categoria === "MOTO" ? "Moto Enduro" : 
-                        vehiculo.categoria === "AUTO" ? "Urbano Comfort - Diesel / Gasolina" : 
-                        "Pick-up Diesel"}
-                    </p>
-                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-[0.4em] italic">Última lectura: {lastLog?.kmActual?.toLocaleString()} km</p>
-                  </div>
-                </div>
-               ) : (
-                <div className="space-y-4 relative z-10 animate-in fade-in duration-500 pt-2">
-                   <p className="text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-6">Confirmación de Odómetro</p>
-                   
-                   <div className="flex flex-col items-center bg-[#020617]/50 rounded-2xl p-6 border border-white/5 mb-4">
-                      <span className="text-4xl text-emerald-400 font-black mb-2 opacity-90">{lastLog?.kmActual || 0} km</span>
-                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.4em]">Lectura Sugerida</p>
-                   </div>
-                   
-                   <div className="flex items-center justify-between px-2 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 hover:bg-emerald-500/20 transition-all">
-                      <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-[#020617]">
-                            <svg className="w-5 h-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                         </div>
-                         <div>
-                            <p className="text-emerald-400 text-xs font-black uppercase tracking-widest">Correcto</p>
-                            <p className="text-emerald-500/60 text-[9px] font-bold uppercase tracking-[0.2em]">Omitir edición manual</p>
-                         </div>
-                      </div>
-                      <div onClick={() => setEditKm(true)} className="px-4 py-2 border border-slate-700 bg-[#020617] rounded-xl text-slate-400 hover:text-white hover:border-slate-500 transition-all font-black text-[9px] uppercase tracking-widest cursor-pointer whitespace-nowrap">
-                         Editar (No)
-                      </div>
-                   </div>
-                   <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
-                </div>
-               )}
-              </div>
-          </div>
-        )}
-
-        {/* 2. JORNADA ACTIVA / RE-INGRESOS RÁPIDOS */}
-        {!isFirstLog && !isFinishingShift && (
-          <div className="space-y-6 animate-in zoom-in-95 duration-500">
-             
-             {/* PREMIUM HEADER - Segundo Log */}
+             {/* PREMIUM HEADER - Dinámico */}
              <div className="flex flex-col items-center gap-4 bg-[#0f172a] border border-blue-500/20 pt-8 pb-4 px-6 rounded-[2rem] shadow-[0_0_30px_rgba(59,130,246,0.15)] relative overflow-hidden group">
                 <div className="absolute -top-10 inset-x-0 h-48 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
-
                 <img 
                     src={vehiculo.categoria === "MOTO" ? "/icons/moto.png" : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA") ? "/icons/pickup.png" : "/icons/admin_hud.png"} 
                     alt="Vehiculo Activo" 
                     className="h-28 max-w-[200px] object-contain mix-blend-screen saturate-0 relative z-20 group-hover:scale-105 transition-transform duration-700" 
                  />
-                
                 <div className="relative z-30 text-center">
                    <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[9px] mb-1">Operador Verificado</p>
                    <h3 className="text-white text-xl font-black tracking-tight uppercase">{identifiedDriver || lastLog?.nombreConductor || "Valido"}</h3>
                 </div>
              </div>
 
+             {/* SEÑAL GPS */}
              <div className="p-1 bg-[#020617]/40 rounded-2xl border border-white/5 space-y-3 max-w-[200px] mx-auto mt-2 mb-2">
                 <div className="flex items-center justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 py-2">
                    <span>Señal GPS</span>
@@ -257,9 +155,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                 </div>
              </div>
 
-             {/* PASO 1: CONFIRMACION DE VEHICULO Y KILOMETRAJE EN UNA SOLA VISTA */}
+             {/* BLOQUE DE IDENTIDAD DE UNIDAD Y ODÓMETRO */}
              <div className="bg-white/5 border border-white/10 p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-               
                {!changingVehicle ? (
                  <div className="space-y-6">
                    <div className="text-center">
@@ -270,12 +167,57 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                      </button>
                    </div>
                    
-                   <div className="pt-2 animate-in fade-in zoom-in-95 duration-500">
-                      <div className="text-center">
-                         <p className="text-blue-500/60 text-[8px] font-black uppercase tracking-[0.3em] mb-1">Odómetro interno mantenido por sistema</p>
-                         <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
+                   {/* SOLO EN PRIMER VIAJE PIDE ODÓMETRO */}
+                   {isFirstLog ? (
+                      <div className="pt-4 border-t border-white/5 mt-4">
+                         {editKm ? (
+                            <div className="space-y-3 relative z-10 animate-in fade-in duration-500">
+                              <label className="block text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-4">Validar Odómetro Inicial</label>
+                              <div className="relative group overflow-hidden rounded-x3l">
+                                <input
+                                  name="kmActual"
+                                  type="number"
+                                  required
+                                  defaultValue={lastLog?.kmActual || ""}
+                                  className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-5xl shadow-2xl"
+                                  placeholder="000"
+                                />
+                                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-blue-500 font-black text-xs uppercase tracking-widest opacity-50">km</div>
+                              </div>
+                            </div>
+                         ) : (
+                            <div className="space-y-4 relative z-10 animate-in fade-in duration-500">
+                               <p className="text-[11px] font-black uppercase text-white tracking-[0.3em] text-center mb-4">Confirmación de Odómetro</p>
+                               <div className="flex flex-col items-center bg-[#020617]/50 rounded-2xl p-4 border border-white/5 mb-4">
+                                  <span className="text-3xl text-emerald-400 font-black mb-1 opacity-90">{lastLog?.kmActual || 0} km</span>
+                                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.4em]">Lectura Sugerida</p>
+                               </div>
+                               <div className="flex items-center justify-between px-2 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 hover:bg-emerald-500/20 transition-all">
+                                  <div className="flex items-center gap-3">
+                                     <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-[#020617]">
+                                        <svg className="w-5 h-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                     </div>
+                                     <div>
+                                        <p className="text-emerald-400 text-xs font-black uppercase tracking-widest">Correcto</p>
+                                        <p className="text-emerald-500/60 text-[8px] font-bold uppercase tracking-[0.2em]">Odómetro Confirmado</p>
+                                     </div>
+                                  </div>
+                                  <div onClick={() => setEditKm(true)} className="px-4 py-2 border border-slate-700 bg-[#020617] rounded-xl text-slate-400 hover:text-white hover:border-slate-500 transition-all font-black text-[9px] uppercase tracking-widest cursor-pointer whitespace-nowrap">
+                                     Editar (No)
+                                  </div>
+                               </div>
+                               <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
+                            </div>
+                         )}
                       </div>
-                   </div>
+                   ) : (
+                      <div className="pt-2 animate-in fade-in zoom-in-95 duration-500">
+                         <div className="text-center">
+                            <p className="text-blue-500/60 text-[8px] font-black uppercase tracking-[0.3em] mb-1">Odómetro interno mantenido por sistema</p>
+                            <input type="hidden" name="kmActual" value={lastLog?.kmActual || 0} />
+                         </div>
+                      </div>
+                   )}
                  </div>
                ) : (
                  <div className="space-y-4 animate-in fade-in duration-300">
@@ -296,38 +238,38 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                )}
              </div>
 
-           </div>
-         )}
+          </div>
+        )}
 
-         {/* LISTA DE SUCURSALES (COMÚN PARA PRIMER Y SEGUNDO VIAJE) */}
-         {!isFinishingShift && !changingVehicle && (
-           <div className="space-y-4 animate-in slide-in-from-bottom-4">
-             <div className="flex justify-between items-end px-2 mt-4">
-               <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Nodos de Operativa</label>
-             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar p-1">
-               {sucursales.map(s => (
-                 <label
-                   key={s.id}
-                   className="flex items-center gap-4 p-5 rounded-[2rem] border border-white/5 bg-[#1e293b]/30 hover:bg-[#1e293b]/60 hover:border-blue-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
-                 >
-                   <div className="relative flex items-center justify-center z-10">
-                     <input 
-                       type="checkbox" 
-                       name="sucursalIds" 
-                       value={s.id}
-                       className="w-6 h-6 rounded-lg border-2 border-slate-700 bg-slate-950 text-blue-500 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all cursor-pointer"
-                     />
-                   </div>
-                   <div className="flex-1 z-10">
-                     <div className="text-[11px] font-black text-slate-300 group-hover/item:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
-                     <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">{s.direccion}</div>
-                   </div>
-                 </label>
-               ))}
-             </div>
-           </div>
-         )}
+        {/* LISTA DE SUCURSALES (COMÚN PARA PRIMER Y SEGUNDO VIAJE) */}
+        {!isFinishingShift && !changingVehicle && (
+          <div className="space-y-4 animate-in slide-in-from-bottom-4">
+            <div className="flex justify-between items-end px-2 mt-4">
+              <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Nodos de Operativa</label>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar p-1">
+              {sucursales.map(s => (
+                <label
+                  key={s.id}
+                  className="flex items-center gap-4 p-5 rounded-[2rem] border border-white/5 bg-[#1e293b]/30 hover:bg-[#1e293b]/60 hover:border-blue-500/30 transition-all cursor-pointer group/item relative overflow-hidden"
+                >
+                  <div className="relative flex items-center justify-center z-10">
+                    <input 
+                      type="checkbox" 
+                      name="sucursalIds" 
+                      value={s.id}
+                      className="w-6 h-6 rounded-lg border-2 border-slate-700 bg-slate-950 text-blue-500 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1 z-10">
+                    <div className="text-[11px] font-black text-slate-300 group-hover/item:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-1">{s.nombre}</div>
+                    <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">{s.direccion}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 3. FINALIZAR DÍA: Resumen de cierre */}
         {isFinishingShift && (
