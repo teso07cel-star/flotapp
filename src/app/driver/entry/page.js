@@ -11,8 +11,22 @@ export default async function DriverEntry({ searchParams }) {
   const params = await searchParams;
   const error = params.error;
   
-  const choferesRes = await getAllChoferes();
-  const choferes = choferesRes.success ? choferesRes.data : [];
+  let choferesRes = await getAllChoferes();
+  let choferes = choferesRes.success ? choferesRes.data : [];
+
+  // SEEDING TÁCTICO PARA EL DEMO (Solo si la lista está vacía)
+  if (choferes.length === 0) {
+    console.log("⚠️ Base de Datos vacía. Iniciando auto-población táctica...");
+    const { addChofer } = await import("@/lib/actions");
+    await addChofer("GONZALO");
+    await addChofer("RAMIRO");
+    await addChofer("LUCAS");
+    await addChofer("MARIANO");
+    
+    // Volver a consultar
+    choferesRes = await getAllChoferes();
+    choferes = choferesRes.success ? choferesRes.data : [];
+  }
 
   const cookieStore = await cookies();
   const rawDriverName = cookieStore.get("driver_name")?.value;
