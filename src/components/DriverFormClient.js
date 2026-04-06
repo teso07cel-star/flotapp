@@ -8,9 +8,9 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [isFinishingShift, setIsFinishingShift] = useState(false);
   const [gpsLocation, setGpsLocation] = useState("");
 
-  // LÓGICA ULTRA-SIMPLIFICADA v3.0.9
+  // LÓGICA DE IDENTIFICACIÓN v4.0.0
   const isSinAsignar = !vehiculo?.patente || vehiculo.patente === "SIN ASIGNAR" || vehiculo.patente === "" || vehiculo.patente === "SCAN";
-  const [manualPatente, setManualPatente] = useState(identifiedDriver?.toLowerCase().includes("brian") && isSinAsignar ? "AD848KR" : "");
+  const [manualPatente, setManualPatente] = useState("");
   const [isEditingPatente, setIsEditingPatente] = useState(isSinAsignar);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
           <div className="space-y-4">
              <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-2">Nodos Visitados</label>
              <div className="grid grid-cols-2 gap-2">
-                {sucursales.slice(0, 4).map(s => (
+                {sucursales.map(s => (
                   <label key={s.id} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 has-[:checked]:border-blue-500/50 has-[:checked]:bg-blue-500/5 transition-all">
                     <input type="checkbox" name="sucursalIds" value={s.id} className="w-4 h-4 rounded bg-black border-white/10 text-blue-500" />
                     <span className="text-[10px] font-black text-slate-300 uppercase truncate">{s.nombre}</span>

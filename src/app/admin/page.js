@@ -34,7 +34,7 @@ export default async function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-widest mb-2 uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Panel General</h1>
-          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">Centro de Monitoreo Táctico</p>
+          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">Centro de Gestión Operativa</p>
         </div>
         <div className="flex flex-wrap gap-4">
           <Link href="/admin/benefits" className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 rounded-2xl font-black transition-all shadow-lg text-[10px] uppercase tracking-widest">
@@ -258,7 +258,7 @@ export default async function AdminDashboard() {
     console.error("CRITICAL ADMIN ERROR:", error);
     return (
       <div className="p-10 bg-red-950/20 border border-red-500 rounded-3xl text-red-500">
-        <h1 className="text-2xl font-black mb-4 uppercase">Error de Sistema Táctico</h1>
+        <h1 className="text-2xl font-black mb-4 uppercase">Error de Sistema</h1>
         <p className="font-mono text-xs bg-black/50 p-4 rounded-xl mb-4">{error.message}</p>
         <pre className="text-[10px] opacity-70 overflow-auto">{error.stack}</pre>
         <div className="mt-6">

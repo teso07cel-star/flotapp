@@ -145,8 +145,8 @@ export default async function DriverForm({ searchParams }) {
                </span>
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Registro de Bitácora Estratégica</p>
+              <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Flot<span className="text-blue-500">App</span> <span className="text-blue-400">Operativo</span></h1>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Gestión de Bitácora de Flota</p>
             </div>
           </div>
 

@@ -31,7 +31,7 @@ export default function HomePageClient({ success, hasDriver }) {
              </h1>
              <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
-          <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
+          <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Gestión de Unidades Corporativas</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
@@ -45,7 +45,7 @@ export default function HomePageClient({ success, hasDriver }) {
             
             <div className="p-8 pb-0 text-center relative z-10 mt-2">
                <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                  Conductor<br />Estratégico
+                  Acceso<br />Conductor
                </h3>
             </div>
             
@@ -141,7 +141,7 @@ export default function HomePageClient({ success, hasDriver }) {
               target="_blank"
               className="flex-1 min-w-[240px] inline-flex items-center justify-center gap-3 px-8 py-4 border border-white/5 bg-white/5 text-slate-500 hover:text-blue-400 hover:border-blue-500/20 transition-all text-[10px] font-black uppercase tracking-[0.2em] rounded-none shadow-sm hover:shadow-blue-500/5 group"
             >
-               Manual Conductor Estratégico
+               Manual Conductor
             </Link>
             <Link 
               href="/Manual_Movilidad_Inteligente.html"
