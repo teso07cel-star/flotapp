@@ -169,12 +169,12 @@ export default async function AdminDashboard() {
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                       <span className="text-blue-400/60">
-                          <VehicleIcon categoria={r.vehiculo.categoria} className="w-10 h-8" />
-                       </span>
-                       <span className="font-mono text-sm font-black text-cyan-400 tracking-widest drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
-                         {r.vehiculo.patente}
-                       </span>
+                        <span className="text-blue-400/60">
+                           <VehicleIcon categoria={r.vehiculo?.categoria || 'UNKNOWN'} className="w-10 h-8" />
+                        </span>
+                        <span className="font-mono text-sm font-black text-cyan-400 tracking-widest drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
+                          {r.vehiculo?.patente || 'S/V'}
+                        </span>
                        {r.tipoReporte && (
                          <span className={`text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
                            r.tipoReporte === 'INICIO' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' :
