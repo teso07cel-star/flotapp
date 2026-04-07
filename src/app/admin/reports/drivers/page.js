@@ -112,9 +112,9 @@ export default async function DriversDailyReport({ searchParams }) {
                                           <span className="text-white font-mono font-bold"><FormattedDate date={d.inicio.fecha} showDate={false} /></span>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">
-                                          <div>
+                                          <div className="flex flex-col">
                                               <p className="text-[9px] text-slate-500 uppercase font-black">Vehículo</p>
-                                              <p className="font-mono text-white text-sm font-bold tracking-widest bg-white/5 border border-white/10 rounded px-2 py-1 inline-block mt-1">{d.inicio.vehiculo.patente}</p>
+                                              <p className="font-mono text-white text-sm font-bold tracking-widest bg-white/5 border border-white/10 rounded px-2 py-1 inline-block mt-1">{d.inicio.vehiculo?.patente || "S/D"}</p>
                                           </div>
                                           <div className="text-right">
                                               <p className="text-[9px] text-slate-500 uppercase font-black mb-1">Señal GPS</p>

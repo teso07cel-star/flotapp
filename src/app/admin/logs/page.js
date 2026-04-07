@@ -4,6 +4,7 @@ import { getDailyReport, deleteRegistroDiario } from "@/lib/actions";
 import FormattedDate from "@/components/FormattedDate";
 import VehicleIcon from "@/components/VehicleIcon";
 import { getArgentinaTodayISO } from "@/lib/dateUtils";
+import ShareReportButton from "@/components/ShareReportButton";
 
 async function deleteRegistroAction(formData) {
   "use server";
@@ -41,13 +42,23 @@ export default async function AdminLogs({ searchParams }) {
             Mostrando {registros.length} registros del {dateString.split('-').reverse().join('/')}
           </p>
         </div>
-        <Link 
-          href="/admin"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900/40 text-black hover:bg-slate-800/50 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-          Volver al Panel
-        </Link>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <ShareReportButton 
+            title="Bitácora FlotApp"
+            data={{ 
+              registros: registros, 
+              date: dateString.split('-').reverse().join('/') 
+            }}
+            type="logs"
+          />
+          <Link 
+            href="/admin"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900/40 text-black hover:bg-slate-800/50 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Volver al Panel
+          </Link>
+        </div>
       </div>
 
       <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">

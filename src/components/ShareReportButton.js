@@ -37,8 +37,30 @@ export default function ShareReportButton({ title, data, type = "daily" }) {
     return encodeURIComponent(msg);
   }
 
+  function generateLogsMessage() {
+    const { registros, date } = data;
+    let msg = `📅 *BITÁCORAS FLOTAPP - ${date}*\n\n`;
+    
+    if (registros.length === 0) {
+      msg += `Sin registros reportados hoy.`;
+    } else {
+      registros.forEach((r, idx) => {
+        const time = new Date(r.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit', hour12: false });
+        msg += `${idx + 1}. *[${time}]* ${r.vehiculo?.patente || 'S/D'} - ${r.nombreConductor || 'Anónimo'}\n`;
+        msg += `   🏁 _${r.tipoReporte || 'PARADA'}_ | ${r.kmActual?.toLocaleString() || '---'} KM\n`;
+      });
+    }
+    
+    msg += `\n_Resumen automático de Bitácora FlotApp_`;
+    return encodeURIComponent(msg);
+  }
+
   const handleShare = () => {
-    const message = type === "daily" ? generateDailyMessage() : generateMonthlyMessage();
+    let message = "";
+    if (type === "daily") message = generateDailyMessage();
+    else if (type === "monthly") message = generateMonthlyMessage();
+    else if (type === "logs") message = generateLogsMessage();
+    
     const url = `https://wa.me/?text=${message}`;
     window.open(url, "_blank");
   };
