@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
 import VehicleIcon from "@/components/VehicleIcon";
 import DeleteLogButton from "@/components/DeleteLogButton";
+import { getArgentinaDate } from "@/lib/dateUtils";
 
 async function deleteVehiculoAction(formData) {
   "use server";
@@ -76,7 +77,7 @@ export default async function AdminDashboard() {
                       </td>
                     </tr>
                   ) : vehiculos.map((v) => {
-                    const hoy = new Date();
+                    const hoy = getArgentinaDate();
                     const quinceDias = new Date(hoy.getTime() + (15 * 24 * 60 * 60 * 1000));
                     
                     const vtvVencida = v.vtvVencimiento && new Date(v.vtvVencimiento) < hoy;

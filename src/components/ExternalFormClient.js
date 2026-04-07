@@ -217,7 +217,7 @@ export default function ExternalFormClient({ vehiculo, requiredFrequency, lastMo
                 <div className="space-y-1">
                    <p className="text-pink-400 font-black uppercase tracking-[0.2em] text-[11px]">Control de Ingreso</p>
                    <h3 className="text-white text-2xl font-black uppercase tracking-tight">Bienvenido, {driverName}</h3>
-                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Unidad {vehiculo.patente.toUpperCase()} • {new Date().toLocaleDateString("es-AR")}</p>
+                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Unidad {vehiculo.patente.toUpperCase()} • {new Date().toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}</p>
                 </div>
              </div>
              

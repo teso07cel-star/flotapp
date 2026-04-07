@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import { HiluxIcon, EnduroIcon, ToyotaSedanIcon } from "@/components/FuturisticIcons";
+import { getArgentinaDate, getArgentinaTodayISO } from "@/lib/dateUtils";
 
 export default async function DriverForm({ searchParams }) {
   const params = await searchParams;
@@ -92,7 +93,7 @@ export default async function DriverForm({ searchParams }) {
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
   const lastLog = vehiculo.registros?.[0];
 
-  const todayStart = new Date();
+  const todayStart = getArgentinaDate();
   todayStart.setHours(0, 0, 0, 0);
 
   // 1. Determinar fase del flujo de 4 puntos:

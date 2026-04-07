@@ -3,10 +3,12 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import prisma from "@/lib/prisma";
+import FormattedDate from "@/components/FormattedDate";
+import { getArgentinaTodayISO } from "@/lib/dateUtils";
 
 export default async function DriversDailyReport({ searchParams }) {
   const params = await searchParams;
-  const dateStr = params.date || new Date().toISOString().split('T')[0];
+  const dateStr = params.date || getArgentinaTodayISO();
   
   // Date range for the query
   const startDate = new Date(`${dateStr}T00:00:00`);
@@ -107,7 +109,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                   <div className="w-full bg-slate-900/60 border border-blue-500/20 rounded-2xl p-5 shadow-lg relative z-10">
                                       <div className="flex justify-between items-center mb-3">
                                           <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Inicio de Turno</p>
-                                          <span className="text-white font-mono font-bold">{format(new Date(d.inicio.fecha), "HH:mm")}</span>
+                                          <span className="text-white font-mono font-bold"><FormattedDate date={d.inicio.fecha} showDate={false} /></span>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">
                                           <div>
@@ -139,7 +141,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                           <div>
                                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{parada.sucursales?.length > 0 ? "Visita" : "Bitácora"}</p>
                                           </div>
-                                          <span className="text-gray-400 font-mono text-sm">{format(new Date(parada.fecha), "HH:mm")}</span>
+                                          <span className="text-gray-400 font-mono text-sm"><FormattedDate date={parada.fecha} showDate={false} /></span>
                                       </div>
                                       
                                       <div className="flex flex-wrap gap-2 mt-3">
@@ -169,7 +171,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                   <div className="w-full bg-red-950/20 border border-red-500/20 rounded-2xl p-5 shadow-lg relative z-10">
                                       <div className="flex justify-between items-center mb-3">
                                           <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Cierre de Jornada</p>
-                                          <span className="text-red-300 font-mono font-bold">{format(new Date(d.cierre.fecha), "HH:mm")}</span>
+                                          <span className="text-red-300 font-mono font-bold"><FormattedDate date={d.cierre.fecha} showDate={false} /></span>
                                       </div>
                                       <div className="grid grid-cols-3 gap-2">
                                           <div>

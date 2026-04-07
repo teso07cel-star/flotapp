@@ -6,13 +6,14 @@ import DeleteLogButton from "@/components/DeleteLogButton";
 import ShareReportButton from "@/components/ShareReportButton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { getArgentinaTodayISO } from "@/lib/dateUtils";
 
 export default async function DailyReport({ searchParams }) {
   const params = await searchParams;
   // Usar la fecha actual en la zona horaria del servidor como fallback
   // Nota: Para ser 100% precisos con el usuario, esto podría ser un Client Component,
   // pero por ahora aseguramos que no crashee y use una fecha válida.
-  const dateStr = params.date || new Date().toISOString().split('T')[0];
+  const dateStr = params.date || getArgentinaTodayISO();
   
   const res = await getDailyReport(dateStr);
   

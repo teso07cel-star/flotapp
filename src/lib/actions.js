@@ -1,6 +1,7 @@
 "use server";
 import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
+import { getArgentinaDate } from "./dateUtils";
 import { calculateSequentialRoute } from "./geoUtils";
 
 export async function getVehiculoByPatente(patente) {
@@ -470,6 +471,7 @@ export async function getDailyReport(dateString) {
   try {
     // Procesar la fecha localmente para evitar desfases UTC
     const [year, month, day] = dateString.split('-').map(Number);
+    // Definimos el rango del día en base a la fecha de Argentina
     const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
     const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
 
@@ -659,7 +661,7 @@ export async function addMantenimiento(data) {
         taller: taller || null,
         costo: costo ? parseFloat(costo) : null,
         kilometraje: kilometraje ? parseInt(kilometraje) : null,
-        fecha: fecha ? new Date(fecha) : new Date()
+        fecha: fecha ? new Date(fecha) : getArgentinaDate()
       }
     });
 
@@ -732,7 +734,7 @@ export async function solicitarAutorizacion(nombre, deviceId) {
         if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
         await prisma.autorizacionDispositivo.update({
           where: { id: existing.id },
-          data: { nombreSolicitante: nombre, estado: "PENDIENTE", fechaSolicitud: new Date() }
+          data: { nombreSolicitante: nombre, estado: "PENDIENTE", fechaSolicitud: getArgentinaDate() }
         });
       } else {
         await prisma.autorizacionDispositivo.create({ data: { nombreSolicitante: nombre, deviceId } });

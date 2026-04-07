@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getDailyReport, deleteRegistroDiario } from "@/lib/actions";
 import FormattedDate from "@/components/FormattedDate";
 import VehicleIcon from "@/components/VehicleIcon";
+import { getArgentinaTodayISO } from "@/lib/dateUtils";
 
 async function deleteRegistroAction(formData) {
   "use server";
@@ -12,8 +13,9 @@ async function deleteRegistroAction(formData) {
   redirect("/admin/logs");
 }
 
-export default async function AdminLogs() {
-  const dateString = new Date().toISOString().split('T')[0];
+export default async function AdminLogs({ searchParams }) {
+  const params = await searchParams;
+  const dateString = params.date || getArgentinaTodayISO();
   const res = await getDailyReport(dateString);
   
   // getDailyReport devuelve ordenado por fecha ascendente. Los invertimos para ver los más recientes primero.
@@ -22,9 +24,22 @@ export default async function AdminLogs() {
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700  pb-6 mb-6">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Bitácoras del Día</h1>
-          <p className="text-gray-500 ">Mostrando todos los {registros.length} registros generados hoy.</p>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase">Bitácoras por Día</h1>
+          <form className="flex items-center gap-3 bg-slate-900/50 p-2 rounded-2xl border border-slate-700/50 group hover:border-blue-500/30 transition-all">
+             <input 
+               type="date" 
+               name="date" 
+               defaultValue={dateString}
+               className="bg-transparent text-white font-black uppercase text-xs tracking-widest outline-none px-2 cursor-pointer invert brightness-100 dark:invert-0"
+             />
+             <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20">
+                Filtrar
+             </button>
+          </form>
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-2">
+            Mostrando {registros.length} registros del {dateString.split('-').reverse().join('/')}
+          </p>
         </div>
         <Link 
           href="/admin"
@@ -39,7 +54,7 @@ export default async function AdminLogs() {
         {registros.length === 0 ? (
           <div className="text-center py-12">
             <svg className="w-16 h-16 text-gray-300  mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-            <p className="text-gray-500  font-bold uppercase tracking-widest text-sm">No hay bitácoras registradas hoy.</p>
+            <p className="text-gray-500  font-bold uppercase tracking-widest text-sm text-center">No hay bitácoras registradas para el día {dateString.split('-').reverse().join('/')}.</p>
           </div>
         ) : registros.map((r) => (
           <div key={r.id} className="pb-6 border-b border-slate-800/50  last:border-0 last:pb-0 relative group">
