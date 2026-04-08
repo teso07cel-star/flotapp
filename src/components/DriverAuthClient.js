@@ -20,6 +20,82 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
     }
   }, []);
 
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  const handleDeviceAuthStep1 = async () => {
+    if (deviceOperatorName.trim() !== "") {
+      setIsRequesting(true);
+      setErrorMessage("");
+      const devId = localStorage.getItem("flotapp_device_id");
+      console.log("Enviando solicitud para:", deviceOperatorName.trim(), "ID:", devId);
+      try {
+        const res = await solicitarAutorizacion(deviceOperatorName.trim(), devId);
+        console.log("Respuesta del servidor:", res);
+        if (res.success) {
+          setAuthStep(2);
+        } else {
+          setErrorMessage(res.error || "Error desconocido en el servidor");
+        }
+      } catch (err) {
+        console.error("Error al llamar solicitarAutorizacion:", err);
+        setErrorMessage("Error de conexión: " + err.message);
+      } finally {
+        setIsRequesting(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (authStep === 2 && !isDeviceAuthorized) {
+       const devId = localStorage.getItem("flotapp_device_id");
+       pollingRef.current = setInterval(async () => {
+          const res = await checkEstadoAutorizacion(devId);
+          if (res.success && res.estado === "APROBADO") {
+             clearInterval(pollingRef.current);
+             setAuthSuccess(true);
+             setTimeout(() => {
+                localStorage.setItem("device_authorized_v1", "true");
+                setIsDeviceAuthorized(true);
+             }, 1800);
+          } else if (res.success && res.estado === "RECHAZADO") {
+             clearInterval(pollingRef.current);
+             alert("Tu solicitud de acceso fue rechazada por administración.");
+             setAuthStep(1);
+          }
+       }, 3000);
+    }
+    return () => {
+       if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [authStep, isDeviceAuthorized]);
+
+  const handleDeviceAuthStep2 = () => {
+     // No longer used, handled by polling
+  };
+
+  const handleFingerprintPress = async () => {
+    if (fastLoginDriver) {
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await bindDriverToDevice(fastLoginDriver, devId);
+      if (!res.success) {
+        alert(res.error);
+        return;
+      }
+      
+      // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const { createRegistroDiario } = await import("@/lib/actions");
+      await createRegistroDiario({
+          nombreConductor: fastLoginDriver,
+          tipoReporte: "INICIO_JORNADA",
+          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+      });
+
+      setSelectedChofer(fastLoginDriver);
+      document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
+      router.push('/'); // Volver a portada según nuevo flujo TACTICA b4.0
+    }
+  };
+
   const handleSelect = async (e) => {
     const val = e.target.value;
     if (!val) return;
@@ -40,20 +116,36 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
           lugarGuarda: idGps || "GPS TEMPORAL"
       });
 
-      // SET COOKIE AND STORAGE
-      document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
-      localStorage.setItem("flotapp_driver_name", val);
-      
-      // REDIRECCIÓN DIRECTA A FORMULARIO (Evitando el Home para ganar tiempo)
-      let target = "/driver/form";
-      if (val.toLowerCase().includes("brian") || val.toLowerCase().includes("lopez")) {
-         target = "/driver/form?patente=AD848KR";
+      router.push('/');
+    }
+  };
+
+  const confirmNewDriver = async () => {
+    if (externalName.trim()) {
+      const name = externalName.trim();
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await bindDriverToDevice(name, devId);
+      if (!res.success) {
+        alert(res.error);
+        return;
       }
-      
-      window.location.href = target;
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
+
+      setIsExternal(false);
+      setSelectedChofer(name);
+      if (remember) {
+        localStorage.setItem("flotapp_driver_name", name);
+        document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
+      }
+
+      // REGISTRAR INICIO DE JORNADA (Fase 1)
+      const { createRegistroDiario } = await import("@/lib/actions");
+      await createRegistroDiario({
+          nombreConductor: name,
+          tipoReporte: "INICIO_JORNADA",
+          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
+      });
+
+      router.push('/');
     }
   };
 

@@ -7,7 +7,6 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import { HiluxIcon, EnduroIcon, ToyotaSedanIcon } from "@/components/FuturisticIcons";
-import { getArgentinaDate, getArgentinaTodayISO } from "@/lib/dateUtils";
 
 export default async function DriverForm({ searchParams }) {
   const params = await searchParams;
@@ -17,100 +16,50 @@ export default async function DriverForm({ searchParams }) {
   const rawDriverName = cookieStore.get("driver_name")?.value;
   const identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
 
-  // LÓGICA DE PROTOCOLO DE 4 PUNTOS: Recuperar identidad y vehículo automáticamente
   if (!patente && identifiedDriver) {
-    const searchName = identifiedDriver.toLowerCase().trim();
-
-    try {
-      // 1. Buscar en tabla Chofer (Mapeo Oficial) - PRIORIDAD MÁXIMA
-      const choferDB = await prisma.chofer.findFirst({ 
-          where: { nombre: { contains: searchName, mode: 'insensitive' } } 
-      });
-
-      if (choferDB?.patenteAsignada) {
-          patente = choferDB.patenteAsignada;
-      } 
-      
-      if (!patente) {
-          // 2. Buscar en Historial (Último vehículo utilizado por este chofer)
-          const lastRec = await prisma.registroDiario.findFirst({
-            where: { 
-                nombreConductor: { contains: searchName, mode: 'insensitive' },
-                vehiculoId: { not: null }
-            },
-            orderBy: { fecha: 'desc' },
-            include: { vehiculo: true }
-          });
-          
-          if (lastRec?.vehiculo?.patente) {
-            patente = lastRec.vehiculo.patente;
-          }
-      }
-
-      // 3. Fallback Global: Último vehículo usado en el sistema
-      if (!patente) {
-          const globalLastRec = await prisma.registroDiario.findFirst({
-              where: { vehiculoId: { not: null } },
-              orderBy: { fecha: 'desc' },
-              include: { vehiculo: true }
-          });
-          if (globalLastRec?.vehiculo?.patente) {
-              patente = globalLastRec.vehiculo.patente;
-          }
-      }
-
-      // 4. Último Recurso: Cualquier vehículo activo del sistema
-      if (!patente) {
-          const anyVehicle = await prisma.vehiculo.findFirst({ where: { activo: true }, orderBy: { id: 'asc' } });
-          if (anyVehicle) {
-              patente = anyVehicle.patente;
-          }
-      }
-    } catch (e) {
-      console.error("Error in driver/vehicle mapping:", e);
-    }
-
-    // Si encontramos una patente por cualquier vía, redirigimos para que la URL sea oficial
-    if (patente) {
-       return redirect(`/driver/form?patente=${patente}`);
-    }
+     const lastRec = await prisma.registroDiario.findFirst({
+        where: { nombreConductor: identifiedDriver },
+        orderBy: { fecha: 'desc' },
+        include: { vehiculo: true }
+     });
+     
+     if (lastRec?.vehiculo?.patente) {
+        patente = lastRec.vehiculo.patente;
+        redirect(`/driver/form?patente=${patente}`);
+     } else {
+        let choferDB = await prisma.chofer.findFirst({ 
+          where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
+        });
+        if (choferDB?.patenteAsignada) {
+           patente = choferDB.patenteAsignada;
+           redirect(`/driver/form?patente=${patente}`);
+        } else {
+           patente = "NUEVA";
+        }
+     }
   }
 
   if (!patente && !identifiedDriver) {
-    return redirect("/driver/entry");
+    redirect("/driver/entry");
   }
 
-  const [vehiculoRes, sucursalesRes] = await Promise.all([
+  const [vehiculoRes, sucursalesRes, statusRes] = await Promise.all([
     getVehiculoByPatente(patente),
-    getAllSucursales()
+    getAllSucursales(),
+    import("@/lib/actions").then(m => m.getDriverOperationalStatus(identifiedDriver))
   ]);
 
   let vehiculo = vehiculoRes.success ? vehiculoRes.data : null;
   if (!vehiculo) {
-      vehiculo = { patente: "", categoria: "AUTO", id: 0 };
+      vehiculo = { patente: "SIN ASIGNAR", categoria: "AUTO", id: 0 };
   }
 
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
-  const lastLog = vehiculo.registros?.[0];
-
-  const todayStart = getArgentinaDate();
-  todayStart.setHours(0, 0, 0, 0);
-
-  // 1. Determinar fase del flujo de 4 puntos:
-  // INICIO_JORNADA (Punto 0) -> INICIO (Punto 1: Patente/KM) -> RITMO (Punto 2: Patente/Sin KM)
+  const operationalStatus = statusRes.success ? statusRes.data : { active: false, proposedKm: 0, lastKm: 0 };
   
-  const operacionHoy = identifiedDriver ? await prisma.registroDiario.findFirst({
-    where: { 
-      nombreConductor: identifiedDriver,
-      fecha: { gte: todayStart },
-      tipoReporte: { in: ['INICIO', 'PARADA'] }
-    }
-  }) : null;
-
-  const yaHizoPrimerViaje = !!operacionHoy;
-  const phase = yaHizoPrimerViaje ? "RITMO" : "INICIO";
-  const isFirstLog = !yaHizoPrimerViaje;
-
+  const lastLog = vehiculo.registros?.[0];
+  const isFirstLog = !operationalStatus.active;
+  const proposedKm = operationalStatus.proposedKm || (lastLog?.kmActual || 0);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
@@ -122,32 +71,30 @@ export default async function DriverForm({ searchParams }) {
         <div className="glass-panel p-8 sm:p-12 rounded-[3.5rem] blue-glow-border relative overflow-hidden">
           <div className="absolute top-0 right-0 p-6 opacity-30 pointer-events-none mix-blend-screen overflow-visible">
              {vehiculo.categoria === "MOTO" ? (
-                <img src="/icons/moto_tactic.png" className="w-64 grayscale contrast-[1.4] brightness-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" alt="Moto" />
-              ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente?.startsWith("INT")) ? (
-                <img src="/icons/pickup_tactic.png" className="w-80 relative top-2 right-2 grayscale brightness-[0.8] contrast-[1.3] drop-shadow-[0_0_30px_rgba(59,130,246,0.2)]" alt="Hilux" />
-              ) : (vehiculo.categoria === "AUTO" || (vehiculo.patente && vehiculo.patente.length > 0)) ? (
-                <img src="/icons/etios_tactic_v2.png" className="w-72 relative top-4 right-2 brightness-110 contrast-[1.2] drop-shadow-[0_0_25px_rgba(255,255,255,0.1)]" alt="Etios" />
-              ) : (
-                <div className="w-64 h-64 relative flex items-center justify-center mr-2 mt-2 bg-[#0f172a] rounded-3xl">
-                  <img 
-                    src="/icons/admin_hud.png" 
-                    className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
-                    alt="Operator Verified" 
-                  />
-                </div>
-              )}
+               <img src="/icons/moto.png" className="w-56 grayscale contrast-125 brightness-110" alt="Moto" />
+             ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
+               <img src="/icons/pickup.png" className="w-80 relative top-4 right-4 grayscale brightness-[0.7] contrast-[1.2]" alt="Hilux" />
+             ) : vehiculo.categoria === "AUTO" ? (
+               <img src="/icons/etios.png" className="w-72 relative top-8 right-4 brightness-125 contrast-125" alt="Etios" />
+             ) : (
+               <div className="w-64 h-64 relative flex items-center justify-center mr-2 mt-2 bg-[#0f172a] rounded-3xl">
+                 <img 
+                   src="/icons/admin_hud.png" 
+                   className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
+                   alt="Operator Verified" 
+                 />
+               </div>
+             )}
           </div>
           
           <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
-            <div className="h-16 w-24 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
+            <div className="h-16 w-32 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-all" />
-               <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">
-                 {vehiculo.patente || "SCAN"}
-               </span>
+               <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">{vehiculo.patente}</span>
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Flot<span className="text-blue-500">App</span> <span className="text-blue-400">Operativo</span></h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Gestión de Bitácora de Flota</p>
+              <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.4em]">Registro de Bitácora Estratégica</p>
             </div>
           </div>
 
@@ -156,7 +103,9 @@ export default async function DriverForm({ searchParams }) {
             sucursales={sucursales} 
             lastLog={lastLog} 
             identifiedDriver={identifiedDriver}
-            phase={phase}
+            isFirstLog={isFirstLog}
+            operationalStatus={operationalStatus}
+            proposedKm={proposedKm}
           />
         </div>
       </div>

@@ -6,14 +6,13 @@ import DeleteLogButton from "@/components/DeleteLogButton";
 import ShareReportButton from "@/components/ShareReportButton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { getArgentinaTodayISO } from "@/lib/dateUtils";
 
 export default async function DailyReport({ searchParams }) {
   const params = await searchParams;
   // Usar la fecha actual en la zona horaria del servidor como fallback
   // Nota: Para ser 100% precisos con el usuario, esto podría ser un Client Component,
   // pero por ahora aseguramos que no crashee y use una fecha válida.
-  const dateStr = params.date || getArgentinaTodayISO();
+  const dateStr = params.date || new Date().toISOString().split('T')[0];
   
   const res = await getDailyReport(dateStr);
   
@@ -33,8 +32,8 @@ export default async function DailyReport({ searchParams }) {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte Diario</h1>
-          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Actividad operativa por fecha</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte <span className="text-slate-400">TACTICA b4.0</span></h1>
+          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Actividad operativa centralizada</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -45,25 +44,6 @@ export default async function DailyReport({ searchParams }) {
               date: format(new Date(dateStr + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es }) 
             }}
             type="daily"
-          />
-          
-          <ShareReportButton 
-            title="Consolidado Flota"
-            data={{ 
-              stats, 
-              date: format(new Date(dateStr + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es }),
-              driverStats: Object.entries(
-                registros.reduce((acc, r) => {
-                  const name = r.nombreConductor || "S/D";
-                  if (!acc[name]) acc[name] = { nombre: name, kmActual: 0, visitas: 0, combustible: null };
-                  acc[name].kmActual = Math.max(acc[name].kmActual, r.kmActual || 0);
-                  acc[name].visitas += (r.sucursales?.length || 0);
-                  if (r.tipoReporte === "CIERRE") acc[name].combustible = r.nivelCombustible;
-                  return acc;
-                }, {})
-              ).map(([_, val]) => val)
-            }}
-            type="fleet_consolidated"
           />
         </div>
         
@@ -139,9 +119,7 @@ export default async function DailyReport({ searchParams }) {
                     </div>
                   </td>
                   <td className="p-6">
-                    <div className="font-mono font-black text-sm tracking-widest bg-slate-800/50  px-3 py-1 rounded-lg inline-block border border-slate-700 ">
-                      {r.vehiculo?.patente || "S/D"}
-                    </div>
+                    <div className="font-mono font-black text-sm tracking-widest bg-slate-800/50  px-3 py-1 rounded-lg inline-block border border-slate-700 ">{r.vehiculo.patente}</div>
                   </td>
                   <td className="p-6">
                     <div className="font-bold">{(r.kmActual || 0).toLocaleString()}</div>

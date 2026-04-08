@@ -56,6 +56,10 @@ model RegistroDiario {
   vehiculoId            Int?
   lugarGuarda           String?
   nivelCombustible      String?
+  motivoUso             String?
+  tipoReporte           String?
+  frecuenciaRegistro    String?
+  kmTeoricos            Int?               @default(0)
   choferId              Int?
   esExterno             Boolean            @default(false)
   fotoTicketCombustible String?
