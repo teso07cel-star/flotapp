@@ -586,6 +586,31 @@ export async function getAllChoferes() {
   }
 }
 
+export async function getRangeReport(startDate, endDate) {
+  try {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const registros = await prisma.registroDiario.findMany({
+      where: {
+        fecha: { gte: start, lte: end }
+      },
+      include: {
+        vehiculo: true,
+        sucursales: true
+      },
+      orderBy: { fecha: 'asc' }
+    });
+
+    return { success: true, data: registros };
+  } catch (error) {
+    console.error("Error in getRangeReport:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function addChofer(nombre) {
   try {
     const c = await prisma.chofer.create({

@@ -40,7 +40,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     if (newPatente.trim()) {
       window.location.href = `/driver/form?patente=${newPatente.trim().toUpperCase()}`;
     }
-  }, [selectedSucursalIds, lastLog, sucursales]);
+  };
 
   const handleStartJornada = async () => {
     setLoading(true);
@@ -52,7 +52,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       lugarGuarda: gpsLocation
     });
     if (res.success) {
-      setWorkflowState("ROUTINE");
+      setStage(2);
       window.location.reload(); // Refresh to update session state from server
     } else {
       setError(res.error);
