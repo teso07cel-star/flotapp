@@ -64,26 +64,25 @@ async function main() {
       message: 'Subida inicial automatizada'
     });
 
-    console.log("Subiendo a GitHub (Todas las ramas)...");
-    const branches = ['main', 'master', 'principal'];
-    for (const b of branches) {
-       console.log(`Intentando subir a rama: ${b}...`);
-       try {
-         await git.push({
-           fs,
-           http,
-           dir,
-           remote: 'origin',
-           ref: 'principal', // Nuestra fuente local constante
-           remoteRef: b,
-           url: cleanRepoUrl,
-           force: true,
-           onAuth: () => ({ username: token })
-         });
-         console.log(`[OK] Rama ${b} actualizada.`);
-       } catch (e) {
-         console.log(`[AVISO] No se pudo subir a ${b} (quizas no existe). Siguiendo...`);
-       }
+    console.log("Subiendo a GitHub (Rama actual)...");
+    const currentBranch = await git.currentBranch({ fs, dir }) || 'main';
+    
+    console.log(`Detectada rama: ${currentBranch}. Empujando a GitHub...`);
+    try {
+      await git.push({
+        fs,
+        http,
+        dir,
+        remote: 'origin',
+        ref: currentBranch, 
+        remoteRef: currentBranch,
+        url: cleanRepoUrl,
+        force: true,
+        onAuth: () => ({ username: token })
+      });
+      console.log(`[OK] Rama ${currentBranch} actualizada con éxito.`);
+    } catch (e) {
+      console.log(`[ERROR] Falló la subida: ${e.message}`);
     }
 
     console.log("\n¡SABELO! Ya está en GitHub en todas las ramas. 🚀");
