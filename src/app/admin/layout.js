@@ -54,10 +54,14 @@ export default async function AdminLayout({ children }) {
                  Reporte Automotor
               </Link>
               <Link href="/admin/reports/drivers" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 0 -2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
                  Reporte Conductores
               </Link>
-              <Link href="/admin/summary" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/20 border border-cyan-500/30 hover:bg-cyan-900/40 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all cursor-pointer font-bold drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
+              <Link href="/admin/reports/range" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/10 border border-cyan-500/20 hover:bg-cyan-900/30 transition-all cursor-pointer font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
+                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                 Reporte Semanal
+              </Link>
+              <Link href="/admin/summary" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-[#0f172a] transition-all cursor-pointer">
                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                  Resumen Mensual
               </Link>

@@ -3,6 +3,7 @@ import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
 import { getArgentinaDate } from "./dateUtils";
 import { calculateSequentialRoute } from "./geoUtils";
+import { format } from "date-fns";
 
 export async function getVehiculoByPatente(patente) {
   try {
@@ -469,41 +470,24 @@ export async function handleDriverEntry(formData) {
 
 export async function getDailyReport(dateString) {
   try {
-    // Procesar la fecha localmente para evitar desfases UTC
     const [year, month, day] = dateString.split('-').map(Number);
-    // Definimos el rango del día en base a la fecha de Argentina
     const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
     const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
 
     const registros = await prisma.registroDiario.findMany({
-      where: {
-        fecha: {
-          gte: startOfDay,
-          lte: endOfDay
-        }
-      },
-      include: {
-        vehiculo: true,
-        sucursales: true
-      },
+      where: { fecha: { gte: startOfDay, lte: endOfDay } },
+      include: { vehiculo: true, sucursales: true },
       orderBy: { fecha: 'asc' }
     });
 
-    // Calcular estadísticas del día con lógica basada en el estado anterior
     const vehicleData = {};
     const branchBreakdown = {};
-    
-    // Obtener IDs de vehículos únicos que tuvieron actividad hoy
-    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId))];
-    
-    // Para cada vehículo, buscar su lectura inmediatamente anterior a hoy
+    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId).filter(Boolean))];
     const previousKms = {};
+
     await Promise.all(vehicleIds.map(async (vId) => {
       const lastPrev = await prisma.registroDiario.findFirst({
-        where: {
-          vehiculoId: vId,
-          fecha: { lt: startOfDay }
-        },
+        where: { vehiculoId: vId, fecha: { lt: startOfDay }, kmActual: { not: null } },
         orderBy: { fecha: 'desc' },
         select: { kmActual: true }
       });
@@ -512,37 +496,24 @@ export async function getDailyReport(dateString) {
 
     registros.forEach(r => {
       if (!r.vehiculoId || !r.vehiculo) return;
-
       const km = r.kmActual || 0;
-
-      // Vehículos
       if (!vehicleData[r.vehiculoId]) {
-        // El punto de partida es la lectura anterior a hoy si existe, o la primera de hoy si no
         const startKm = previousKms[r.vehiculoId] !== null ? previousKms[r.vehiculoId] : km;
         vehicleData[r.vehiculoId] = { start: startKm, max: km, visits: 0 };
       }
-      
       vehicleData[r.vehiculoId].max = Math.max(vehicleData[r.vehiculoId].max, km);
       vehicleData[r.vehiculoId].visits += (r.sucursales?.length || 0);
-
-      // Sucursales
       r.sucursales?.forEach(s => {
-        if (s.nombre) {
-            branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
-        }
+        if (s.nombre) branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
       });
     });
 
     const registrosMapeados = registros.map(r => {
       const kmTeoricos = calculateSequentialRoute(r.sucursales || []);
-      return { 
-        ...r, 
-        kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) 
-      };
+      return { ...r, kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) };
     });
 
     const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, v.max - v.start), 0);
-    const uniqueVehicles = Object.keys(vehicleData).length;
     const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
 
     return { 
@@ -551,7 +522,7 @@ export async function getDailyReport(dateString) {
         registros: registrosMapeados,
         stats: {
           totalKm,
-          uniqueVehicles,
+          uniqueVehicles: Object.keys(vehicleData).length,
           totalVisits,
           branchBreakdown
         }
@@ -559,6 +530,91 @@ export async function getDailyReport(dateString) {
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getRangeReport(startDateStr, endDateStr) {
+  try {
+    const start = new Date(`${startDateStr}T00:00:00`);
+    const end = new Date(`${endDateStr}T23:59:59.999`);
+
+    const registros = await prisma.registroDiario.findMany({
+      where: { fecha: { gte: start, lte: end } },
+      include: { vehiculo: true, sucursales: true },
+      orderBy: { fecha: 'asc' }
+    });
+
+    const vehicleData = {};
+    const branchBreakdown = {}; // Total visitas por sucursal
+    const driverBranchStats = {}; // { "John Doe": { "Sucursal A": 2, "Sucursal B": 1 } }
+    const dailyStats = {};
+
+    // Obtener KM iniciales para el rango
+    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId).filter(Boolean))];
+    const initialKms = {};
+
+    await Promise.all(vehicleIds.map(async (vId) => {
+      const prev = await prisma.registroDiario.findFirst({
+        where: { vehiculoId: vId, fecha: { lt: start }, kmActual: { not: null } },
+        orderBy: { fecha: 'desc' },
+        select: { kmActual: true }
+      });
+      initialKms[vId] = prev?.kmActual || null;
+    }));
+
+    registros.forEach(r => {
+      if (!r.vehiculoId || !r.vehiculo) return;
+      const km = r.kmActual || 0;
+      const dayKey = format(r.fecha, 'yyyy-MM-dd');
+      const driver = r.nombreConductor || "S/D";
+
+      // Stats por Vehículo
+      if (!vehicleData[r.vehiculoId]) {
+        const startKm = initialKms[r.vehiculoId] !== null ? initialKms[r.vehiculoId] : km;
+        vehicleData[r.vehiculoId] = { patente: r.vehiculo.patente, start: startKm, max: km, visits: 0 };
+      }
+      vehicleData[r.vehiculoId].max = Math.max(vehicleData[r.vehiculoId].max, km);
+      vehicleData[r.vehiculoId].visits += (r.sucursales?.length || 0);
+
+      // Stats por Sucursal & Driver
+      if (!driverBranchStats[driver]) driverBranchStats[driver] = {};
+      
+      r.sucursales?.forEach(s => {
+        if (s.nombre) {
+          branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
+          driverBranchStats[driver][s.nombre] = (driverBranchStats[driver][s.nombre] || 0) + 1;
+        }
+      });
+
+      // Stats Diarias
+      if (!dailyStats[dayKey]) dailyStats[dayKey] = { km: 0, visits: 0 };
+      dailyStats[dayKey].visits += (r.sucursales?.length || 0);
+    });
+
+    const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, v.max - v.start), 0);
+    const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
+
+    return {
+      success: true,
+      data: {
+        stats: {
+          totalKm,
+          uniqueVehicles: Object.keys(vehicleData).length,
+          totalVisits,
+          branchBreakdown,
+          driverBranchStats,
+          vehicleBreakdown: Object.values(vehicleData).map(v => ({
+             patente: v.patente,
+             km: Math.max(0, v.max - v.start),
+             visits: v.visits
+          }))
+        },
+        dailyStats
+      }
+    };
+  } catch (error) {
+    console.error("Error in getRangeReport:", error);
     return { success: false, error: error.message };
   }
 }

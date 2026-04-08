@@ -5,6 +5,7 @@ import { es } from "date-fns/locale";
 import prisma from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
 import { getArgentinaTodayISO } from "@/lib/dateUtils";
+import ShareReportButton from "@/components/ShareReportButton";
 
 export default async function DriversDailyReport({ searchParams }) {
   const params = await searchParams;
@@ -93,6 +94,15 @@ export default async function DriversDailyReport({ searchParams }) {
                               <p className="text-[10px] font-black tracking-[0.3em] uppercase text-blue-500 mb-1">Conductor Táctico</p>
                               <h2 className="text-3xl font-black uppercase tracking-tighter text-white">{d.name}</h2>
                           </div>
+                          
+                          <ShareReportButton 
+                            title={`Jornada de ${d.name}`}
+                            type="driver_shift"
+                            data={{ 
+                                driver: d, 
+                                date: format(startDate, "dd/MM/yyyy") 
+                            }}
+                          />
                       </div>
 
                       <div className="relative pl-8 space-y-12 before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-blue-600 before:via-blue-600/20 before:to-transparent">
@@ -106,10 +116,15 @@ export default async function DriversDailyReport({ searchParams }) {
                                   </div>
                                   
                                   {/* Content */}
-                                  <div className="w-full bg-slate-900/60 border border-blue-500/20 rounded-2xl p-5 shadow-lg relative z-10">
-                                      <div className="flex justify-between items-center mb-3">
-                                          <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Inicio de Turno</p>
-                                          <span className="text-white font-mono font-bold"><FormattedDate date={d.inicio.fecha} showDate={false} /></span>
+                                  <div className="w-full bg-blue-500/10 border-2 border-blue-500 rounded-2xl p-6 shadow-[0_0_20px_rgba(59,130,246,0.15)] relative z-10">
+                                      <div className="flex justify-between items-center mb-4">
+                                          <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                                            <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em]">Inicio de Turno</p>
+                                          </div>
+                                          <span className="text-white font-mono font-black text-lg bg-blue-500/20 px-3 py-1 rounded-lg border border-blue-500/30 shadow-inner">
+                                            <FormattedDate date={d.inicio.fecha} showDate={false} />
+                                          </span>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">
                                           <div className="flex flex-col">
@@ -168,10 +183,15 @@ export default async function DriversDailyReport({ searchParams }) {
                                   </div>
                                   
                                   {/* Content */}
-                                  <div className="w-full bg-red-950/20 border border-red-500/20 rounded-2xl p-5 shadow-lg relative z-10">
-                                      <div className="flex justify-between items-center mb-3">
-                                          <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Cierre de Jornada</p>
-                                          <span className="text-red-300 font-mono font-bold"><FormattedDate date={d.cierre.fecha} showDate={false} /></span>
+                                  <div className="w-full bg-red-500/10 border-2 border-red-500 rounded-2xl p-6 shadow-[0_0_20px_rgba(239,68,68,0.15)] relative z-10">
+                                      <div className="flex justify-between items-center mb-4">
+                                          <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <p className="text-xs font-black text-red-500 uppercase tracking-[0.2em]">Cierre de Jornada</p>
+                                          </div>
+                                          <span className="text-white font-mono font-black text-lg bg-red-500/20 px-3 py-1 rounded-lg border border-red-500/30">
+                                            <FormattedDate date={d.cierre.fecha} showDate={false} />
+                                          </span>
                                       </div>
                                       <div className="grid grid-cols-3 gap-2">
                                           <div>

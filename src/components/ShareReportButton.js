@@ -2,64 +2,114 @@
 
 export default function ShareReportButton({ title, data, type = "daily" }) {
   
+  const DIVIDER = "------------------------------------------";
+
   function generateDailyMessage() {
     const { stats, date } = data;
-    let msg = `📊 *REPORTE DIARIO FLOTAPP - ${date}*\n\n`;
-    msg += `🚛 *Unidades Activas:* ${stats.uniqueVehicles}\n`;
-    msg += `📍 *Visitas Totales:* ${stats.totalVisits}\n`;
-    msg += `🛣️ *KM Recorridos:* ${stats.totalKm.toLocaleString()} KM\n\n`;
+    let msg = `📊 *REPORTE DIARIO DE FLOTA*\n`;
+    msg += `📅 _${date}_\n`;
+    msg += `${DIVIDER}\n\n`;
     
-    msg += `*DESGLOSE POR SUCURSAL:*\n`;
-    Object.entries(stats.branchBreakdown).forEach(([name, count]) => {
-      msg += `• ${name}: ${count} visitas\n`;
+    msg += `🚛 *OPERACIÓN GLOBAL*\n`;
+    msg += `• Unidades Activas: *${stats.uniqueVehicles}*\n`;
+    msg += `• Visitas en Nodos: *${stats.totalVisits}*\n`;
+    msg += `• KM Totales: *${stats.totalKm.toLocaleString()} KM*\n\n`;
+    
+    msg += `📍 *NIVEL DE ACTIVIDAD:*\n`;
+    const sorted = Object.entries(stats.branchBreakdown).sort((a,b) => b[1] - a[1]);
+    sorted.forEach(([name, count]) => {
+      msg += `> ${name}: *${count}* visitas\n`;
     });
     
-    msg += `\n_Generado automáticamente por FlotApp Premium_`;
+    msg += `\n${DIVIDER}\n`;
+    msg += `_Sincronizado vía FlotApp Premium TACTICA b4.0_`;
     return encodeURIComponent(msg);
   }
 
-  function generateMonthlyMessage() {
-    const { summary, totalFleetVisits, monthName, year } = data;
-    const totalKm = summary.reduce((sum, v) => sum + v.kmRecorridos, 0);
-    const totalGastos = summary.reduce((sum, v) => sum + v.totalGastos, 0);
+  function generateFleetConsolidatedMessage() {
+    const { stats, date, driverStats } = data;
+    let msg = `🚀 *CONSOLIDADO TÁCTICO FLOTAPP*\n`;
+    msg += `🏢 *AUDITORÍA OPERATIVA - ${date}*\n`;
+    msg += `${DIVIDER}\n\n`;
 
-    let msg = `📈 *RESUMEN MENSUAL FLOTAPP - ${monthName.toUpperCase()} ${year}*\n\n`;
-    msg += `🛣️ *KM Totales Flota:* ${totalKm.toLocaleString()} KM\n`;
-    msg += `📍 *Visitas Totales:* ${totalFleetVisits.toLocaleString()}\n`;
-    msg += `💰 *Gasto Consolidado:* $ ${totalGastos.toLocaleString()}\n\n`;
-    
-    msg += `*RENDIMIENTO POR UNIDAD:*\n`;
-    summary.forEach(v => {
-      msg += `• *${v.patente}:* ${v.kmRecorridos.toLocaleString()} KM | ${v.visitasSucursales} Vis.\n`;
+    msg += `📈 *MÉTRICAS DE IMPACTO*\n`;
+    msg += `• Kilometraje: *${stats.totalKm.toLocaleString()} KM*\n`;
+    msg += `• Efectividad: *${stats.totalVisits}* Nodos\n\n`;
+
+    msg += `👥 *DESEMPEÑO INDIVIDUAL:*\n`;
+    driverStats.forEach(d => {
+        msg += `👉 *${d.nombre}:* ${d.kmActual?.toLocaleString() || 0} KM | ${d.visitas} Vis.\n`;
+        if (d.combustible) msg += `   ⛽ _Combustible: ${d.combustible}_\n`;
     });
-    
-    msg += `\n_Generado automáticamente por FlotApp Premium_`;
+
+    msg += `\n${DIVIDER}\n`;
+    msg += `_Reporte Ejecutivo Consolidado_`;
     return encodeURIComponent(msg);
   }
 
-  function generateLogsMessage() {
-    const { registros, date } = data;
-    let msg = `📅 *BITÁCORAS FLOTAPP - ${date}*\n\n`;
-    
-    if (registros.length === 0) {
-      msg += `Sin registros reportados hoy.`;
+  function generateDriverShiftMessage() {
+    const { driver, date } = data;
+    let msg = `👤 *JORNADA: ${driver.name.toUpperCase()}*\n`;
+    msg += `📅 *${date}*\n`;
+    msg += `${DIVIDER}\n\n`;
+
+    if (driver.inicio) {
+        msg += `✅ *LOGIN:* ${new Date(driver.inicio.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}h\n`;
+        msg += `🏁 *KM INICIAL:* ${driver.inicio.kmActual?.toLocaleString()} KM\n\n`;
+    }
+
+    if (driver.paradas.length > 0) {
+        msg += `📍 *RUTA CUMPLIDA:*\n`;
+        driver.paradas.forEach(p => {
+            const time = new Date(p.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
+            const branches = p.sucursales?.map(s => s.nombre).join(", ") || "Operación";
+            msg += `• [${time}] *${branches}*\n`;
+        });
+        msg += `\n`;
+    }
+
+    if (driver.cierre) {
+        msg += `🏁 *CIERRE:* ${new Date(driver.cierre.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}h\n`;
+        msg += `🛣️ *KM FINAL:* ${driver.cierre.kmActual?.toLocaleString()} KM\n`;
+        msg += `⛽ *GAS:* ${driver.cierre.nivelCombustible || 'S/D'}\n`;
     } else {
-      registros.forEach((r, idx) => {
-        const time = new Date(r.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit', hour12: false });
-        msg += `${idx + 1}. *[${time}]* ${r.vehiculo?.patente || 'S/D'} - ${r.nombreConductor || 'Anónimo'}\n`;
-        msg += `   🏁 _${r.tipoReporte || 'PARADA'}_ | ${r.kmActual?.toLocaleString() || '---'} KM\n`;
-      });
+        msg += `⚠️ _OPERACIÓN EN CURSO_\n`;
     }
     
-    msg += `\n_Resumen automático de Bitácora FlotApp_`;
+    msg += `\n${DIVIDER}\n`;
+    msg += `_Bitácora Individual FlotApp_`;
+    return encodeURIComponent(msg);
+  }
+
+  function generateWeeklyMessage() {
+    const { stats, range } = data;
+    let msg = `📅 *REPORTE SEMANAL ESTRATÉGICO*\n`;
+    msg += `🗓️ *Periodo:* ${range}\n`;
+    msg += `${DIVIDER}\n\n`;
+
+    msg += `🛣️ *KM RECORRIDOS:* ${stats.totalKm.toLocaleString()} KM\n`;
+    msg += `📍 *VISITAS TOTALES:* ${stats.totalVisits}\n`;
+    msg += `🚛 *UNIDADES:* ${stats.uniqueVehicles}\n\n`;
+
+    msg += `👨‍✈️ *ACTIVIDAD POR CONDUCTOR:*\n`;
+    if (stats.driverBranchStats) {
+      Object.entries(stats.driverBranchStats).forEach(([driver, branches]) => {
+          const total = Object.values(branches).reduce((a, b) => a + b, 0);
+          msg += `• *${driver}:* ${total} visitas\n`;
+      });
+    }
+
+    msg += `\n${DIVIDER}\n`;
+    msg += `_Dashboard Ejecutivo FlotApp_`;
     return encodeURIComponent(msg);
   }
 
   const handleShare = () => {
     let message = "";
     if (type === "daily") message = generateDailyMessage();
-    else if (type === "monthly") message = generateMonthlyMessage();
-    else if (type === "logs") message = generateLogsMessage();
+    else if (type === "fleet_consolidated") message = generateFleetConsolidatedMessage();
+    else if (type === "driver_shift") message = generateDriverShiftMessage();
+    else if (type === "weekly") message = generateWeeklyMessage();
     
     const url = `https://wa.me/?text=${message}`;
     window.open(url, "_blank");
@@ -68,12 +118,14 @@ export default function ShareReportButton({ title, data, type = "daily" }) {
   return (
     <button 
       onClick={handleShare}
-      className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-emerald-500/20 group"
+      className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg group ${
+        type === "fleet_consolidated" ? "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20" : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
+      }`}
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:rotate-12">
         <path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/>
       </svg>
-      Enviar Reporte
+      {type === "fleet_consolidated" ? "Consolidado Flota" : "Compartir WhatsApp"}
     </button>
   );
 }

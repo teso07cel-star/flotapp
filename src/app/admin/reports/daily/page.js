@@ -46,6 +46,25 @@ export default async function DailyReport({ searchParams }) {
             }}
             type="daily"
           />
+          
+          <ShareReportButton 
+            title="Consolidado Flota"
+            data={{ 
+              stats, 
+              date: format(new Date(dateStr + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es }),
+              driverStats: Object.entries(
+                registros.reduce((acc, r) => {
+                  const name = r.nombreConductor || "S/D";
+                  if (!acc[name]) acc[name] = { nombre: name, kmActual: 0, visitas: 0, combustible: null };
+                  acc[name].kmActual = Math.max(acc[name].kmActual, r.kmActual || 0);
+                  acc[name].visitas += (r.sucursales?.length || 0);
+                  if (r.tipoReporte === "CIERRE") acc[name].combustible = r.nivelCombustible;
+                  return acc;
+                }, {})
+              ).map(([_, val]) => val)
+            }}
+            type="fleet_consolidated"
+          />
         </div>
         
         <form className="flex items-center gap-3 bg-slate-900/40 bg-[#0f172a] p-2 rounded-2xl border border-slate-700  shadow-xl shadow-black/5">
