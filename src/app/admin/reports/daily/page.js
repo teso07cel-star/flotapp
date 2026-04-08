@@ -6,6 +6,8 @@ import DeleteLogButton from "@/components/DeleteLogButton";
 import ShareReportButton from "@/components/ShareReportButton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import dynamicImport from "next/dynamic";
+import MapWrapper from "@/components/MapWrapper";
 
 export default async function DailyReport({ searchParams }) {
   const params = await searchParams;
@@ -55,9 +57,10 @@ export default async function DailyReport({ searchParams }) {
             defaultValue={dateStr}
             className="bg-transparent text-sm font-bold outline-none p-2 border-r border-slate-800/50 "
           />
-          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Ver Día</button>
         </form>
       </div>
+
+      <MapWrapper registros={registros} />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-3xl p-6 shadow-xl shadow-black/5">
