@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StrategicGearIcon } from "./FuturisticIcons";
 import { bindDriverToDevice } from "@/lib/actions";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,20 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
   const [remember, setRemember] = useState(true);
   const [authSuccess, setAuthSuccess] = useState(false);
   const [fastLoginDriver, setFastLoginDriver] = useState(initialDriverName || "");
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [gpsLocation, setGpsLocation] = useState("");
   const pollingRef = useRef(null);
+
+  // Capture GPS on mount for identification logs
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGpsLocation(`${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`),
+        null,
+        { enableHighAccuracy: true }
+      );
+    }
+  }, []);
 
   const handleDeviceAuthStep1 = async () => {
     if (deviceOperatorName.trim() !== "") {
@@ -77,7 +90,7 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
       await createRegistroDiario({
           nombreConductor: fastLoginDriver,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: idGps || "UBICACIÓN GPS AUTOMÁTICA"
+          lugarGuarda: gpsLocation || "UBICACIÓN GPS AUTOMÁTICA"
       });
 
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
@@ -100,7 +113,7 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
       await createRegistroDiario({
           nombreConductor: val,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: idGps || "GPS TEMPORAL"
+          lugarGuarda: gpsLocation || "GPS TEMPORAL"
       });
 
       document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
@@ -130,7 +143,7 @@ export default function DriverAuthClient({ choferes, isDeviceAuthorized, initial
       await createRegistroDiario({
           nombreConductor: name,
           tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: idGps || "UBICACIÓN GPS AUTOMÁTICA"
+          lugarGuarda: gpsLocation || "UBICACIÓN GPS AUTOMÁTICA"
       });
 
       router.push('/');
