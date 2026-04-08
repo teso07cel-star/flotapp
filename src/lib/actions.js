@@ -1,7 +1,7 @@
 "use server";
 import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
-import { calculateSequentialRoute } from "./geoUtils";
+import { calculateSequentialRoute } from "./geoUtils.js";
 
 export async function getVehiculoByPatente(patente) {
   try {
