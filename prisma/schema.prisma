@@ -64,10 +64,7 @@ model RegistroDiario {
   esExterno             Boolean            @default(false)
   fotoTicketCombustible String?
   montoCombustible      Float?
-  frecuenciaRegistro    String?
   kmModificado          Boolean            @default(false)
-  motivoUso             String?
-  tipoReporte           String?
   fotoFrente            String?
   fotoLateralDer        String?
   fotoLateralIzq        String?
