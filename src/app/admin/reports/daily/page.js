@@ -32,8 +32,8 @@ export default async function DailyReport({ searchParams }) {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte Diario</h1>
-          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Actividad operativa por fecha</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte <span className="text-slate-400">TACTICA b4.0</span></h1>
+          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Actividad operativa centralizada</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">

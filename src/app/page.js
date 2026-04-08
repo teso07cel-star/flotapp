@@ -10,6 +10,12 @@ function HomePageContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
 
+  // Logic to determine if driver is logged in
+  const [isLogged, setIsLogged] = useState(false);
+  useEffect(() => {
+    setIsLogged(document.cookie.includes("driver_name="));
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f172a] p-6 selection:bg-blue-500/30 relative overflow-hidden font-sans">
       {success && (
@@ -42,7 +48,7 @@ function HomePageContent() {
           
           {/* CONDUCTOR ESTRATÉGICO */}
           <Link 
-            href="/driver/entry"
+            href={isLogged ? "/driver/form" : "/driver/entry"}
             className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a]/60 backdrop-blur-xl overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
           >
             <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />

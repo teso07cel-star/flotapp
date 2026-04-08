@@ -18,6 +18,28 @@ export async function getVehiculoByPatente(patente) {
   }
 }
 
+export async function getDriverOperationalStatus(driverName) {
+  try {
+    if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const lastRecord = await prisma.registroDiario.findFirst({
+       where: { nombreConductor: driverName, fecha: { gte: todayStart } },
+       orderBy: { fecha: 'desc' },
+       include: { vehiculo: true }
+    });
+    if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
+       const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
+       return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
+    }
+    const lastKm = lastRecord.kmActual || 0;
+    const addedDistance = lastRecord.kmTeoricos || 0;
+    return { success: true, data: { active: true, vehiculo: lastRecord.vehiculo, lastKm: lastKm, proposedKm: lastKm + addedDistance, lastLogType: lastRecord.tipoReporte } };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function getAllVehiculos() {
   try {
     const vehiculos = await prisma.vehiculo.findMany({
@@ -125,9 +147,21 @@ export async function createRegistroDiario(data) {
       }
     }
 
+    // CALCULO DE KM TEÓRICOS (TACTICA b4.0)
+    let kmTeoricos = 0;
+    if (data.sucursalIds && data.sucursalIds.length > 0) {
+       const stops = await prisma.sucursal.findMany({
+          where: { id: { in: data.sucursalIds.map(id => parseInt(id)) } }
+       });
+       // El orden de las sucursales en stops no está garantizado por 'in',
+       // pero para un cálculo de distancia total de jornada sirve como aproximación.
+       kmTeoricos = Math.round(calculateSequentialRoute(stops));
+    }
+
     const registroData = {
       kmActual,
       kmModificado,
+      kmTeoricos,
       nivelCombustible: data.nivelCombustible || null,
       motivoUso: data.motivoUso || null,
       novedades: data.novedades || null,

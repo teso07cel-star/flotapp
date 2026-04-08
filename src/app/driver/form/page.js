@@ -43,9 +43,10 @@ export default async function DriverForm({ searchParams }) {
     redirect("/driver/entry");
   }
 
-  const [vehiculoRes, sucursalesRes] = await Promise.all([
+  const [vehiculoRes, sucursalesRes, statusRes] = await Promise.all([
     getVehiculoByPatente(patente),
-    getAllSucursales()
+    getAllSucursales(),
+    import("@/lib/actions").then(m => m.getDriverOperationalStatus(identifiedDriver))
   ]);
 
   let vehiculo = vehiculoRes.success ? vehiculoRes.data : null;
@@ -54,30 +55,11 @@ export default async function DriverForm({ searchParams }) {
   }
 
   const sucursales = sucursalesRes.success ? sucursalesRes.data : [];
+  const operationalStatus = statusRes.success ? statusRes.data : { active: false, proposedKm: 0, lastKm: 0 };
+  
   const lastLog = vehiculo.registros?.[0];
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  // 1. Verificar si ya validó el KM de ESTE vehículo hoy
-  const logKmHoy = (identifiedDriver && vehiculo?.id) ? await prisma.registroDiario.findFirst({
-    where: { 
-      nombreConductor: identifiedDriver,
-      vehiculoId: vehiculo.id,
-      kmActual: { not: null },
-      fecha: { gte: todayStart }
-    },
-    orderBy: { fecha: 'desc' }
-  }) : null;
-
-  const yaValidoKm = !!logKmHoy;
-  const seIngresoKmHoy = yaValidoKm;
-
-  // Fase A: INICIALIZACION (Pide KM) si no validó KM hoy
-  // Fase B: OPERATIVO (No pide KM) si ya validó el odómetro de esta unidad hoy
-  const phase = yaValidoKm ? "OPERATIVO" : "INICIALIZACION";
-  const isFirstLog = !yaValidoKm;
-
+  const isFirstLog = !operationalStatus.active;
+  const proposedKm = operationalStatus.proposedKm || (lastLog?.kmActual || 0);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
@@ -106,13 +88,13 @@ export default async function DriverForm({ searchParams }) {
           </div>
           
           <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
-            <div className="h-16 w-24 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
+            <div className="h-16 w-32 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-all" />
                <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">{vehiculo.patente}</span>
             </div>
             <div>
               <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Registro de Bitácora Estratégica</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.4em]">Registro de Bitácora Estratégica</p>
             </div>
           </div>
 
@@ -122,7 +104,8 @@ export default async function DriverForm({ searchParams }) {
             lastLog={lastLog} 
             identifiedDriver={identifiedDriver}
             isFirstLog={isFirstLog}
-            seIngresoKmHoy={seIngresoKmHoy}
+            operationalStatus={operationalStatus}
+            proposedKm={proposedKm}
           />
         </div>
       </div>
