@@ -122,7 +122,7 @@ export default async function DailyReport({ searchParams }) {
                     </div>
                   </td>
                   <td className="p-6">
-                    <div className="font-mono font-black text-sm tracking-widest bg-slate-800/50  px-3 py-1 rounded-lg inline-block border border-slate-700 ">{r.vehiculo.patente}</div>
+                    <div className="font-mono font-black text-sm tracking-widest bg-slate-800/50  px-3 py-1 rounded-lg inline-block border border-slate-700 ">{r.vehiculo?.patente || "S/V"}</div>
                   </td>
                   <td className="p-6">
                     <div className="font-bold">{(r.kmActual || 0).toLocaleString()}</div>

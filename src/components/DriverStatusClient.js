@@ -76,9 +76,9 @@ export default function DriverStatusClient({ initialTraces = {} }) {
                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Trasmisión de Rastro</p>
             </div>
             <h3 className="text-white text-xl font-black uppercase italic tracking-tighter">{selectedDriver || "Seleccionar Unidad"}</h3>
-            {currentTrace.length > 0 && (
+            {currentTrace.length > 0 && currentTrace[currentTrace.length - 1]?.time && (
                <p className="text-[9px] text-slate-500 font-bold uppercase mt-2 border-t border-white/5 pt-2">
-                 Última Señal: {format(new Date(currentTrace[currentTrace.length-1].time), "HH:mm 'hs'", {locale: es})}
+                 Última Señal: {format(new Date(currentTrace[currentTrace.length - 1].time), "HH:mm 'hs'", {locale: es})}
                </p>
             )}
          </div>

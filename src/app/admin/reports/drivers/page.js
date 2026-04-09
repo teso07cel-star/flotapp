@@ -104,16 +104,16 @@ export default async function DriversDailyReport({ searchParams }) {
                                   <div className="w-full bg-slate-900/60 border border-blue-500/20 rounded-2xl p-5 shadow-lg relative z-10">
                                       <div className="flex justify-between items-center mb-3">
                                           <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Inicio de Transmisión</p>
-                                          <span className="text-white font-mono font-bold">{format(new Date(d.inicio.fecha), "HH:mm")}</span>
+                                          <span className="text-white font-mono font-bold">{d.inicio.fecha ? format(new Date(d.inicio.fecha), "HH:mm") : "--:--"}</span>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">
                                           <div>
                                               <p className="text-[9px] text-slate-500 uppercase font-black">Unidad Asignada</p>
-                                              <p className="font-mono text-white text-sm font-bold tracking-widest bg-white/5 border border-white/10 rounded px-2 py-1 inline-block mt-1">{d.inicio.vehiculo.patente}</p>
+                                              <p className="font-mono text-white text-sm font-bold tracking-widest bg-white/5 border border-white/10 rounded px-2 py-1 inline-block mt-1">{d.inicio.vehiculo?.patente || "S/V"}</p>
                                           </div>
                                           <div className="text-right">
                                                <p className="text-[9px] text-slate-500 uppercase font-black mb-2">Odómetro Inicial</p>
-                                               <p className="text-lg font-black text-white">{d.inicio.kmActual?.toLocaleString()} <span className="text-[9px] text-blue-500">KM</span></p>
+                                               <p className="text-lg font-black text-white">{d.inicio.kmActual?.toLocaleString() || "0"} <span className="text-[9px] text-blue-500">KM</span></p>
                                           </div>
                                       </div>
                                   </div>
@@ -132,7 +132,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                           <div>
                                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{parada.sucursales?.length > 0 ? "Registro de Visita" : "Protocolo Estándar"}</p>
                                           </div>
-                                          <span className="text-gray-400 font-mono text-sm">{format(new Date(parada.fecha), "HH:mm")}</span>
+                                          <span className="text-gray-400 font-mono text-sm">{parada.fecha ? format(new Date(parada.fecha), "HH:mm") : "--:--"}</span>
                                       </div>
                                       
                                       <div className="flex flex-wrap gap-2 mt-3">
@@ -143,7 +143,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                       </div>
 
                                       <div className="mt-4 flex items-center gap-8">
-                                          {parada.kmActual && (
+                                          {parada.kmActual != null && (
                                               <div>
                                                   <p className="text-[8px] text-slate-500 uppercase font-black mb-1">Odómetro Real</p>
                                                   <p className="text-sm font-black text-emerald-400">{parada.kmActual.toLocaleString()} <span className="text-[8px]">KM</span></p>
@@ -170,7 +170,7 @@ export default async function DriversDailyReport({ searchParams }) {
                                   <div className="w-full bg-red-950/20 border border-red-500/20 rounded-2xl p-5 shadow-lg relative z-10">
                                       <div className="flex justify-between items-center mb-3">
                                           <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Cierre de Transmisión</p>
-                                          <span className="text-red-300 font-mono font-bold">{format(new Date(d.cierre.fecha), "HH:mm")}</span>
+                                          <span className="text-red-300 font-mono font-bold">{d.cierre.fecha ? format(new Date(d.cierre.fecha), "HH:mm") : "--:--"}</span>
                                       </div>
                                       <div className="grid grid-cols-3 gap-2">
                                           <div>

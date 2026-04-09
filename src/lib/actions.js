@@ -26,10 +26,16 @@ export async function getDriverOperationalStatus(driverName) {
     todayStart.setHours(0, 0, 0, 0);
     
     const lastRecord = await prisma.registroDiario.findFirst({
-       where: { nombreConductor: driverName, fecha: { gte: todayStart } },
+       where: { 
+         nombreConductor: { equals: driverName.trim(), mode: 'insensitive' }, 
+         fecha: { gte: todayStart } 
+       },
        orderBy: { fecha: 'desc' },
        include: { vehiculo: true, sucursales: true }
     });
+    
+    console.log(`[StatusCheck] Driver: ${driverName}, FoundRecords: ${!!lastRecord}, LastKm: ${lastRecord?.kmActual}, Type: ${lastRecord?.tipoReporte}`);
+
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
        const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
        return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
@@ -44,7 +50,7 @@ export async function getDriverOperationalStatus(driverName) {
         active: true, 
         vehiculo: lastRecord.vehiculo, 
         lastKm: lastKm, 
-        proposedKm: lastKm + addedDistance, 
+        proposedKm: lastKm, // Eliminado el + addedDistance para evitar confusiones, usamos el REAL último
         lastLogType: lastRecord.tipoReporte,
         lastWasOtros: lastWasOtros
       } 
