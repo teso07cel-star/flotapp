@@ -21,14 +21,13 @@ export async function getVehiculoByPatente(patente) {
 export async function getDriverOperationalStatus(driverName) {
   try {
     if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
-    // Ajuste UTC-3 para el inicio del día local
-    const todayStart = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
-    todayStart.setHours(0, 0, 0, 0);
+    // Ventana de 18 horas para encontrar el último viaje activo (mitiga cruces de medianoche y desfases UTC)
+    const activeWindow = new Date(Date.now() - 18 * 3600 * 1000);
     
     const lastRecord = await prisma.registroDiario.findFirst({
        where: { 
          nombreConductor: { equals: driverName.trim(), mode: 'insensitive' }, 
-         fecha: { gte: todayStart } 
+         fecha: { gte: activeWindow } 
        },
        orderBy: { fecha: 'desc' },
        include: { vehiculo: true, sucursales: true }
@@ -576,16 +575,16 @@ export async function getDailyReport(dateString) {
       };
     });
 
-    const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, v.max - v.start), 0);
+    const totalKm = Object.values(vehicleData).reduce((sum, v) => sum + Math.max(0, (v.max || 0) - (v.start || 0)), 0);
     const uniqueVehicles = Object.keys(vehicleData).length;
-    const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
+    const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + (v.visits || 0), 0);
 
     return { 
       success: true, 
       data: {
         registros: registrosMapeados,
         stats: {
-          totalKm,
+          totalKm: parseFloat(totalKm.toFixed(1)),
           uniqueVehicles,
           totalVisits,
           branchBreakdown

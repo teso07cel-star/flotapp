@@ -107,6 +107,7 @@ export default async function DailyReport({ searchParams }) {
                 <th className="p-6">KM Sugeridos</th>
                 <th className="p-6">Conductor</th>
                 <th className="p-6">Sucursales Visitadas</th>
+                <th className="p-6">Control KM (Real/Teo)</th>
                 <th className="p-6">Novedades</th>
                 <th className="p-6 text-right pr-10">Accion</th>
               </tr>
@@ -145,6 +146,13 @@ export default async function DailyReport({ searchParams }) {
                           {s.nombre}
                         </span>
                       ))}
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                       <span className={`text-[10px] font-black ${Math.abs((r.kmActual - (r.kmActual - (r.kmTeoricos || 0)))) > 10 ? 'text-amber-500' : 'text-slate-400'}`}>
+                          {r.kmActual?.toLocaleString()} / {r.kmTeoricos > 0 ? `${r.kmTeoricos.toLocaleString()}` : "-"}
+                       </span>
                     </div>
                   </td>
                   <td className="p-6">
