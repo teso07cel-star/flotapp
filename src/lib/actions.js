@@ -570,6 +570,7 @@ export async function getDailyReport(dateString) {
       const kmTeoricos = calculateSequentialRoute(r.sucursales || []);
       return { 
         ...r, 
+        fecha: r.fecha.toISOString(), // Normalización de fecha para serialización segura
         vehiculo: r.vehiculo || { patente: "S/V" },
         kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) 
       };
@@ -581,7 +582,7 @@ export async function getDailyReport(dateString) {
 
     return { 
       success: true, 
-      data: {
+      data: JSON.parse(JSON.stringify({
         registros: registrosMapeados,
         stats: {
           totalKm: parseFloat(totalKm.toFixed(1)),
@@ -589,7 +590,7 @@ export async function getDailyReport(dateString) {
           totalVisits,
           branchBreakdown
         }
-      } 
+      }))
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
@@ -602,7 +603,31 @@ export async function getAllChoferes() {
       where: { activo: true },
       orderBy: { nombre: 'asc' } 
     });
-    return { success: true, data: choferes };
+
+    // SISTEMA DE SANACIÓN DE IDENTIDADES (Auto-Healing)
+    // Busca choferes sin vínculo que tengan una autorización ya aprobada
+    const approvedAuths = await prisma.autorizacionDispositivo.findMany({
+      where: { estado: "APROBADO" }
+    });
+
+    let modified = false;
+    for (const chofer of choferes) {
+      if (!chofer.passkeyId) {
+        const match = approvedAuths.find(a => a.nombreSolicitante.trim().toLowerCase() === chofer.nombre.trim().toLowerCase());
+        if (match) {
+          await prisma.chofer.update({
+            where: { id: chofer.id },
+            data: { passkeyId: match.deviceId }
+          });
+          chofer.passkeyId = match.deviceId; // Actualizar en memoria para el retorno actual
+          modified = true;
+        }
+      }
+    }
+
+    if (modified) revalidatePath("/admin/choferes");
+
+    return { success: true, data: JSON.parse(JSON.stringify(choferes)) };
   } catch (error) {
     console.error("Error in getAllChoferes:", error);
     return { success: false, error: error.message };
@@ -875,20 +900,39 @@ export async function getAutorizacionesPendientes() {
 
 export async function aprobarAutorizacion(id) {
   try {
-    if (prisma.autorizacionDispositivo) {
-      await prisma.autorizacionDispositivo.update({
-        where: { id: parseInt(id) },
-        data: { estado: "APROBADO" }
+    const authId = parseInt(id);
+    
+    // 1. Obtener la solicitud para conocer el nombre y dispositivo
+    const solicitud = await prisma.autorizacionDispositivo.findUnique({
+      where: { id: authId }
+    });
+
+    if (!solicitud) return { success: false, error: "Solicitud no encontrada" };
+
+    // 2. Buscar al chofer (Insensible a mayúsculas para evitar fallos de Jonathan B / Tomas Casco)
+    const chofer = await prisma.chofer.findFirst({
+      where: { nombre: { equals: solicitud.nombreSolicitante.trim(), mode: 'insensitive' } }
+    });
+
+    // 3. Si el chofer existe, vincularlo inmediatamente!
+    if (chofer) {
+      await prisma.chofer.update({
+        where: { id: chofer.id },
+        data: { passkeyId: solicitud.deviceId }
       });
-    } else {
-      await prisma.$executeRawUnsafe(
-        'UPDATE "AutorizacionDispositivo" SET "estado" = \'APROBADO\' WHERE "id" = $1',
-        parseInt(id)
-      );
+      console.log(`✅ Chofer ${chofer.nombre} vinculado automáticamente con dispositivo ${solicitud.deviceId}`);
     }
+
+    // 4. Marcar solicitud como aprobada
+    await prisma.autorizacionDispositivo.update({
+      where: { id: authId },
+      data: { estado: "APROBADO" }
+    });
+
     revalidatePath("/admin/choferes");
     return { success: true };
   } catch (error) {
+    console.error("Error en aprobarAutorizacion:", error.message);
     return { success: false, error: error.message };
   }
 }
@@ -968,12 +1012,13 @@ export async function getDriverTraces(dateString) {
           lng: coords[1],
           time: r.fecha,
           type: r.tipoReporte,
-          patente: r.vehiculo?.patente || "S/V"
+          patente: r.vehiculo?.patente || "S/V",
+          fecha: r.fecha.toISOString() // Normalización crucial
         });
       }
     });
 
-    return { success: true, data: traces };
+    return { success: true, data: JSON.parse(JSON.stringify(traces)) }; // Asegurar objeto plano total
   } catch (error) {
     console.error("Error in getDriverTraces:", error);
     return { success: false, error: error.message };

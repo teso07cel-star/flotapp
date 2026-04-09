@@ -10,13 +10,21 @@ import dynamicImport from "next/dynamic";
 import MapWrapper from "@/components/MapWrapper";
 
 export default async function DailyReport({ searchParams }) {
+  // En Next.js 15+ searchParams es una promesa que debe ser esperada.
   const params = await searchParams;
-  // Usar la fecha actual en la zona horaria del servidor como fallback
-  // Nota: Para ser 100% precisos con el usuario, esto podría ser un Client Component,
-  // pero por ahora aseguramos que no crashee y use una fecha válida.
   const dateStr = params.date || new Date().toISOString().split('T')[0];
   
-  const res = await getDailyReport(dateStr);
+  let res;
+  try {
+    res = await getDailyReport(dateStr);
+  } catch (err) {
+    return (
+        <div className="p-10 border-2 border-dashed border-red-200 rounded-[2rem] text-center bg-red-50/30">
+            <h2 className="text-red-500 font-black uppercase mb-2">Error Crítico de Servidor</h2>
+            <p className="text-xs text-red-500/60 font-medium">{err.message}</p>
+        </div>
+    );
+  }
   
   if (!res.success) {
       return (
