@@ -25,6 +25,7 @@ export default async function ChoferesAdmin() {
   }
 
   const choferes = res.data || [];
+  const identityAlerts = res.alerts || [];
   const solicitudesPendientes = authRes.success ? authRes.data : [];
 
   async function addAction(formData) {
@@ -78,16 +79,31 @@ export default async function ChoferesAdmin() {
       </div>
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Gestión de Choferes</h1>
-          <p className="text-gray-500 ">Administra la lista de conductores autorizados.</p>
-        </div>
-        
-        <div className="bg-slate-900/40 p-1 px-4 rounded-full border border-white/5 flex items-center gap-3">
-           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
-           <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">Consola Sincronizada</span>
-        </div>
       </div>
+      
+      {/* ALERTAS DE IDENTIDAD DIPLOMÁTICAS */}
+      {identityAlerts.length > 0 && (
+        <div className="space-y-4">
+          {identityAlerts.map((alert, idx) => (
+            <div key={idx} className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-4 animate-pulse">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-500">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-black uppercase text-amber-500 tracking-widest">Conflicto de Enlace Detectado</p>
+                <p className="text-xs text-slate-300">
+                  No se pudo vincular a <span className="font-bold text-white text-sm">{alert.chofer}</span> porque su celular ya pertenece a <span className="font-bold text-amber-400 text-sm italic underline decoration-amber-500/50 underline-offset-4">{alert.occupiedBy}</span>.
+                </p>
+              </div>
+              <div className="text-[9px] font-black uppercase tracking-tighter text-amber-500/50 italic">
+                Requiere Acción Manual
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* SECCIÓN DE SOLICITUDES PENDIENTES - HUD TÁCTICO */}
       <div className={`relative group transition-all duration-1000 ${solicitudesPendientes.length > 0 ? 'scale-[1.01]' : 'opacity-80'}`}>

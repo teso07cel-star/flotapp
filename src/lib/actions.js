@@ -568,11 +568,18 @@ export async function getDailyReport(dateString) {
 
     const registrosMapeados = registros.map(r => {
       const kmTeoricos = calculateSequentialRoute(r.sucursales || []);
+      // Sanitización profunda de sub-objetos para evitar errores de serialización JSON en Next.js
       return { 
-        ...r, 
-        fecha: r.fecha.toISOString(), // Normalización de fecha para serialización segura
-        vehiculo: r.vehiculo || { patente: "S/V" },
-        kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) 
+        id: r.id,
+        fecha: r.fecha.toISOString(),
+        kmActual: r.kmActual,
+        novedades: r.novedades,
+        nombreConductor: r.nombreConductor,
+        vehiculoId: r.vehiculoId,
+        tipoReporte: r.tipoReporte,
+        kmTeoricos: parseFloat(kmTeoricos.toFixed(1)),
+        vehiculo: r.vehiculo ? { patente: r.vehiculo.patente } : { patente: "S/V" },
+        sucursales: (r.sucursales || []).map(s => ({ id: s.id, nombre: s.nombre }))
       };
     });
 
@@ -604,30 +611,56 @@ export async function getAllChoferes() {
       orderBy: { nombre: 'asc' } 
     });
 
-    // SISTEMA DE SANACIÓN DE IDENTIDADES (Auto-Healing)
-    // Busca choferes sin vínculo que tengan una autorización ya aprobada
     const approvedAuths = await prisma.autorizacionDispositivo.findMany({
       where: { estado: "APROBADO" }
     });
 
+    const identityAlerts = [];
     let modified = false;
+
     for (const chofer of choferes) {
       if (!chofer.passkeyId) {
         const match = approvedAuths.find(a => a.nombreSolicitante.trim().toLowerCase() === chofer.nombre.trim().toLowerCase());
+        
         if (match) {
-          await prisma.chofer.update({
-            where: { id: chofer.id },
-            data: { passkeyId: match.deviceId }
-          });
-          chofer.passkeyId = match.deviceId; // Actualizar en memoria para el retorno actual
-          modified = true;
+          try {
+            // Verificar si el dispositivo ya está ocupado por otro chofer antes de intentar vincular
+            const isDeviceTaken = await prisma.chofer.findFirst({
+              where: { passkeyId: match.deviceId }
+            });
+
+            if (isDeviceTaken) {
+              identityAlerts.push({
+                chofer: chofer.nombre,
+                deviceId: match.deviceId,
+                occupiedBy: isDeviceTaken.nombre,
+                severity: "warning"
+              });
+              continue;
+            }
+
+            await prisma.chofer.update({
+              where: { id: chofer.id },
+              data: { passkeyId: match.deviceId }
+            });
+            chofer.passkeyId = match.deviceId;
+            modified = true;
+          } catch (loopErr) {
+            console.error(`Error vinculando a ${chofer.nombre}:`, loopErr.message);
+            identityAlerts.push({ chofer: chofer.nombre, error: loopErr.message, severity: "error" });
+          }
         }
       }
     }
 
     if (modified) revalidatePath("/admin/choferes");
 
-    return { success: true, data: JSON.parse(JSON.stringify(choferes)) };
+    const plainChoferes = JSON.parse(JSON.stringify(choferes));
+    return { 
+      success: true, 
+      data: plainChoferes,
+      alerts: identityAlerts 
+    };
   } catch (error) {
     console.error("Error in getAllChoferes:", error);
     return { success: false, error: error.message };
