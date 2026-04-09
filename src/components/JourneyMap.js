@@ -57,27 +57,36 @@ export default function JourneyMap({ registros }) {
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
 
-    if (!mapInstanceRef.current) {
-      // Inicializar mapa con tema oscuro
-      mapInstanceRef.current = L.map(mapContainerRef.current, {
+    // LIMPIEZA PREVENTIVA
+    if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+    }
+
+    // Inicializar mapa con tema oscuro
+    mapInstanceRef.current = L.map(mapContainerRef.current, {
         center: [-34.6037, -58.3816], // Buenos Aires default
         zoom: 12,
-        zoomControl: false
-      });
+        zoomControl: false,
+        fadeAnimation: true
+    });
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-      }).addTo(mapInstanceRef.current);
+    }).addTo(mapInstanceRef.current);
 
-      layerGroupRef.current = L.layerGroup().addTo(mapInstanceRef.current);
-      
-      L.control.zoom({ position: 'bottomright' }).addTo(mapInstanceRef.current);
+    layerGroupRef.current = L.layerGroup().addTo(mapInstanceRef.current);
+    
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstanceRef.current);
 
-      // Forzar recalibración de tamaño para visibilidad inmediata
-      setTimeout(() => {
+    // Bucle de invalidación agresiva para asegurar visibilidad en contenedores dinámicos
+    const invalidate = () => {
         if (mapInstanceRef.current) mapInstanceRef.current.invalidateSize();
-      }, 500);
-    }
+    };
+    
+    setTimeout(invalidate, 100);
+    setTimeout(invalidate, 1000);
+    setTimeout(invalidate, 3000);
 
     return () => {
       if (mapInstanceRef.current) {
@@ -137,8 +146,8 @@ export default function JourneyMap({ registros }) {
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
         <div 
           ref={mapContainerRef} 
-          className="relative h-[450px] w-full bg-[#020617] rounded-[2rem] border border-white/5 overflow-hidden z-0"
-          style={{ zIndex: 0 }}
+          className="relative h-[450px] w-full bg-[#020617] rounded-[2rem] border border-white/5 overflow-hidden z-[5]"
+          style={{ zIndex: 5 }}
         />
         
         {/* Overlay HUD */}

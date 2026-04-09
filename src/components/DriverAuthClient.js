@@ -19,13 +19,16 @@ export default function DriverAuthClient({ choferes = [], initialDriverName }) {
 
   // IDENTIFICACIÓN TÁCTICA AUTOMÁTICA
   useEffect(() => {
-    const performAuthCheck = async () => {
-      const devId = localStorage.getItem("flotapp_device_id");
-      if (!devId) {
-        setLoading(false);
-        return;
-      }
+    let devId = localStorage.getItem("flotapp_device_id");
+    
+    // Generación espontánea de identidad de máquina si no existe
+    if (!devId) {
+      devId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `DEVICE-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+      localStorage.setItem("flotapp_device_id", devId);
+      console.log("🆕 Nueva identidad de terminal generada:", devId);
+    }
 
+    const performAuthCheck = async () => {
       try {
         const res = await checkEstadoAutorizacion(devId);
         if (res.success && res.estado === "APROBADO") {
@@ -114,12 +117,8 @@ export default function DriverAuthClient({ choferes = [], initialDriverName }) {
       // Persistencia de memoria corporativa
       localStorage.setItem("flotapp_last_driver", name);
 
-      const { createRegistroDiario } = await import("@/lib/actions");
-      await createRegistroDiario({
-          nombreConductor: name,
-          tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: gpsLocation || "VIRTUAL_B4"
-      });
+      // DESACOPLE LOGÍSTICO: No creamos el registro aquí.
+      // El chofer será redirigido a la portada donde llenará su inicio de jornada (Km y Vehículo).
 
       document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
       router.push('/');

@@ -799,19 +799,34 @@ export async function resetSystem() {
 }
 
 export async function solicitarAutorizacion(nombre, deviceId) {
+  if (!deviceId) return { success: false, error: "ID de dispositivo no detectado" };
   console.log("Solicitud de autorización recibida para:", nombre, "Device:", deviceId);
   
-  const attemptWithRawSQL = async () => {
+  try {
+    // Intentar con Prisma (Objeto)
+    const existing = await prisma.autorizacionDispositivo.findUnique({ where: { deviceId } });
+    if (existing) {
+      if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
+      await prisma.autorizacionDispositivo.update({
+        where: { id: existing.id },
+        data: { nombreSolicitante: nombre, estado: "PENDIENTE", fechaSolicitud: new Date() }
+      });
+    } else {
+      await prisma.autorizacionDispositivo.create({ data: { nombreSolicitante: nombre, deviceId } });
+    }
+    revalidatePath("/admin/choferes");
+    return { success: true, status: "PENDIENTE" };
+  } catch (error) {
+    console.error("Falla en solicitarAutorizacion (Prisma):", error.message);
     try {
+      // Fallback a SQL crudo solo si Prisma falla (útil en despliegues con esquemas en transición)
       const rows = await prisma.$queryRawUnsafe(
         'SELECT id, estado FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
         deviceId
       );
-      
       if (rows && rows.length > 0) {
         const existing = rows[0];
         if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
-        
         await prisma.$executeRawUnsafe(
           'UPDATE "AutorizacionDispositivo" SET "nombreSolicitante" = $1, "estado" = \'PENDIENTE\', "fechaSolicitud" = NOW() WHERE "id" = $2',
           nombre, existing.id
@@ -825,31 +840,9 @@ export async function solicitarAutorizacion(nombre, deviceId) {
       revalidatePath("/admin/choferes");
       return { success: true, status: "PENDIENTE" };
     } catch (sqlError) {
-      console.error("Falla crítica en SQL Directo:", sqlError.message);
-      return { success: false, error: "Base de datos no sincronizada. Reinicie sistemas." };
+      console.error("Falla definitiva en solicitarAutorizacion:", sqlError.message);
+      return { success: false, error: `Error de enlace: ${sqlError.message}` };
     }
-  };
-
-  try {
-    if (prisma.autorizacionDispositivo) {
-      const existing = await prisma.autorizacionDispositivo.findUnique({ where: { deviceId } });
-      if (existing) {
-        if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
-        await prisma.autorizacionDispositivo.update({
-          where: { id: existing.id },
-          data: { nombreSolicitante: nombre, estado: "PENDIENTE", fechaSolicitud: new Date() }
-        });
-      } else {
-        await prisma.autorizacionDispositivo.create({ data: { nombreSolicitante: nombre, deviceId } });
-      }
-      revalidatePath("/admin/choferes");
-      return { success: true, status: "PENDIENTE" };
-    } else {
-      return await attemptWithRawSQL();
-    }
-  } catch (error) {
-    console.error("Error en solicitarAutorizacion (Objeto):", error.message);
-    return await attemptWithRawSQL();
   }
 }
 
@@ -921,21 +914,14 @@ export async function rechazarAutorizacion(id) {
 }
 
 export async function checkEstadoAutorizacion(deviceId) {
+  if (!deviceId) return { success: true, estado: "NO_EXISTE" };
   try {
-    if (prisma.autorizacionDispositivo) {
-      const solicitud = await prisma.autorizacionDispositivo.findUnique({
-        where: { deviceId }
-      });
-      return { success: true, estado: solicitud?.estado || "NO_EXISTE" };
-    } else {
-      const rows = await prisma.$queryRawUnsafe(
-        'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
-        deviceId
-      );
-      return { success: true, estado: rows && rows[0] ? rows[0].estado : "NO_EXISTE" };
-    }
+    const solicitud = await prisma.autorizacionDispositivo.findUnique({
+      where: { deviceId }
+    });
+    return { success: true, estado: solicitud?.estado || "NO_EXISTE" };
   } catch (error) {
-    console.error("Error en checkEstadoAutorizacion:", error.message);
+    console.error("Error en checkEstadoAutorizacion (Prisma):", error.message);
     try {
       const rows = await prisma.$queryRawUnsafe(
         'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
@@ -943,6 +929,7 @@ export async function checkEstadoAutorizacion(deviceId) {
       );
       return { success: true, estado: rows && rows[0] ? rows[0].estado : "NO_EXISTE" };
     } catch (sqlError) {
+      console.error("Error en checkEstadoAutorizacion (SQL):", sqlError.message);
       return { success: false, error: sqlError.message };
     }
   }
@@ -963,6 +950,7 @@ export async function getDriverTraces(dateString) {
         lugarGuarda: { not: null, not: "" }
       },
       orderBy: { fecha: 'asc' },
+      take: 500,
       include: { vehiculo: true }
     });
 

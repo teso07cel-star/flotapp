@@ -1,6 +1,4 @@
-"use client";
-import { useState, useMemo } from "react";
-import JourneyMap from "./JourneyMap";
+import MapWrapper from "./MapWrapper";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -83,8 +81,8 @@ export default function DriverStatusClient({ initialTraces = {} }) {
             )}
          </div>
 
-         <div className="w-full h-full min-h-[500px] z-0">
-            <JourneyMap registros={mapData} />
+         <div className="w-full h-full min-h-[500px] z-0 relative">
+            <MapWrapper registros={mapData} />
          </div>
          
          <div className="absolute bottom-6 right-6 z-10 px-6 py-3 bg-black/80 backdrop-blur-sm rounded-full border border-white/10 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
