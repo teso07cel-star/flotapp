@@ -8,9 +8,10 @@ export default async function DriversDailyReport({ searchParams }) {
   const params = await searchParams;
   const dateStr = params.date || new Date().toISOString().split('T')[0];
   
-  // Date range for the query
-  const startDate = new Date(`${dateStr}T00:00:00`);
-  const endDate = new Date(`${dateStr}T23:59:59.999`);
+  // Ventana blindada UTC-3 para el día solicitado
+  const [y, m, d_num] = dateStr.split('-').map(Number);
+  const startDate = new Date(Date.UTC(y, m - 1, d_num, 3, 0, 0, 0));
+  const endDate = new Date(Date.UTC(y, m - 1, d_num + 1, 2, 59, 59, 999));
 
   // Fetch all logs within the date
   const logs = await prisma.registroDiario.findMany({

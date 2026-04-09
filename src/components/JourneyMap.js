@@ -72,6 +72,11 @@ export default function JourneyMap({ registros }) {
       layerGroupRef.current = L.layerGroup().addTo(mapInstanceRef.current);
       
       L.control.zoom({ position: 'bottomright' }).addTo(mapInstanceRef.current);
+
+      // Forzar recalibración de tamaño para visibilidad inmediata
+      setTimeout(() => {
+        if (mapInstanceRef.current) mapInstanceRef.current.invalidateSize();
+      }, 500);
     }
 
     return () => {

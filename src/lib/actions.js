@@ -360,13 +360,17 @@ export async function getMonthlySummary(month, year) {
       const records = allRegistros.filter(r => {
         if (!r.fecha) return false;
         const d = new Date(r.fecha);
-        return r.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
+        // Ajuste: El mes en JS es 0-indexed. El parámetro 'month' ya viene como 0-11 desde el selector.
+        // Pero para asegurar consistencia, comparamos contra el mes local de Argentina.
+        const argD = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+        return r.vehiculoId === v.id && argD.getMonth() === month && argD.getFullYear() === year;
       });
 
       const expenses = allGastos.filter(g => {
         if (!g.fecha) return false;
         const d = new Date(g.fecha);
-        return g.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
+        const argD = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+        return g.vehiculoId === v.id && argD.getMonth() === month && argD.getFullYear() === year;
       });
 
       let initialKm = 0;
@@ -499,23 +503,16 @@ export async function handleDriverEntry(formData) {
 
 export async function getDailyReport(dateString) {
   try {
-    // Ajuste de Zona Horaria Argentina (ART - UTC-3)
-    const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fechas en el contexto del servidor pero forzando el día solicitado
-    const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
-    const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+    // Ajuste de Zona Horaria Argentina Blindado
+    const [y, m, d] = dateString.split('-').map(Number);
+    // Definir la ventana de 24h en UTC que corresponde al día local solicitado
+    // Argentina es UTC-3. Día local 00:00 = 03:00 UTC.
+    const startOfDay = new Date(Date.UTC(y, m - 1, d, 3, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999));
 
     const registros = await prisma.registroDiario.findMany({
-      where: {
-        fecha: {
-          gte: startOfDay,
-          lte: endOfDay
-        }
-      },
-      include: {
-        vehiculo: true,
-        sucursales: true
-      },
+      where: { fecha: { gte: startOfDay, lte: endOfDay } },
+      include: { vehiculo: true, sucursales: true },
       orderBy: { fecha: 'asc' }
     });
 
@@ -607,10 +604,12 @@ export async function getAllChoferes() {
 
 export async function getRangeReport(startDate, endDate) {
   try {
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
+    const [y1, m1, d1] = startDate.split('-').map(Number);
+    const [y2, m2, d2] = endDate.split('-').map(Number);
+    
+    // Ventana blindada UTC-3
+    const start = new Date(Date.UTC(y1, m1 - 1, d1, 3, 0, 0, 0));
+    const end = new Date(Date.UTC(y2, m2 - 1, d2 + 1, 2, 59, 59, 999));
 
     const registros = await prisma.registroDiario.findMany({
       where: { fecha: { gte: start, lte: end } },

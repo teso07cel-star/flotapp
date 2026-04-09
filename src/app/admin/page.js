@@ -174,7 +174,7 @@ export default async function AdminDashboard() {
                            <VehicleIcon categoria={r.vehiculo?.categoria || 'UNKNOWN'} className="w-10 h-8" />
                         </span>
                         <span className="font-mono text-sm font-black text-cyan-400 tracking-widest drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
-                          {r.vehiculo?.patente || 'S/V'}
+                          {r.vehiculo?.patente || (r.tipoReporte === 'INICIO_JORNADA' ? 'LOGIN' : 'S/V')}
                         </span>
                        {r.tipoReporte && (
                          <span className={`text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
@@ -219,11 +219,17 @@ export default async function AdminDashboard() {
                     <span className="text-blue-300/50 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md">Viaje Posterior</span>
                   )}
                 </div>
-                {r.nombreConductor && (
+                {r.nombreConductor && r.tipoReporte !== 'INICIO_JORNADA' && (
                   <div className="text-[10px] text-blue-300 font-bold uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5 opacity-80">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     {r.nombreConductor}
                   </div>
+                )}
+                {r.tipoReporte === 'INICIO_JORNADA' && (
+                   <div className="text-xs font-black text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                      OPERADOR: {r.nombreConductor}
+                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-2">
                   {r.sucursales?.map(s => (
