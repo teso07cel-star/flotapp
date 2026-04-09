@@ -88,9 +88,9 @@ export default async function DriverForm({ searchParams }) {
           </div>
           
           <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
-            <div className="h-16 w-32 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
+            <div className="h-20 w-44 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-all" />
-               <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">{vehiculo.patente}</span>
+               <span className="font-mono font-black text-white tracking-[0.1em] text-2xl relative z-10 uppercase px-4 truncate">{vehiculo.patente}</span>
             </div>
             <div>
               <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>

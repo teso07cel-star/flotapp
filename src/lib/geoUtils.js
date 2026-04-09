@@ -60,11 +60,16 @@ export function calculateFullRoute(stops) {
  * Calcula el tramo puntual: Anterior -> Nueva(s) -> Base
  * Útil para validación inmediata en bitácora.
  */
-export function calculateSequentialRoute(lastLocation, newStops) {
-  return calculateSegment(lastLocation, newStops);
+export function calculateSequentialRoute(arg1, arg2) {
+  // Si se llama con un solo argumento (lista de paradas), usar la Base como inicio
+  if (Array.isArray(arg1) && arg2 === undefined) {
+    return calculateSegment(BASE_LOCATION, arg1);
+  }
+  return calculateSegment(arg1, arg2);
 }
 
 export function calculateSegment(lastLocation, newStops) {
+  if (!newStops || !Array.isArray(newStops)) return 0;
   let start = lastLocation || BASE_LOCATION;
   let d = 0;
   let current = start;

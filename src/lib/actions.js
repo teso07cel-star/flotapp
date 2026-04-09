@@ -21,12 +21,14 @@ export async function getVehiculoByPatente(patente) {
 export async function getDriverOperationalStatus(driverName) {
   try {
     if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
-    const todayStart = new Date();
+    // Ajuste UTC-3 para el inicio del día local
+    const todayStart = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
     todayStart.setHours(0, 0, 0, 0);
+    
     const lastRecord = await prisma.registroDiario.findFirst({
        where: { nombreConductor: driverName, fecha: { gte: todayStart } },
        orderBy: { fecha: 'desc' },
-       include: { vehiculo: true }
+       include: { vehiculo: true, sucursales: true }
     });
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
        const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
@@ -34,7 +36,19 @@ export async function getDriverOperationalStatus(driverName) {
     }
     const lastKm = lastRecord.kmActual || 0;
     const addedDistance = lastRecord.kmTeoricos || 0;
-    return { success: true, data: { active: true, vehiculo: lastRecord.vehiculo, lastKm: lastKm, proposedKm: lastKm + addedDistance, lastLogType: lastRecord.tipoReporte } };
+    const lastWasOtros = lastRecord.sucursales?.some(s => s.nombre.toUpperCase() === "OTROS") || false;
+    
+    return { 
+      success: true, 
+      data: { 
+        active: true, 
+        vehiculo: lastRecord.vehiculo, 
+        lastKm: lastKm, 
+        proposedKm: lastKm + addedDistance, 
+        lastLogType: lastRecord.tipoReporte,
+        lastWasOtros: lastWasOtros
+      } 
+    };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -158,6 +172,9 @@ export async function createRegistroDiario(data) {
        kmTeoricos = Math.round(calculateSequentialRoute(stops));
     }
 
+    // Forzar estampa de tiempo Argentina (UTC-3)
+    const argentinaNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+    
     const registroData = {
       kmActual,
       kmModificado,
@@ -168,6 +185,7 @@ export async function createRegistroDiario(data) {
       nombreConductor: data.nombreConductor || null,
       tipoReporte: data.tipoReporte || null,
       lugarGuarda: data.lugarGuarda || null,
+      fecha: data.fecha ? new Date(data.fecha) : argentinaNow,
       sucursales: {
         connect: data.sucursalIds ? data.sucursalIds.map(id => ({ id: parseInt(id) })) : []
       }
@@ -481,8 +499,9 @@ export async function handleDriverEntry(formData) {
 
 export async function getDailyReport(dateString) {
   try {
-    // Procesar la fecha localmente para evitar desfases UTC
+    // Ajuste de Zona Horaria Argentina (ART - UTC-3)
     const [year, month, day] = dateString.split('-').map(Number);
+    // Crear fechas en el contexto del servidor pero forzando el día solicitado
     const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
     const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
 
@@ -570,7 +589,7 @@ export async function getDailyReport(dateString) {
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: `Fallo Crítico en Reporte: ${error.message}` };
   }
 }
 export async function getAllChoferes() {
@@ -594,17 +613,59 @@ export async function getRangeReport(startDate, endDate) {
     end.setHours(23, 59, 59, 999);
 
     const registros = await prisma.registroDiario.findMany({
-      where: {
-        fecha: { gte: start, lte: end }
-      },
-      include: {
-        vehiculo: true,
-        sucursales: true
-      },
+      where: { fecha: { gte: start, lte: end } },
+      include: { vehiculo: true, sucursales: true },
       orderBy: { fecha: 'asc' }
     });
 
-    return { success: true, data: registros };
+    // Cálculos Tácticos para Rango
+    const vehicleBreakdown = {};
+    const branchBreakdown = {};
+    let totalKm = 0;
+    
+    // Agrupar por vehículo
+    registros.forEach(r => {
+      if (!r.vehiculo) return;
+      if (!vehicleBreakdown[r.vehiculo.patente]) {
+        vehicleBreakdown[r.vehiculo.patente] = { patente: r.vehiculo.patente, km: 0, visits: 0 };
+      }
+      vehicleBreakdown[r.vehiculo.patente].visits += (r.sucursales?.length || 0);
+      
+      // Agrupar por sucursal
+      r.sucursales?.forEach(s => {
+        branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
+      });
+    });
+
+    // Calcular KM por vehículo (Último - Primero en el rango)
+    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId))];
+    await Promise.all(vehicleIds.map(async (vId) => {
+      const vRegs = registros.filter(r => r.vehiculoId === vId);
+      if (vRegs.length > 0) {
+        const first = vRegs[0];
+        const last = vRegs[vRegs.length - 1];
+        const diff = Math.max(0, (last.kmActual || 0) - (first.kmActual || 0));
+        const patente = last.vehiculo.patente;
+        if (vehicleBreakdown[patente]) {
+            vehicleBreakdown[patente].km = diff;
+            totalKm += diff;
+        }
+      }
+    }));
+
+    return { 
+      success: true, 
+      data: { 
+        registros,
+        stats: {
+          totalKm,
+          totalVisits: registros.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0),
+          uniqueVehicles: vehicleIds.length,
+          vehicleBreakdown: Object.values(vehicleBreakdown),
+          branchBreakdown
+        }
+      } 
+    };
   } catch (error) {
     console.error("Error in getRangeReport:", error);
     return { success: false, error: error.message };
