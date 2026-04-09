@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+// Leaflet CSS movido a globals.css para mayor estabilidad
 
 // Definición de iconos tácticos b4.0
 const createMarkerIcon = (color) => {
@@ -137,10 +137,15 @@ export default function JourneyMap({ registros }) {
         />
         
         {/* Overlay HUD */}
-        <div className="absolute top-6 left-6 z-10 pointer-events-none">
-           <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+        <div className="absolute top-6 left-6 z-10 pointer-events-none select-none">
+           <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-2xl">
               <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em]">C4 Journey Traceability</p>
            </div>
+        </div>
+        
+        {/* Placeholder táctico si falla la carga o está vacío */}
+        <div className="absolute inset-0 z-[-1] bg-[#020617] flex items-center justify-center pointer-events-none">
+            <StrategicGearIcon className="w-16 h-16 text-slate-900 animate-spin-slow opacity-20" />
         </div>
       </div>
 
