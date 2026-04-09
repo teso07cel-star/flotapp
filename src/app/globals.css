@@ -70,3 +70,16 @@ body {
 .hud-button:hover::after {
   left: 100%;
 }
+
+/* Leaflet Stability Overrides */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 400px;
+  z-index: 1 !important;
+  border-radius: inherit;
+}
+
+.custom-tactical-marker {
+  transition: all 0.3s ease;
+}

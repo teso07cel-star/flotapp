@@ -538,6 +538,7 @@ export async function getDailyReport(dateString) {
     }));
 
     registros.forEach(r => {
+      // Ignorar registros sin vehículo o con datos corruptos para las estadísticas agregadas
       if (!r.vehiculoId || !r.vehiculo) return;
 
       const km = r.kmActual || 0;
@@ -564,6 +565,7 @@ export async function getDailyReport(dateString) {
       const kmTeoricos = calculateSequentialRoute(r.sucursales || []);
       return { 
         ...r, 
+        vehiculo: r.vehiculo || { patente: "S/V" },
         kmTeoricos: parseFloat(kmTeoricos.toFixed(1)) 
       };
     });
@@ -938,5 +940,49 @@ export async function checkEstadoAutorizacion(deviceId) {
     } catch (sqlError) {
       return { success: false, error: sqlError.message };
     }
+  }
+}
+// ---------------------------------------------------------
+// SISTEMA DE MONITOREO TÁCTICO (ESTADO CHOFER)
+// ---------------------------------------------------------
+
+export async function getDriverTraces(dateString) {
+  try {
+    const [y, m, d] = dateString.split('-').map(Number);
+    const startOfDay = new Date(Date.UTC(y, m - 1, d, 3, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999));
+
+    const allRegisters = await prisma.registroDiario.findMany({
+      where: {
+        fecha: { gte: startOfDay, lte: endOfDay },
+        lugarGuarda: { not: null, not: "" }
+      },
+      orderBy: { fecha: 'asc' },
+      include: { vehiculo: true }
+    });
+
+    // Agrupar por conductor
+    const traces = {};
+    allRegisters.forEach(r => {
+      const name = r.nombreConductor || "S/D";
+      if (!traces[name]) traces[name] = [];
+      
+      // Parsear coordenadas "LAT, LNG"
+      const coords = r.lugarGuarda.split(",").map(c => parseFloat(c.trim()));
+      if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+        traces[name].push({
+          lat: coords[0],
+          lng: coords[1],
+          time: r.fecha,
+          type: r.tipoReporte,
+          patente: r.vehiculo?.patente || "S/V"
+        });
+      }
+    });
+
+    return { success: true, data: traces };
+  } catch (error) {
+    console.error("Error in getDriverTraces:", error);
+    return { success: false, error: error.message };
   }
 }

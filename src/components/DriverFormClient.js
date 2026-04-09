@@ -5,7 +5,7 @@ import { createRegistroDiario } from "@/lib/actions";
 export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver, isFirstLog, operationalStatus, proposedKm }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [stage, setStage] = useState(0); // 0: Splash, 1: KM Validation, 2: Routine, 3: Finish
+  const [stage, setStage] = useState(operationalStatus.active ? 0.5 : 0); // 0: Splash, 0.5: Continuity Check, 1: KM Validation, 2: Routine, 3: Finish
   const [authCode, setAuthCode] = useState("");
   const [showAuth, setShowAuth] = useState(false);
   const [gpsLocation, setGpsLocation] = useState("");
@@ -17,13 +17,15 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [changingVehicle, setChangingVehicle] = useState(false);
   const [newPatente, setNewPatente] = useState("");
 
-  // 1. Stage 0 -> 1 Automated transition
+  // 1. Stage 0 -> Target Automated transition
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setStage(1);
-    }, 2200);
-    return () => clearTimeout(timer);
-  }, []);
+    if (stage === 0) {
+      const timer = setTimeout(() => {
+        setStage(1);
+      }, 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [stage]);
 
   // 2. GPS Location
   useEffect(() => {
@@ -103,6 +105,38 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       </div>
     );
   }
+
+   if (stage === 0.5) {
+      return (
+        <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 text-center py-6">
+           <div className="space-y-4">
+              <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Continuidad Operativa</h2>
+              <p className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.4em]">¿Vas a utilizar la misma unidad?</p>
+           </div>
+           
+           <div className="flex flex-col gap-5 pt-8">
+              <button 
+                onClick={() => {
+                  setStage(2); // Skip KM and go straight to routine
+                }}
+                className="w-full py-10 bg-blue-600 rounded-[2.5rem] border-b-8 border-blue-800 text-white font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 active:border-b-0 transition-all text-sm"
+              >
+                SÍ, MISMA UNIDAD
+              </button>
+
+              <button 
+                onClick={() => {
+                  setChangingVehicle(true);
+                  setStage(1); // Go to KM/Plate validation
+                }}
+                className="w-full py-6 bg-slate-900 rounded-[2.5rem] text-slate-400 font-black uppercase tracking-[0.2em] border border-white/5 hover:text-white transition-colors text-[9px]"
+              >
+                CAMBIAR UNIDAD / NUEVA VALIDACIÓN
+              </button>
+           </div>
+        </div>
+      );
+   }
 
   if (stage === 0) {
     return (

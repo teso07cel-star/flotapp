@@ -65,48 +65,46 @@ export default async function DriverForm({ searchParams }) {
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none" />
 
-      <div className="w-full max-w-xl relative z-10">
+      <div className="w-full max-w-xl relative z-10 mt-16">
         <LogoutButton />
 
         <div className="glass-panel p-8 sm:p-12 rounded-[3.5rem] blue-glow-border relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-40 pointer-events-none mix-blend-screen overflow-visible z-0">
-             {vehiculo.categoria === "MOTO" ? (
-               <img src="/icons/moto.png" className="w-64 grayscale contrast-125 brightness-110 mt-20" alt="Moto" />
-             ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
-               <img src="/icons/pickup.png" className="w-[30rem] relative top-24 right-4 grayscale brightness-[0.7] contrast-[1.2]" alt="Hilux" />
-             ) : vehiculo.categoria === "AUTO" ? (
-               <img src="/icons/etios.png" className="w-96 relative top-24 right-4 brightness-125 contrast-125" alt="Etios" />
-             ) : (
-               <div className="w-80 h-80 relative flex items-center justify-center mr-2 mt-20 bg-[#0f172a] rounded-3xl">
-                 <img 
-                   src="/icons/admin_hud.png" 
-                   className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
-                   alt="Operator Verified" 
-                 />
-               </div>
-             )}
-          </div>
           
-          <div className="flex flex-col items-center gap-8 mb-16 pb-12 border-b border-white/5 relative z-10">
-            <div className="h-40 w-full bg-blue-500/10 rounded-[2.5rem] flex items-center justify-center border-4 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
-               <div className="absolute inset-0 bg-blue-500/5 blur-3xl group-hover:bg-blue-500/10 transition-all" />
-               <span className="font-mono font-black text-white tracking-[0.2em] text-7xl relative z-10 uppercase px-6 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{vehiculo.patente}</span>
+          <div className="flex flex-col items-center gap-6 mb-12 relative z-10 text-center">
+            <div className="space-y-2 mb-6">
+              <h1 className="text-xl font-black text-white uppercase tracking-[0.3em] opacity-90">Protocolo Operativo</h1>
+              <p className="text-[9px] text-blue-400/60 font-bold uppercase tracking-[0.5em]">Identificación de Unidad Blindada</p>
             </div>
-            <div className="text-center">
-              <h1 className="text-2xl font-black text-white uppercase tracking-[0.2em] leading-none mb-3 opacity-90">Protocolo Operativo</h1>
-              <p className="text-[11px] text-blue-400/60 font-bold uppercase tracking-[0.5em]">Identificación de Unidad Blindada</p>
+
+            <div className="relative w-full h-32 flex items-center justify-center">
+               {vehiculo.categoria === "MOTO" ? (
+                 <img src="/icons/moto.png" className="w-48 grayscale contrast-125 brightness-110 drop-shadow-2xl" alt="Moto" />
+               ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente.startsWith("INT")) ? (
+                 <img src="/icons/pickup.png" className="w-64 grayscale brightness-90 contrast-125 drop-shadow-2xl" alt="Hilux" />
+               ) : vehiculo.categoria === "AUTO" ? (
+                 <img src="/icons/etios.png" className="w-56 brightness-110 contrast-125 drop-shadow-2xl" alt="Etios" />
+               ) : (
+                 <img src="/icons/admin_hud.png" className="w-24 mix-blend-screen opacity-60" alt="HUD" />
+               )}
+            </div>
+
+            <div className="h-28 w-full bg-blue-500/5 rounded-[2rem] flex items-center justify-center border-2 border-blue-500/20 shadow-[0_0_40px_rgba(59,130,246,0.1)] relative overflow-hidden group mt-4">
+               <div className="absolute inset-0 bg-blue-500/5 blur-2xl transition-all" />
+               <span className="font-mono font-black text-white tracking-[0.15em] text-5xl relative z-10 uppercase px-4 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] shrink-0">{vehiculo.patente}</span>
             </div>
           </div>
 
-          <DriverFormClient 
-            vehiculo={vehiculo} 
-            sucursales={sucursales} 
-            lastLog={lastLog} 
-            identifiedDriver={identifiedDriver}
-            isFirstLog={isFirstLog}
-            operationalStatus={operationalStatus}
-            proposedKm={proposedKm}
-          />
+          <div className="border-t border-white/5 pt-10">
+            <DriverFormClient 
+              vehiculo={vehiculo} 
+              sucursales={sucursales} 
+              lastLog={lastLog} 
+              identifiedDriver={identifiedDriver}
+              isFirstLog={isFirstLog}
+              operationalStatus={operationalStatus}
+              proposedKm={proposedKm}
+            />
+          </div>
         </div>
       </div>
     </div>
