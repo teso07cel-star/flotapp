@@ -46,7 +46,7 @@ export default async function DriverForm({ searchParams }) {
   const [vehiculoRes, sucursalesRes, statusRes] = await Promise.all([
     getVehiculoByPatente(patente),
     getAllSucursales(),
-    import("@/lib/actions").then(m => m.getDriverOperationalStatus(identifiedDriver))
+    getDriverOperationalStatus(identifiedDriver, patente)
   ]);
 
   let vehiculo = vehiculoRes.success ? vehiculoRes.data : null;

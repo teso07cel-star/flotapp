@@ -1,18 +1,28 @@
-export const dynamic = 'force-dynamic';
 import prisma from "@/lib/prisma";
 import ControlMantenimientoClient from "./ControlMantenimientoClient";
+import { getNovedadesPendientes } from "@/lib/actions";
 
 export default async function ControlMantenimientoPage() {
-  const vehiculos = await prisma.vehiculo.findMany({
-    where: { activo: true },
-    orderBy: { patente: 'asc' },
-    include: {
-      registros: { 
-        orderBy: { fecha: 'desc' }, 
-        take: 1 
+  const [vehiculos, novedadesRes] = await Promise.all([
+    prisma.vehiculo.findMany({
+      where: { activo: true },
+      orderBy: { patente: 'asc' },
+      include: {
+        registros: { 
+          orderBy: { fecha: 'desc' }, 
+          take: 1 
+        },
+        Mantenimiento: {
+          where: { tipoServicio: { contains: 'Cubiertas', mode: 'insensitive' } },
+          orderBy: { fecha: 'desc' },
+          take: 1
+        }
       }
-    }
-  });
+    }),
+    getNovedadesPendientes()
+  ]);
+
+  const novedades = novedadesRes.success ? novedadesRes.data : [];
 
   // Calculate days for VTV and Seguro on the server
   const hoy = new Date();
@@ -37,6 +47,17 @@ export default async function ControlMantenimientoPage() {
     }
 
     const odometro = v.registros?.[0]?.kmActual || 0;
+    const ultimoCambioCubiertas = v.Mantenimiento?.[0];
+    let cubiertasEstado = 'Sin Datos';
+    if (ultimoCambioCubiertas) {
+      const date = new Date(ultimoCambioCubiertas.fecha);
+      cubiertasEstado = date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+
+    // Alerta de Service
+    const proxService = v.proximoServiceKm || 0;
+    const kmParaService = proxService > 0 ? (proxService - odometro) : null;
+    const serviceAlert = kmParaService !== null && kmParaService <= 1000;
 
     return {
       id: v.id,
@@ -46,8 +67,10 @@ export default async function ControlMantenimientoPage() {
       odometro,
       vtvDias,
       seguroDias,
-      // We don't have cubiertas specific date implemented standardly yet, so we'll mock it or use Sin Datos
-      cubiertasEstado: 'Sin Datos' 
+      cubiertasEstado,
+      kmParaService,
+      serviceAlert,
+      proximoServiceKm: proxService
     };
   });
 

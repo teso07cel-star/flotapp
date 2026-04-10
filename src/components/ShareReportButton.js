@@ -104,14 +104,44 @@ export default function ShareReportButton({ title, data, type = "daily" }) {
     return encodeURIComponent(msg);
   }
 
+  function generateMonthlyMessage() {
+    const { summary, totalFleetVisits, monthName, year } = data;
+    const totalKm = summary.reduce((sum, v) => sum + v.kmRecorridos, 0);
+    const totalGastos = summary.reduce((sum, v) => sum + v.totalGastos, 0);
+
+    let msg = `📅 *REPORTE MENSUAL DE FLOTA*\n`;
+    msg += `🗓️ *${monthName.toUpperCase()} ${year}*\n`;
+    msg += `${DIVIDER}\n\n`;
+
+    msg += `📊 *MÉTRICAS CONSOLIDADAS*\n`;
+    msg += `• KM Recorridos: *${totalKm.toLocaleString()} KM*\n`;
+    msg += `• Visitas totales: *${totalFleetVisits}*\n`;
+    msg += `• Inversión Op: *$${totalGastos.toLocaleString()}*\n\n`;
+
+    msg += `🚛 *DETALLE POR UNIDAD:*\n`;
+    summary.forEach(v => {
+      msg += `• *${v.patente}:* ${v.kmRecorridos.toLocaleString()} km | $${v.totalGastos.toLocaleString()}\n`;
+      msg += `  _${v.visitasSucursales} visitas | Chofer: ${v.ultimoConductor}_\n`;
+    });
+
+    msg += `\n${DIVIDER}\n`;
+    msg += `_Gestión Estratégica FlotApp b4.0_`;
+    return encodeURIComponent(msg);
+  }
+
   const handleShare = () => {
     let message = "";
     if (type === "daily") message = generateDailyMessage();
     else if (type === "fleet_consolidated") message = generateFleetConsolidatedMessage();
     else if (type === "driver_shift") message = generateDriverShiftMessage();
     else if (type === "weekly") message = generateWeeklyMessage();
+    else if (type === "monthly") message = generateMonthlyMessage();
     
-    const url = `https://wa.me/?text=${message}`;
+    // Detección mejorada para PC/Móvil
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const baseUrl = isMobile ? "https://wa.me/" : "https://web.whatsapp.com/send";
+    const url = `${baseUrl}?text=${message}`;
+    
     window.open(url, "_blank");
   };
 

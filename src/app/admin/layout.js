@@ -32,49 +32,49 @@ export default async function AdminLayout({ children }) {
                </div>
             </div>
             
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto font-sans">
               <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12 l 2 -2 m 0 0 l 7 -7 7 7 M 5 10 v 10 a 1 1 0 0 0 1 1 h 3 m 10 -11 l 2 2 m -2 -2 v 10 a 1 1 0 0 1 -1 1 h -3 m -6 0 a 1 1 0 0 0 1 -1 v -4 a 1 1 0 0 1 1 -1 h 2 a 1 1 0 0 1 1 1 v 4 a 1 1 0 0 0 1 1 m -6 0 h 6"/></svg>
                  Vehículos & Registros
               </Link>
               <Link href="/admin/branches" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 21 V 5 a 2 2 0 0 0 -2 -2 H 7 a 2 2 0 0 0 -2 2 v 16 m 14 0 h 2 m -2 0 h -5 m -9 0 H 3 m 2 0 h 5 M 9 7 h 1 m -1 4 h 1 m 4 -4 h 1 m -1 4 h 1 m -5 10 v -5 a 1 1 0 0 1 1 -1 h 2 a 1 1 0 0 1 1 1 v 5 m -4 0 h 4"/></svg>
                  Sucursales
               </Link>
               <Link href="/admin/choferes" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 0 0 -5.356 -1.857 M17 20H7 m10 0v-2c0 -.656 -.126 -1.283 -.356 -1.857 M7 20H2v-2a3 3 0 0 1 5.356 -1.857 M7 20v-2c0 -.656 .126 -1.283 .356 -1.857 m0 0 a 5.002 5.002 0 0 1 9.288 0 M15 7 a 3 3 0 1 1 -6 0 a 3 3 0 0 1 6 0 z m 6 3 a 2 2 0 1 1 -4 0 a 2 2 0 0 1 4 0 z M7 10 a 2 2 0 1 1 -4 0 a 2 2 0 0 1 4 0 z"/></svg>
                  Choferes
               </Link>
               <Link href="/admin/externos" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7 a 4 4 0 1 1 -8 0 a 4 4 0 0 1 8 0 z M 12 14 a 7 7 0 0 0 -7 7 h 14 a 7 7 0 0 0 -7 -7 z"/></svg>
                  Choferes Externos
               </Link>
               <Link href="/admin/reports/daily" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m3 2h12a2 2 0 002-2v-3a2 2 0 00-2-2h-3M9 19H3m9 0a3 3 0 01-3 3H7a3 3 0 01-3-3m9 0h6m-9-4V3a2 2 0 012-2h6a2 2 0 012 2v12m-5-8v1m-3 8v1m-3-10V5m-4 0h4"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17 v -2 a 4 4 0 0 0 -4 -4 H 5 a 4 4 0 0 0 -4 4 v 2 m 3 2 h 12 a 2 2 0 0 0 2 -2 v -3 a 2 2 0 0 0 -2 -2 h -3 M 9 19 H 3 m 9 0 a 3 3 0 0 1 -3 3 H 7 a 3 3 0 0 1 -3 -3 m 9 0 h 6 m -9 -4 V 3 a 2 2 0 0 1 2 -2 h 6 a 2 2 0 0 1 2 2 v 12 m -5 -8 v 1 m -3 8 v 1 m -3 -10 V 5 m -4 0 h 4"/></svg>
                  Reporte Automotor
               </Link>
               <Link href="/admin/reports/drivers" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 0 -2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 21 v -2 a 4 4 0 0 0 -4 -4 H 9 a 4 4 0 0 0 -4 4 v 2 m 11 -10 a 4 4 0 1 1 -8 0 a 4 4 0 0 1 8 0 z"/></svg>
                  Reporte Conductores
               </Link>
               <Link href="/admin/drivers/status" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all cursor-pointer font-bold drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657 L 13.414 20.9 a 1.998 1.998 0 0 1 -2.827 0 l -4.244 -4.243 a 8 8 0 1 1 11.314 0 z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11 a 3 3 0 1 1 -6 0 a 3 3 0 0 1 6 0 z"/></svg>
                  Estado Chofer
               </Link>
               <Link href="/admin/reports/range" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/10 border border-cyan-500/20 hover:bg-cyan-900/30 transition-all cursor-pointer font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7 V 3 m 8 4 V 3 m -9 8 h 10 M 5 21 h 14 a 2 2 0 0 0 2 -2 V 7 a 2 2 0 0 0 -2 -2 H 5 a 2 2 0 0 0 -2 2 v 12 a 2 2 0 0 0 2 2 z"/></svg>
                  Reporte Semanal
               </Link>
               <Link href="/admin/summary" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-[#0f172a] transition-all cursor-pointer">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19 v -6 a 2 2 0 0 0 -2 -2 H 5 a 2 2 0 0 0 -2 2 v 6 a 2 2 0 0 0 2 2 h 2 a 2 2 0 0 0 2 -2 z m 0 0 V 9 a 2 2 0 0 1 2 -2 h 2 a 2 2 0 0 1 2 2 v 10 m -6 0 a 2 2 0 0 0 2 2 h 2 a 2 2 0 0 0 2 -2 m 0 0 V 5 a 2 2 0 0 1 2 -2 h 2 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -2 a 2 2 0 0 1 -2 -2 z"/></svg>
                  Resumen Mensual
               </Link>
               <Link href="/admin/expenses" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.623 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.623-1M12 16v1m4-12V3c0-1.1-.9-2-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2h4v-1.1a1 1 0 01.1-.5l.9-1.8c.2-.4.4-.8.7-1a4 4 0 012.3-1z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8 c -1.657 0 -3 .895 -3 2 s 1.343 2 3 2 3 .895 3 2 -1.343 2 -3 2 m 0 -8 c 1.11 0 2.08 .407 2.623 1 M 12 8 V 7 m 0 1 v 8 m 0 0 v 1 m 0 -1 c -1.11 0 -2.08 -.407 -2.623 -1 M 12 16 v 1 m 4 -12 V 3 c 0 -1.1 -.9 -2 -2 -2 H 4 a 2 2 0 0 0 -2 2 v 10 a 2 2 0 0 0 2 2 h 4 v -1.1 a 1 1 0 0 1 .1 -.5 l .9 -1.8 c .2 -.4 .4 -.8 .7 -1 a 4 4 0 0 1 2.3 -1 z"/></svg>
                  Gastos Globales
               </Link>
               <Link href="/admin/mantenimiento" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-400 bg-emerald-900/20 border border-emerald-500/30 hover:bg-emerald-900/40 transition-all cursor-pointer font-bold drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317 c .426 -1.756 2.924 -1.756 3.35 0 a 1.724 1.724 0 0 0 2.573 1.066 c 1.543 -.94 3.31 .826 2.37 2.37 a 1.724 1.724 0 0 0 1.065 2.572 c 1.756 .426 1.756 2.924 0 3.35 a 1.724 1.724 0 0 0 -1.066 2.573 c .94 1.543 -.826 3.31 -2.37 2.37 a 1.724 1.724 0 0 0 -2.572 1.065 c -.426 1.756 -2.924 1.756 -3.35 0 a 1.724 1.724 0 0 0 -2.573 -1.066 c -1.543 .94 -3.31 -.826 -2.37 -2.37 a 1.724 1.724 0 0 0 -1.065 -2.572 c -1.756 -.426 -1.756 -2.924 0 -3.35 a 1.724 1.724 0 0 0 1.066 -2.573 c -.94 -1.543 .826 -3.31 2.37 -2.37 .996 .608 2.296 .07 2.572 -1.065 z M 15 12 a 3 3 0 1 1 -6 0 a 3 3 0 0 1 6 0 z"/></svg>
                  Control & Mto.
               </Link>
             </nav>
@@ -106,7 +106,7 @@ export default async function AdminLayout({ children }) {
 
                <form action={logoutAdmin}>
                  <button type="submit" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer text-sm font-medium border border-transparent hover:border-amber-500/30">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12 a 2 2 0 0 0 2 -2 v-6 a 2 2 0 0 0 -2 -2 H 6 a 2 2 0 0 0 -2 2 v6 a 2 2 0 0 0 2 2 z m 10 -10 V 7 a 4 4 0 0 0 -8 0 v 4 h 8 z"/></svg>
                     Bloquear Panel
                  </button>
                </form>

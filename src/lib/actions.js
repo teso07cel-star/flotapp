@@ -18,10 +18,10 @@ export async function getVehiculoByPatente(patente) {
   }
 }
 
-export async function getDriverOperationalStatus(driverName) {
+export async function getDriverOperationalStatus(driverName, currentPatente = null) {
   try {
     if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
-    // Ventana de 18 horas para encontrar el último viaje activo (mitiga cruces de medianoche y desfases UTC)
+    // Ventana de 18 horas para encontrar el último viaje activo
     const activeWindow = new Date(Date.now() - 18 * 3600 * 1000);
     
     const lastRecord = await prisma.registroDiario.findFirst({
@@ -33,12 +33,30 @@ export async function getDriverOperationalStatus(driverName) {
        include: { vehiculo: true, sucursales: true }
     });
     
-    console.log(`[StatusCheck] Driver: ${driverName}, FoundRecords: ${!!lastRecord}, LastKm: ${lastRecord?.kmActual}, Type: ${lastRecord?.tipoReporte}`);
+    console.log(`[StatusCheck] Driver: ${driverName}, FoundRecords: ${!!lastRecord}, LastKm: ${lastRecord?.kmActual}, Type: ${lastRecord?.tipoReporte}, LastPatente: ${lastRecord?.vehiculo?.patente}, CurrentPatente: ${currentPatente}`);
 
+    // Si no hay registro o el último fue CIERRE, no hay sesión activa
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
        const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
        return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
     }
+
+    // SI HAY SESIÓN ACTIVA, pero el vehículo es diferente al que está queriendo usar ahora:
+    if (currentPatente && lastRecord.vehiculo?.patente !== currentPatente.toUpperCase().trim()) {
+       console.log(`[StatusCheck] Cambio de Unidad detectado: Session(${lastRecord.vehiculo?.patente}) -> Requested(${currentPatente})`);
+       // En este caso, la sesión "activa" del chofer es para otro vehículo. 
+       // Devolvemos que NO está activo para este vehículo específico para forzar validación de KM de la nueva unidad.
+       return { 
+         success: true, 
+         data: { 
+           active: false, 
+           wasActiveInOther: lastRecord.vehiculo?.patente,
+           lastKm: 0, 
+           proposedKm: 0 
+         } 
+       };
+    }
+
     const lastKm = lastRecord.kmActual || 0;
     const addedDistance = lastRecord.kmTeoricos || 0;
     const lastWasOtros = lastRecord.sucursales?.some(s => s.nombre.toUpperCase() === "OTROS") || false;
@@ -49,7 +67,7 @@ export async function getDriverOperationalStatus(driverName) {
         active: true, 
         vehiculo: lastRecord.vehiculo, 
         lastKm: lastKm, 
-        proposedKm: lastKm, // Eliminado el + addedDistance para evitar confusiones, usamos el REAL último
+        proposedKm: Math.round(lastKm + addedDistance), 
         lastLogType: lastRecord.tipoReporte,
         lastWasOtros: lastWasOtros
       } 
@@ -577,6 +595,7 @@ export async function getDailyReport(dateString) {
         nombreConductor: r.nombreConductor,
         vehiculoId: r.vehiculoId,
         tipoReporte: r.tipoReporte,
+        lugarGuarda: r.lugarGuarda, // REQUERIDO PARA EL MAPA
         kmTeoricos: parseFloat(kmTeoricos.toFixed(1)),
         vehiculo: r.vehiculo ? { patente: r.vehiculo.patente } : { patente: "S/V" },
         sucursales: (r.sucursales || []).map(s => ({ id: s.id, nombre: s.nombre }))
@@ -669,8 +688,19 @@ export async function getAllChoferes() {
 
 export async function getRangeReport(startDate, endDate) {
   try {
-    const [y1, m1, d1] = startDate.split('-').map(Number);
-    const [y2, m2, d2] = endDate.split('-').map(Number);
+    if (!startDate || !endDate) {
+       return { success: false, error: "Rango de fechas inválido" };
+    }
+
+    const startParts = startDate.split('-').map(Number);
+    const endParts = endDate.split('-').map(Number);
+    
+    if (startParts.length !== 3 || endParts.length !== 3) {
+       return { success: false, error: "Formato de fecha incorrecto" };
+    }
+
+    const [y1, m1, d1] = startParts;
+    const [y2, m2, d2] = endParts;
     
     // Ventana blindada UTC-3
     const start = new Date(Date.UTC(y1, m1 - 1, d1, 3, 0, 0, 0));
@@ -697,20 +727,23 @@ export async function getRangeReport(startDate, endDate) {
       
       // Agrupar por sucursal
       r.sucursales?.forEach(s => {
-        branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
+        if (s.nombre) {
+            branchBreakdown[s.nombre] = (branchBreakdown[s.nombre] || 0) + 1;
+        }
       });
     });
 
     // Calcular KM por vehículo (Último - Primero en el rango)
     const vehicleIds = [...new Set(registros.map(r => r.vehiculoId))];
     await Promise.all(vehicleIds.map(async (vId) => {
+      if (!vId) return;
       const vRegs = registros.filter(r => r.vehiculoId === vId);
       if (vRegs.length > 0) {
         const first = vRegs[0];
         const last = vRegs[vRegs.length - 1];
         const diff = Math.max(0, (last.kmActual || 0) - (first.kmActual || 0));
-        const patente = last.vehiculo.patente;
-        if (vehicleBreakdown[patente]) {
+        const patente = last.vehiculo?.patente;
+        if (patente && vehicleBreakdown[patente]) {
             vehicleBreakdown[patente].km = diff;
             totalKm += diff;
         }
@@ -722,9 +755,9 @@ export async function getRangeReport(startDate, endDate) {
       data: { 
         registros,
         stats: {
-          totalKm,
+          totalKm: parseFloat(totalKm.toFixed(1)),
           totalVisits: registros.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0),
-          uniqueVehicles: vehicleIds.length,
+          uniqueVehicles: vehicleIds.filter(Boolean).length,
           vehicleBreakdown: Object.values(vehicleBreakdown),
           branchBreakdown
         }
@@ -993,21 +1026,24 @@ export async function rechazarAutorizacion(id) {
 export async function checkEstadoAutorizacion(deviceId) {
   if (!deviceId) return { success: true, estado: "NO_EXISTE" };
   try {
+    // Intento con Prisma optimizado
     const solicitud = await prisma.autorizacionDispositivo.findUnique({
-      where: { deviceId }
+      where: { deviceId },
+      select: { estado: true }
     });
     return { success: true, estado: solicitud?.estado || "NO_EXISTE" };
   } catch (error) {
-    console.error("Error en checkEstadoAutorizacion (Prisma):", error.message);
+    console.error("⚠️ Fallo en checkEstadoAutorizacion (Prisma), intentando SQL Directo:", error.message);
     try {
+      // Búsqueda Blindada por SQL Crudo (Rescate ante fallos de pool)
       const rows = await prisma.$queryRawUnsafe(
-        'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
+        'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1 LIMIT 1',
         deviceId
       );
       return { success: true, estado: rows && rows[0] ? rows[0].estado : "NO_EXISTE" };
     } catch (sqlError) {
-      console.error("Error en checkEstadoAutorizacion (SQL):", sqlError.message);
-      return { success: false, error: sqlError.message };
+      console.error("🔥 Falla Total en enlace de autorización:", sqlError.message);
+      return { success: false, error: "Error de sincronización con la base de datos." };
     }
   }
 }
@@ -1054,6 +1090,83 @@ export async function getDriverTraces(dateString) {
     return { success: true, data: JSON.parse(JSON.stringify(traces)) }; // Asegurar objeto plano total
   } catch (error) {
     console.error("Error in getDriverTraces:", error);
+    return { success: false, error: error.message };
+  }
+}
+export async function autoCloseInternalShifts() {
+  try {
+    const argentinaNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+    
+    // 1. Buscar todos los vehículos internos
+    const vehiculosInternos = await prisma.vehiculo.findMany({
+      where: { tipo: 'INTERNO', activo: true },
+      select: { id: true, patente: true }
+    });
+    
+    const internalIds = vehiculosInternos.map(v => v.id);
+
+    // 2. Buscar registros abiertos (INICIAL o PARADA) de hoy para estos vehículos
+    // Consideramos "abierto" si su último registro no es CIERRE
+    const results = [];
+
+    for (const vId of internalIds) {
+      const lastRecord = await prisma.registroDiario.findFirst({
+        where: { vehiculoId: vId },
+        orderBy: { fecha: 'desc' },
+        include: { vehiculo: true }
+      });
+
+      if (lastRecord && lastRecord.tipoReporte !== 'CIERRE') {
+        // Proceder al cierre automático
+        const closeRecord = await prisma.registroDiario.create({
+          data: {
+            vehiculoId: vId,
+            nombreConductor: lastRecord.nombreConductor,
+            kmActual: lastRecord.kmActual, // Mismo KM ya que es un cierre por sistema
+            tipoReporte: 'CIERRE',
+            novedades: 'CIERRE AUTOMÁTICO POR SISTEMA (21:00 HS)',
+            nivelCombustible: 'S/D',
+            fecha: argentinaNow,
+            lugarGuarda: lastRecord.lugarGuarda // Mantener última ubicación conocida
+          }
+        });
+        results.push({ patente: lastRecord.vehiculo?.patente, status: 'CLOSED' });
+      }
+    }
+
+    return { success: true, processed: results.length, data: results };
+  } catch (error) {
+    console.error("Error in autoCloseInternalShifts:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resolveNovedad(registroId) {
+  try {
+    await prisma.registroDiario.update({
+      where: { id: parseInt(registroId) },
+      data: { novedadResuelta: true }
+    });
+    revalidatePath("/admin/mantenimiento");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getNovedadesPendientes() {
+  try {
+    const novedades = await prisma.registroDiario.findMany({
+      where: { 
+        novedades: { not: { equals: "" } },
+        novedadResuelta: false
+      },
+      include: { vehiculo: true },
+      orderBy: { fecha: 'desc' }
+    });
+    // Filtrar nulos si es necesario, aunque Prisma lo maneja con not: null implícito si usas not: { equals: "" }
+    return { success: true, data: novedades.filter(n => n.novedades && n.novedades.trim() !== "" && !n.novedades.includes("CIERRE AUTOMÁTICO")) };
+  } catch (error) {
     return { success: false, error: error.message };
   }
 }

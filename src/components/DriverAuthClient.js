@@ -29,22 +29,28 @@ export default function DriverAuthClient({ choferes = [], initialDriverName }) {
     }
 
     const performAuthCheck = async () => {
+      // Temporizador de seguridad para evitar bloqueo infinito
+      const timeout = setTimeout(() => {
+        if (loading) {
+          setLoading(false);
+          setErrorMessage("Reintentando conexión táctica...");
+        }
+      }, 8000);
+
       try {
         const res = await checkEstadoAutorizacion(devId);
         if (res.success && res.estado === "APROBADO") {
           setIsDeviceAuthorized(true);
-          
-          // Auto-selección inteligente del último conductor
           const lastDriver = localStorage.getItem("flotapp_last_driver");
-          if (lastDriver && !selectedChofer) {
-             setSelectedChofer(lastDriver);
-          }
+          if (lastDriver && !selectedChofer) setSelectedChofer(lastDriver);
         } else if (res.success && res.estado === "PENDIENTE") {
           setAuthStep(2);
         }
       } catch (err) {
         console.error("Auth check failed:", err);
+        setErrorMessage("Falla de enlace. Reintente.");
       } finally {
+        clearTimeout(timeout);
         setLoading(false);
       }
     };
@@ -140,16 +146,29 @@ export default function DriverAuthClient({ choferes = [], initialDriverName }) {
   if (authStep === 2) {
     return (
       <div className="w-full max-w-sm mx-auto space-y-10 text-center animate-in zoom-in-95 duration-700">
-        <div className="w-24 h-24 bg-blue-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-2xl">
+        <div className="relative w-24 h-24 bg-blue-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-2xl">
           <StrategicGearIcon className="text-blue-500 animate-spin-slow w-12 h-12" />
+          <div className="absolute -top-1 -right-1 flex h-4 w-4">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500"></span>
+          </div>
         </div>
-        <div>
-            <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Protocolo Pendiente</h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] leading-relaxed">Esperando validación del administrador...</p>
+        <div className="space-y-3">
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-1">Enlace Táctico</h2>
+            <div className="flex items-center justify-center gap-2">
+               <div className="h-1 w-1 bg-blue-500 rounded-full animate-bounce" />
+               <p className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.4em] leading-relaxed">Esperando Validación Administrativa</p>
+               <div className="h-1 w-1 bg-blue-500 rounded-full animate-bounce [animation-delay:200ms]" />
+            </div>
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest opacity-60">No cierres esta ventana mientras se establece el vínculo.</p>
         </div>
         <div className="pt-10 flex flex-col gap-4">
-            <p className="text-[8px] text-slate-700 font-black uppercase tracking-widest italic">Terminal ID: {localStorage.getItem("flotapp_device_id")?.slice(0,16)}</p>
-            <button onClick={() => setAuthStep(1)} className="text-[9px] text-blue-400/40 hover:text-blue-400 uppercase font-black tracking-widest transition-colors">Abortar Operación</button>
+            <p className="text-[8px] text-slate-700 font-black uppercase tracking-widest italic pt-4 border-t border-white/5">
+               Terminal ID: {localStorage.getItem("flotapp_device_id")?.slice(0,16)}
+            </p>
+            <button onClick={() => { setAuthStep(1); setErrorMessage(""); }} className="text-[9px] text-blue-400/40 hover:text-blue-400 uppercase font-black tracking-widest transition-colors py-4">
+               Abortar Operación y Reintentar
+            </button>
         </div>
       </div>
     );

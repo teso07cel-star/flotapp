@@ -34,7 +34,7 @@ export default function PatenteSelector({ defaultPatente }) {
                onClick={() => setShowInput(false)}
                className="w-full mt-4 text-[10px] text-gray-500 hover:text-blue-400 font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
              >
-               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m 15 18 -6 -6 6 -6"/></svg>
                Volver a mi patente asignada
              </button>
            )}
@@ -46,7 +46,7 @@ export default function PatenteSelector({ defaultPatente }) {
           >
             <span className="flex items-center gap-3 relative z-10">
               Continuar Turno
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M 5 12 h 14"/><path d="m 12 5 7 7 -7 7"/></svg>
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity" />
           </button>
@@ -76,14 +76,14 @@ export default function PatenteSelector({ defaultPatente }) {
             onClick={() => setShowInput(true)}
             className="flex flex-col items-center justify-center gap-2 py-6 px-4 bg-gray-900 border-2 border-white/5 rounded-[2rem] text-gray-400 hover:text-white hover:bg-gray-800 hover:border-white/10 transition-all active:scale-95"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M 3 12 a 9 9 0 1 0 9 -9 a 9.75 9.75 0 0 0 -6.74 2.74 L 3 8"/><path d="M 3 3 v 5 h 5"/></svg>
             <span className="text-[10px] font-black uppercase tracking-widest text-center">No voy a usarla<br/>Cambiar Patente</span>
           </button>
           <button
             type="submit"
             className="flex flex-col items-center justify-center gap-2 py-6 px-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-[2rem] text-white transition-all shadow-xl shadow-blue-500/20 hover:brightness-110 active:scale-95 border-2 border-transparent hover:border-blue-400/50"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm"><path d="M20 6 9 17l-5-5"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm"><path d="M 20 6 9 17 l -5 -5"/></svg>
             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-center text-balance mt-1">Sí, Confirmar<br/>y Continuar</span>
           </button>
       </div>

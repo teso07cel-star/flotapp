@@ -1,10 +1,18 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import VehicleIcon from "@/components/VehicleIcon";
+import { resolveNovedad } from "@/lib/actions";
 
-export default function ControlMantenimientoClient({ vehiculos }) {
+export default function ControlMantenimientoClient({ vehiculos, initialNovedades = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [novedades, setNovedades] = useState(initialNovedades);
+  const [resolving, setResolving] = useState(null);
+
+  const handleResolve = async (id) => {
+    setResolving(id);
+    const res = await resolveNovedad(id);
+    if (res.success) {
+      setNovedades(prev => prev.filter(n => n.id !== id));
+    }
+    setResolving(null);
+  };
 
   const filtered = vehiculos.filter(v => 
     v.patente.toLowerCase().includes(searchTerm.toLowerCase())
@@ -40,9 +48,14 @@ export default function ControlMantenimientoClient({ vehiculos }) {
               </div>
               <div className="flex flex-col gap-1 items-start">
                 {/* Tactical HUD Odometer */}
-                <div className="bg-slate-950/80 border border-slate-800 px-2 py-1 rounded-lg shadow-inner backdrop-blur-md z-20 min-w-[80px]">
-                   <p className="text-[7px] text-slate-500 font-black uppercase tracking-[0.2em] leading-none mb-1">Odometer</p>
-                   <p className="text-[11px] font-black text-white leading-none">{vehiculo.odometro.toLocaleString()} <span className="text-[8px] text-blue-500">KM</span></p>
+                <div className={`border px-2 py-1 rounded-lg shadow-inner backdrop-blur-md z-20 min-w-[80px] ${vehiculo.serviceAlert ? 'bg-red-500/20 border-red-500 animate-pulse' : 'bg-slate-950/80 border-slate-800'}`}>
+                   <p className={`text-[7px] font-black uppercase tracking-[0.2em] leading-none mb-1 ${vehiculo.serviceAlert ? 'text-red-400' : 'text-slate-500'}`}>
+                     {vehiculo.serviceAlert ? 'URGENT SERVICE' : 'Odometer'}
+                   </p>
+                   <p className="text-[11px] font-black text-white leading-none">{vehiculo.odometro.toLocaleString()} <span className={vehiculo.serviceAlert ? 'text-red-500' : 'text-blue-500'}>KM</span></p>
+                   {vehiculo.serviceAlert && (
+                      <p className="text-[7px] font-black text-red-400 mt-1 uppercase">Prox: {vehiculo.proximoServiceKm.toLocaleString()}</p>
+                   )}
                 </div>
                 
                 <h2 className="font-black text-xl uppercase tracking-tighter text-slate-100 bg-emerald-900/60 px-3 text-white rounded-xl py-0.5 w-fit border border-emerald-500/20 shadow-lg mt-1">{vehiculo.patente}</h2>
@@ -92,6 +105,46 @@ export default function ControlMantenimientoClient({ vehiculos }) {
 
   return (
     <div className="space-y-8 font-sans">
+      {/* Alertas de Novedades Tácticas */}
+      {novedades.length > 0 && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-[2.5rem] p-8 animate-in fade-in slide-in-from-top-4 duration-700">
+           <div className="flex items-center gap-4 mb-6 border-b border-red-500/10 pb-4">
+              <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white animate-pulse">
+                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              </div>
+              <div>
+                 <h2 className="text-xl font-black text-red-500 uppercase italic tracking-tighter">Alarmas Operativas</h2>
+                 <p className="text-[10px] font-bold text-red-500/60 uppercase tracking-widest">Observaciones de conductores pendientes de revisión</p>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {novedades.map((n) => (
+                 <div key={n.id} className="bg-[#0f172a] border border-red-500/20 rounded-2xl p-5 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                       <span className="text-4xl font-black italic">!</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-3">
+                       <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded">{n.vehiculo?.patente || 'S/V'}</span>
+                       <span className="text-[9px] text-slate-500 font-bold">{new Date(n.fecha).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-300 mb-4 italic leading-relaxed">"{n.novedades}"</p>
+                    <div className="flex items-center justify-between mt-auto">
+                       <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{n.nombreConductor}</span>
+                       <button 
+                         onClick={() => handleResolve(n.id)}
+                         disabled={resolving === n.id}
+                         className="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-emerald-600/30"
+                       >
+                          {resolving === n.id ? 'Procesando...' : 'Solucionar'}
+                       </button>
+                    </div>
+                 </div>
+              ))}
+           </div>
+        </div>
+      )}
+
       <div className="relative max-w-md">
         <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
