@@ -24,7 +24,7 @@ export default function DriverStatusClient({ initialTraces = {} }) {
   }, [currentTrace]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-200px)] min-h-[600px] animate-in fade-in duration-700">
+    <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-200px)] lg:min-h-[600px] animate-in fade-in duration-700">
       {/* Sidebar de Selección */}
       <div className="w-full lg:w-80 bg-slate-900/40 border border-slate-700 rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl">
         <div className="p-6 border-b border-slate-700 bg-slate-900/60">
@@ -70,7 +70,7 @@ export default function DriverStatusClient({ initialTraces = {} }) {
       </div>
 
       {/* Visor de Mapa */}
-      <div className="flex-1 bg-slate-900 border border-slate-700 rounded-[2.5rem] overflow-hidden relative shadow-2xl">
+      <div className="flex-1 bg-slate-900 border border-slate-700 rounded-[2.5rem] overflow-hidden relative shadow-2xl min-h-[450px]">
          <div className="absolute top-6 left-6 z-10 p-5 bg-[#020617]/90 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-2xl min-w-[200px]">
             <div className="flex items-center gap-3 mb-1">
                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />

@@ -31,24 +31,9 @@ async function main() {
     console.log(`\nIniciando repositorio local (URL: ${cleanRepoUrl})...`);
     await git.init({ fs, dir });
 
-    // Configurar rama principal localmente
-    console.log("Forzando rama 'principal'...");
-    try {
-      // Intentamos renombrar master a principal si existe
-      const currentBranch = await git.currentBranch({ fs, dir });
-      if (currentBranch === 'master') {
-         await git.deleteBranch({ fs, dir, ref: 'principal' }).catch(() => {});
-         await git.branch({ fs, dir, ref: 'principal' });
-         await git.checkout({ fs, dir, ref: 'principal' });
-      } else if (currentBranch !== 'principal') {
-         await git.branch({ fs, dir, ref: 'principal' });
-         await git.checkout({ fs, dir, ref: 'principal' });
-      }
-    } catch (e) {
-      // Si falla lo anterior, simplemente intentamos crearla y saltar a ella
-      await git.branch({ fs, dir, ref: 'principal' }).catch(() => {});
-      await git.checkout({ fs, dir, ref: 'principal' }).catch(() => {});
-    }
+    // Detectar la rama actual automáticamente
+    const currentBranch = await git.currentBranch({ fs, dir }) || 'main';
+    console.log(`Detectada rama operativa: '${currentBranch}'`);
 
     console.log("Agregando archivos...");
     const files = fs.readdirSync(dir).filter(f => !['node_modules', '.git', '.next'].includes(f));
@@ -61,11 +46,10 @@ async function main() {
       fs,
       dir,
       author: { name: 'Flotapp Admin', email: 'admin@flotapp.com' },
-      message: 'Subida inicial automatizada'
+      message: 'Actualización táctica de despliegue (Node 24 + Prisma Resilience)'
     });
 
-    console.log("Subiendo a GitHub (Rama actual)...");
-    const currentBranch = await git.currentBranch({ fs, dir }) || 'main';
+    console.log(`Subiendo a GitHub (Rama: ${currentBranch})...`);
     
     console.log(`Detectada rama: ${currentBranch}. Empujando a GitHub...`);
     try {
