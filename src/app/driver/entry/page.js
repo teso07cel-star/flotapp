@@ -64,7 +64,7 @@ export default async function DriverEntry({ searchParams }) {
           <h1 className="text-4xl font-black tracking-[-0.05em] text-white mb-2 uppercase">Centro <span className="text-blue-500">Táctico</span></h1>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Identificación de Operador Estratégico</p>
           <div className="mt-2 inline-block px-3 py-1 bg-white/5 rounded-full border border-white/10">
-             <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">TACTICA b4.0</span>
+             <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">TACTICA b4.5</span>
           </div>
         </div>
 

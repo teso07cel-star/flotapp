@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import L from "leaflet";
+import { StrategicGearIcon } from "./FuturisticIcons";
 // Leaflet CSS movido a globals.css para mayor estabilidad
 
-// Definición de iconos tácticos b4.0
+// Definición de iconos tácticos b4.5
 const createMarkerIcon = (color) => {
   return L.divIcon({
     className: "custom-tactical-marker",

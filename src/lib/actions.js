@@ -184,7 +184,7 @@ export async function createRegistroDiario(data) {
       }
     }
 
-    // CALCULO DE KM TEÓRICOS (TACTICA b4.0)
+    // CALCULO DE KM TEÓRICOS (TACTICA b4.5)
     let kmTeoricos = 0;
     if (data.sucursalIds && data.sucursalIds.length > 0) {
        const stops = await prisma.sucursal.findMany({

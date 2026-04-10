@@ -258,7 +258,7 @@ export default function DriverAuthClient({ choferes = [], initialDriverName }) {
          <div className="flex gap-1">
             {[1,2,3,4].map(i => <div key={i} className="h-1 w-6 bg-blue-500/20 rounded-full overflow-hidden"><div className="h-full bg-blue-500 w-full animate-pulse" style={{animationDelay: `${i*200}ms`}} /></div>)}
          </div>
-         <span className="text-[10px] font-black text-slate-700 uppercase tracking-[0.4em]">TACTICA b4.0</span>
+         <span className="text-[10px] font-black text-slate-700 uppercase tracking-[0.4em]">TACTICA b4.5</span>
       </div>
 
     </div>

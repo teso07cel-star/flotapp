@@ -22,7 +22,7 @@ export default function ShareReportButton({ title, data, type = "daily" }) {
     });
     
     msg += `\n${DIVIDER}\n`;
-    msg += `_Sincronizado vía FlotApp Premium TACTICA b4.0_`;
+    msg += `_Sincronizado vía FlotApp Premium TACTICA b4.5_`;
     return encodeURIComponent(msg);
   }
 
@@ -125,7 +125,7 @@ export default function ShareReportButton({ title, data, type = "daily" }) {
     });
 
     msg += `\n${DIVIDER}\n`;
-    msg += `_Gestión Estratégica FlotApp b4.0_`;
+    msg += `_Gestión Estratégica FlotApp b4.5_`;
     return encodeURIComponent(msg);
   }
 
