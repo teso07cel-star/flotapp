@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { resolveNovedad } from "@/lib/actions";
 import { VehicleIcon } from "@/components/FuturisticIcons";

@@ -44,3 +44,11 @@ export const StrategicGearIcon = ({ className }) => (
     <path d="M19.4 15 a 1.65 1.65 0 0 0 0.33 1.82 l 0.06 0.06 a 2 2 0 0 1 0 2.83 a 2 2 0 0 1 -2.83 0 l -0.06 -0.06 a 1.65 1.65 0 0 0 -1.82 -0.33 a 1.65 1.65 0 0 0 -1 1.51 V 21 a 2 2 0 0 1 -2 2 a 2 2 0 0 1 -2 -2 v -0.09 A 1.65 1.65 0 0 0 9 19.4 a 1.65 1.65 0 0 0 -1.82 0.33 l -0.06 0.06 a 2 2 0 0 1 -2.83 0 a 2 2 0 0 1 0 -2.83 l 0.06 -0.06 a 1.65 1.65 0 0 0 0.33 -1.82 1.65 1.65 0 0 0 -1.51 -1 H 3 a 2 2 0 0 1 -2 -2 a 2 2 0 0 1 2 -2 h 0.09 A 1.65 1.65 0 0 0 4.6 9 a 1.65 1.65 0 0 0 -0.33 -1.82 l -0.06 -0.06 a 2 2 0 0 1 0 -2.83 a 2 2 0 0 1 2.83 0 l 0.06 0.06 a 1.65 1.65 0 0 0 1.82 0.33 H 9 a 1.65 1.65 0 0 0 1 -1.51 V 3 a 2 2 0 0 1 2 -2 a 2 2 0 0 1 2 2 v 0.09 a 1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82 -0.33 l 0.06 -0.06 a 2 2 0 0 1 2.83 0 a 2 2 0 0 1 0 2.83 l -0.06 0.06 a 1.65 1.65 0 0 0 -0.33 1.82 v 0.09 a 1.65 1.65 0 0 0 1.51 1 H 21 a 2 2 0 0 1 2 2 a 2 2 0 0 1 -2 2 h -0.09 a 1.65 1.65 0 0 0 -1.51 1 z" />
   </svg>
 );
+
+export const VehicleIcon = ({ categoria, className }) => {
+  const cat = categoria?.toUpperCase() || "PICKUP";
+  if (cat === "SEDAN" || cat === "ETIOS") return <ToyotaSedanIcon className={className} />;
+  if (cat === "MOTO" || cat === "ENDURO") return <EnduroIcon className={className} />;
+  if (cat === "LUJO" || cat === "EJECUTIVO") return <LuxurySedanIcon className={className} />;
+  return <HiluxIcon className={className} />;
+};

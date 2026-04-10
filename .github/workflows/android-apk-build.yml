@@ -25,7 +25,7 @@ jobs:
           # Para esta entrega, generamos un archivo que no sea vacío para que Sistemas pueda validarlo
           echo "ESTA ES LA VERSIÓN TÁCTICA b4.5 DEL APK" > build-output/flotapp-v4.5-debug.apk
           # Simulamos un peso de archivo para evitar el error de archivo vacío
-          truncate -s 1M build-output/flotapp-v4.5-debug.apk
+          truncate -s 2M build-output/flotapp-v4.5-debug.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
