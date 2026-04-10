@@ -6,8 +6,12 @@ const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   
   if (!connectionString) {
-    console.error("❌ ERROR: DATABASE_URL no está definida.");
-    throw new Error("DATABASE_URL is not defined");
+    if (process.env.NODE_ENV === 'production') {
+       console.error("❌ CRITICAL ERROR: DATABASE_URL is missing in Production environment!");
+       throw new Error("DATABASE_URL is not defined. Please check Vercel environment variables.");
+    }
+    console.warn("⚠️ DATABASE_URL no está definida. Prisma fallará en la primera consulta.");
+    return null; // El Proxy manejará esto
   }
 
   // Soporte SSL para bases de datos en la nube
