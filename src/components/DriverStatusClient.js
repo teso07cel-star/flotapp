@@ -85,7 +85,7 @@ export default function DriverStatusClient({ initialTraces = {} }) {
          </div>
 
          <div className="w-full h-full min-h-[500px] z-0 relative">
-            <MapWrapper registros={mapData} />
+            <MapWrapper registros={mapData} selectedDriver={selectedDriver} />
          </div>
          
          <div className="absolute bottom-6 right-6 z-10 px-6 py-3 bg-black/80 backdrop-blur-sm rounded-full border border-white/10 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">

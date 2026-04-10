@@ -10,6 +10,6 @@ const JourneyMap = dynamicImport(() => import("./JourneyMap"), {
   )
 });
 
-export default function MapWrapper({ registros }) {
-  return <JourneyMap registros={registros} />;
+export default function MapWrapper({ registros, selectedDriver }) {
+  return <JourneyMap registros={registros} selectedDriver={selectedDriver} />;
 }

@@ -23,11 +23,18 @@ const createMarkerIcon = (color) => {
   });
 };
 
-export default function JourneyMap({ registros }) {
+export default function JourneyMap({ registros, selectedDriver: externalDriver }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const layerGroupRef = useRef(null);
-  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(externalDriver || null);
+
+  // Sincronizar selección externa
+  useEffect(() => {
+    if (externalDriver) {
+      setSelectedDriver(externalDriver);
+    }
+  }, [externalDriver]);
 
   // Agrupar registros por conductor
   const driversData = registros.reduce((acc, reg) => {
