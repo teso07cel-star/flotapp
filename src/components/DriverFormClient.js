@@ -148,7 +148,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                <img src="/icons/admin_hud.png" className="w-12 h-12 mix-blend-screen opacity-80" alt="HUD" />
             </div>
          </div>
-         <h2 className="text-2xl font-black text-white uppercase tracking-[0.2em] mb-3">TACTICA <span className="text-blue-500">b4.0</span></h2>
+         <h2 className="text-2xl font-black text-white uppercase tracking-[0.2em] mb-3">TACTICA <span className="text-blue-500">b4.5</span></h2>
          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] animate-pulse">Iniciando Protocolo Operativo...</p>
          <div className="mt-8 w-48 h-1 bg-slate-900 rounded-full overflow-hidden">
             <div className="h-full bg-blue-600 animate-[loading_2s_ease-in-out_forwards]" />
@@ -171,17 +171,17 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
             <h3 className="text-white text-3xl font-black tracking-tight uppercase">{vehiculo.patente}</h3>
          </div>
 
-         <div className="bg-white/5 border border-white/10 p-8 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-            <label className="block text-[10px] font-black uppercase text-slate-500 tracking-[0.4em] text-center mb-6">Kilometraje en Tablero</label>
+         <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+            <label className="block text-[8px] md:text-[10px] font-black uppercase text-slate-500 tracking-[0.4em] text-center mb-6">Kilometraje en Tablero</label>
             
-            <div className="relative max-w-xs mx-auto mb-6">
+            <div className="relative max-w-[260px] md:max-w-xs mx-auto mb-6">
                <input 
                   type="number"
                   value={currentKm}
                   onChange={(e) => { setCurrentKm(e.target.value); setError(null); }}
-                  className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-5 py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-5xl shadow-2xl"
+                  className="w-full bg-[#020617] text-center border-2 border-blue-500/20 rounded-2xl px-4 py-8 md:px-5 md:py-8 text-white focus:ring-8 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-black text-4xl md:text-5xl shadow-2xl"
                />
-               <span className="absolute bottom-4 right-6 text-blue-500 font-black text-xs uppercase opacity-40">KM</span>
+               <span className="absolute bottom-4 right-6 text-blue-500 font-black text-[10px] md:text-xs uppercase opacity-40">KM</span>
             </div>
 
             <div className="text-center space-y-2">
