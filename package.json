@@ -1,6 +1,6 @@
 {
   "name": "flota-app",
-  "version": "TACTICA b4.5.1",
+  "version": "TACTICA b4.5.2",
   "private": true,
   "scripts": {
     "dev": "next dev",

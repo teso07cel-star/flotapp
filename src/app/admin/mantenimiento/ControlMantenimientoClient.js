@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { resolveNovedad } from "@/lib/actions";
+import { VehicleIcon } from "@/components/FuturisticIcons";
 
 export default function ControlMantenimientoClient({ vehiculos, initialNovedades = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
