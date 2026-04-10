@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import prisma from "@/lib/prisma";
 import ControlMantenimientoClient from "./ControlMantenimientoClient";
 import { getNovedadesPendientes } from "@/lib/actions";

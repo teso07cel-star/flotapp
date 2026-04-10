@@ -1,4 +1,5 @@
 import Link from "next/link";
+export const dynamic = 'force-dynamic';
 import { getMonthlySummary, deleteGasto } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
