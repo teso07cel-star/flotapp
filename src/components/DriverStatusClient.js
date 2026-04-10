@@ -18,6 +18,7 @@ export default function DriverStatusClient({ initialTraces = {} }) {
       lugarGuarda: `${p.lat}, ${p.lng}`,
       fecha: p.time,
       tipoReporte: p.type,
+      nombreConductor: selectedDriver,
       vehiculo: { patente: p.patente }
     }));
   }, [currentTrace]);
