@@ -1,8 +1,7 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { StrategicGearIcon } from "@/components/FuturisticIcons";
 
