@@ -1,15 +1,23 @@
 import { PrismaClient } from '@prisma/client'
 
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
+
 const prismaClientSingleton = () => {
   const dbUrl = process.env.DATABASE_URL;
   const options = {
     log: ['error']
   };
 
-  // En Prisma 7, si usamos un proxy de datos (db.prisma.io o prisma://), 
-  // debemos pasarlo como accelerateUrl. datasources y datasourceUrl ya no son válidos.
-  if (dbUrl && (dbUrl.includes('db.prisma.io') || dbUrl.includes('prisma://'))) {
-    options.accelerateUrl = dbUrl;
+  if (dbUrl) {
+    if (dbUrl.includes('db.prisma.io') || dbUrl.includes('prisma://')) {
+      // Caso Prisma Accelerate / Data Proxy
+      options.accelerateUrl = dbUrl;
+    } else {
+      // Caso PostgreSQL estándar en Prisma 7: Requiere Adaptador
+      const pool = new Pool({ connectionString: dbUrl });
+      options.adapter = new PrismaPg(pool);
+    }
   }
 
   return new PrismaClient(options);
