@@ -5,7 +5,7 @@ export default function FormattedDate({ date, showTime = true, showDate = true }
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   if (!mounted) {
@@ -15,8 +15,8 @@ export default function FormattedDate({ date, showTime = true, showDate = true }
 
   const d = new Date(date);
   
-  const dateStr = d.toLocaleDateString();
-  const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const dateStr = d.toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const timeStr = d.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit', hour12: false });
 
   return (
     <span>

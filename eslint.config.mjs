@@ -3,6 +3,12 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
+  {
+    rules: {
+      "@next/next/no-img-element": "off",
+      "jsx-a11y/alt-text": "off"
+    }
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

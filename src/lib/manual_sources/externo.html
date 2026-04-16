@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo Chofer Externo | FlotApp Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --deep-slate: #020617;
+            --accent-green: #10b981;
+            --warning-amber: #f59e0b;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--deep-slate); 
+            color: #f8fafc; 
+            margin: 0;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+        }
+        .font-futuristic { font-family: 'Orbitron', sans-serif; }
+        
+        .page { 
+            scroll-snap-align: start;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+            border-bottom: 1px solid rgba(188, 19, 254, 0.1);
+        }
+
+        .bg-matrix {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(188, 19, 254, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(188, 19, 254, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            transform: perspective(1000px) rotateX(60deg);
+            transform-origin: top;
+            animation: moveGrid 20s linear infinite;
+        }
+        @keyframes moveGrid { 0% { background-position: 0 0; } 100% { background-position: 0 1000px; } }
+
+        .container { max-width: 1100px; margin: 0 auto; z-index: 10; }
+
+        .hud-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(188, 19, 254, 0.2);
+            border-radius: 2rem;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        .hud-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+            animation: scanline 4s linear infinite;
+        }
+        @keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
+
+        .glow-text { text-shadow: 0 0 20px rgba(188, 19, 254, 0.5); }
+
+        .img-box {
+            border-radius: 1.5rem;
+            border: 4px solid #1e293b;
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.1);
+            overflow: hidden;
+            background: #000;
+        }
+        .img-box img { transition: transform 0.5s ease; }
+        .img-box:hover img { transform: scale(1.05); }
+
+        .step-badge {
+            background: rgba(188, 19, 254, 0.1);
+            border-left: 4px solid var(--neon-purple);
+            padding: 0.5rem 1.5rem;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--neon-purple);
+            display: inline-block;
+            margin-bottom: 1.2rem;
+        }
+
+        .phase-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            line-height: 1;
+            font-weight: 900;
+            opacity: 0.05;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 0;
+            color: var(--neon-purple);
+        }
+
+        .btn-action {
+            background: white;
+            color: black;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            padding: 1.2rem 3rem;
+            transform: skew(-15deg);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            box-shadow: 8px 8px 0 var(--neon-purple);
+            transition: all 0.3s;
+        }
+        .btn-action:hover {
+            background: var(--neon-purple);
+            box-shadow: 0 0 40px var(--neon-purple);
+            transform: translate(4px, 4px);
+        }
+
+        @media print {
+            .page { height: auto; min-height: auto; page-break-after: always; color: black; background: white; padding: 2rem; }
+            .bg-matrix, .no-print, .phase-number { display: none; }
+            .hud-card { background: white; border: 1px solid #ddd; color: black; }
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+    <div class="bg-matrix"></div>
+
+    <!-- PORTADA -->
+    <section class="page text-center">
+        <div class="container space-y-8">
+            <div class="inline-block p-1 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-3xl shadow-[0_0_60px_rgba(188,19,254,0.3)] mb-4">
+                <div class="bg-slate-950 p-10 rounded-[calc(1.5rem-2px)]">
+                    <svg class="w-20 h-20 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="font-futuristic text-purple-500 font-bold uppercase tracking-[0.5em] text-xs">External Vendor Protocol v5.1</p>
+                <h1 class="font-futuristic text-6xl md:text-8xl font-black tracking-tighter leading-none text-white glow-text uppercase">
+                    RED<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">EXTERNA</span>
+                </h1>
+            </div>
+
+            <div class="max-w-2xl mx-auto pt-6">
+                <p class="text-xl text-slate-400 font-light uppercase tracking-widest leading-relaxed">
+                    Guía de <span class="text-white font-bold">5 pasos</span> para el cumplimiento operativo.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 01: ACCESO -->
+    <section class="page bg-slate-900/10">
+        <div class="phase-number">01</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="step-badge">Identificación</div>
+                    <h2 class="font-futuristic text-5xl font-black text-white leading-tight uppercase">Portal por Matrícula</h2>
+                    <div class="hud-card border-purple-500/10">
+                        <ul class="space-y-4 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-purple-400 font-black">❯</span>
+                                <span>Ingresá la <strong>Patente (Matrícula)</strong> de tu unidad sin espacios.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-purple-400 font-black">❯</span>
+                                <span>El sistema validará automáticamente los permisos y contratos vigentes.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="img-box border-purple-500/20">
+                    <img src="/docs/manuals/assets/2_externo_patente.png" class="w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 02: AUDITORÍA MENSUAL -->
+    <section class="page">
+        <div class="phase-number">02</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="img-box order-last lg:order-first border-red-500/20">
+                    <img src="/docs/manuals/assets/externo_auditoria_fotos.png" class="w-full">
+                </div>
+                <div class="space-y-6">
+                    <div class="step-badge !border-red-500 !text-red-400">Estado Estético</div>
+                    <h2 class="font-futuristic text-5xl font-black text-red-400 leading-tight uppercase">Auditoría (30 d)</h2>
+                    <div class="hud-card border-red-500/10">
+                        <p class="text-slate-300 text-lg leading-relaxed mb-4">
+                            Cada 30 días, el sistema solicitará evidencias del estado de la unidad:
+                        </p>
+                        <ul class="space-y-4 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-red-500 font-black">❯</span>
+                                <span>Capturá <strong>4 fotos</strong> nítidas: Frente, Trasera, Lateral Izq. y Lateral Der.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-red-500 font-black">❯</span>
+                                <span>Esto es obligatorio para mantener el ruteo habilitado.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 03: KILOMETRAJE SEMANAL -->
+    <section class="page bg-slate-900/10">
+        <div class="phase-number">03</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="step-badge !border-amber-500 !text-amber-400">Control de Desgaste</div>
+                    <h2 class="font-futuristic text-5xl font-black text-amber-400 leading-tight uppercase">Kilometraje (7 d)</h2>
+                    <div class="hud-card border-amber-500/10">
+                        <p class="text-slate-300 text-lg leading-relaxed mb-4">
+                            Los días Lunes (o cada 7 días), el sistema bloqueará el acceso hasta que declares el odómetro:
+                        </p>
+                        <ul class="space-y-4 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-amber-500 font-black">❯</span>
+                                <span>Ingresá el valor del tablero. Esto nos ayuda a gestionar el mantenimiento preventivo.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="img-box border-amber-500/20">
+                    <img src="/docs/manuals/assets/5_externo_km.png" class="w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 04: CHECK-IN DIARIO -->
+    <section class="page">
+        <div class="phase-number">04</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="img-box order-last lg:order-first border-emerald-500/20">
+                    <img src="/docs/manuals/assets/4_externo_checkin.png" class="w-full">
+                </div>
+                <div class="space-y-6">
+                    <div class="step-badge !border-emerald-500 !text-emerald-400">Inicio de Bitácora</div>
+                    <h2 class="font-futuristic text-5xl font-black text-emerald-400 leading-tight uppercase">Ingreso Diario</h2>
+                    <div class="hud-card border-emerald-500/10">
+                        <p class="text-slate-300 text-lg leading-relaxed mb-4">
+                            Si las auditorías están al día, tu ingreso es instantáneo:
+                        </p>
+                        <ul class="space-y-4 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-emerald-400 font-black">❯</span>
+                                <span>Tocá <strong>"Confirmar Ingreso"</strong>. Esto enciende tu rastro GPS para el ruteo de entregas.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PASO 05: CIERRE -->
+    <section class="page bg-slate-900/10">
+        <div class="phase-number">05</div>
+        <div class="container">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="step-badge !border-blue-500 !text-blue-400">Final de Jornada</div>
+                    <h2 class="font-futuristic text-5xl font-black text-blue-400 leading-tight uppercase">Cierre de Viaje</h2>
+                    <div class="hud-card border-blue-500/10">
+                        <ul class="space-y-4 text-slate-300 text-lg">
+                            <li class="flex items-start gap-4">
+                                <span class="text-blue-400 font-black">❯</span>
+                                <span>Al terminar tus entregas, pulsá <strong>"Finalizar Viaje"</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <span class="text-blue-400 font-black">❯</span>
+                                <span>Tu rastro GPS se detendrá y quedarás libre para tu próximo ruteo.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="img-box border-blue-500/20">
+                    <img src="/docs/manuals/assets/6_externo_finalizar.png" class="w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="page text-center bg-slate-950">
+        <div class="container space-y-12">
+            <h2 class="font-futuristic text-5xl md:text-7xl font-black text-white glow-text uppercase">RED CONECTADA</h2>
+            <div class="h-1 w-full max-w-4xl mx-auto bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+            
+            <p class="text-xl text-slate-400 font-light italic max-w-2xl mx-auto leading-relaxed">
+                "La eficiencia de la flota externa es fundamental para nuestra calidad de servicio."
+            </p>
+
+            <div class="pt-8 no-print">
+                <button onclick="window.print()" class="btn-action">
+                    DESCARGAR PDF EXTERNO
+                </button>
+            </div>
+
+            <div class="pt-16 opacity-30">
+                <p class="text-[10px] font-futuristic tracking-[0.8em]">FLOTAPP | ECOSISTEMA LOGÍSTICO EXTERNO 2026</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

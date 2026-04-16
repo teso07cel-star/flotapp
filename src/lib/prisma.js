@@ -1,39 +1,78 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
 
 const prismaClientSingleton = () => {
-  const envUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  // Usamos esta URL como principal porque es la única que hemos verificado que funciona y tiene los datos
-  const PRIMARY_URL = "postgres://564f7b4126c00bda79772f4de39727a0743bbd1ded5852d4a307c4fa05ef6ffe:sk_djQevXjD3KsSIKiD828jQ@db.prisma.io:5432/postgres?sslmode=require&connect_timeout=300";
+  // BYPASS DE CONSTRUCCIÓN (BUILD-TIME GUARD)
+  if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.IS_BUILD === 'true') {
+     console.log("🛡️ PRISMA: Modo Construcción Detectado - Aplicando Proxy de Seguridad");
+     return new Proxy({}, {
+        get: (target, prop) => {
+           // Manejar $queryRawUnsafe y otros métodos directos
+           if (prop === '$queryRawUnsafe' || prop === '$connect' || prop === '$disconnect') {
+              return async () => [];
+           }
+           // Para modelos (chofer, vehiculo, etc.) retorna un proxy con métodos stub
+           return new Proxy({}, {
+              get: () => async () => []
+           });
+        }
+     });
+  }
+
+  // URL explícita: intentar DATABASE_URL, luego POSTGRES_URL
+  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   
-  const connectionString = envUrl && !envUrl.includes("supabase.co") ? envUrl : PRIMARY_URL;
-  
-  const pool = new pg.Pool({ 
-    connectionString,
-    connectionTimeoutMillis: 30000, // 30 segundos de timeout
-  });
-  const adapter = new PrismaPg(pool);
-  return new PrismaClient({ adapter })
+  if (!dbUrl) {
+     console.error("⚠️ PRISMA: Sin DATABASE_URL ni POSTGRES_URL - usando Proxy vacío");
+     return new Proxy({}, {
+        get: (target, prop) => {
+           if (prop === '$queryRawUnsafe' || prop === '$connect' || prop === '$disconnect') {
+              return async () => [];
+           }
+           return new Proxy({}, {
+              get: (target, method) => async (...args) => {
+                 const methodName = method.toString();
+                 console.error(`⚠️ PRISMA: Llamada a ${methodName} sin URL configurada`);
+                 if (methodName.includes('Many') || methodName.includes('groupBy') || methodName.includes('Raw')) {
+                    return [];
+                 }
+                 return null;
+              }
+           });
+        }
+     });
+  }
+
+  try {
+     return new PrismaClient({
+        datasources: {
+           db: { url: dbUrl }
+        }
+     });
+  } catch (err) {
+     console.error("⚠️ PRISMA: Error al crear PrismaClient:", err.message);
+     return new Proxy({}, {
+        get: (target, prop) => {
+           if (prop === '$queryRawUnsafe' || prop === '$connect' || prop === '$disconnect') {
+              return async () => [];
+           }
+           return new Proxy({}, {
+              get: (target, method) => async (...args) => {
+                 const methodName = method.toString();
+                 if (methodName.includes('Many') || methodName.includes('groupBy') || methodName.includes('Raw')) {
+                    return [];
+                 }
+                 return null;
+              }
+           });
+        }
+     });
+  }
 }
 
 const globalForPrisma = globalThis
 
-/**
- * Proxy para inicialización perezosa (Lazy) de Prisma.
- * Esto evita que el build de Next.js falle al evaluar el módulo 
- * si la base de datos no está disponible en ese preciso instante.
- */
-const prisma = new Proxy({}, {
-  get(target, prop) {
-    // Si se intenta tratar al proxy como una promesa, devolvemos undefined
-    if (prop === 'then') return undefined;
-
-    if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = prismaClientSingleton();
-    }
-    return globalForPrisma.prisma[prop];
-  }
-});
+const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 export default prisma
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

@@ -1,79 +1,183 @@
 "use client";
 
 import { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { getVehiculoByPatente } from "@/lib/actions";
+import { StrategicGearIcon } from "@/components/FuturisticIcons";
 
 function HomePageContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
 
+  // Logic to determine if driver is logged in
+  const [isLogged, setIsLogged] = useState(false);
+  useEffect(() => {
+    setIsLogged(document.cookie.includes("driver_name="));
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 p-6 selection:bg-blue-500/30 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f172a] p-6 selection:bg-blue-500/30 relative overflow-hidden font-sans">
       {success && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-10 duration-500">
-          <div className="bg-emerald-500 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl shadow-emerald-500/40 flex items-center gap-3">
+          <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-emerald-500/20 flex items-center gap-3 glass-panel">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             ¡Registro Guardado con Éxito!
           </div>
         </div>
       )}
       
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+      {/* Background HUD Elements - Stealth Matte */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+        <div className="absolute top-0 left-0 w-full h-full bg-[#0f172a]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-5xl">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 mb-8 shadow-2xl shadow-blue-500/20 text-white transform hover:rotate-6 transition-transform duration-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+          <div className="inline-flex items-center justify-center space-x-4 mb-10">
+             <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
+             <h1 className="text-6xl font-black tracking-[-0.05em] text-white flex items-center gap-4">
+                FLOT<span className="text-blue-500">APP</span>
+             </h1>
+             <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
-          <h1 className="text-5xl font-black tracking-tighter text-white mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
-            FLOTAPP
-          </h1>
-          <p className="text-xl text-gray-400 font-medium">Gestión inteligente para tu flota de vehículos</p>
+          <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+          
+          {/* CONDUCTOR ESTRATÉGICO */}
           <Link 
-            href="/driver/entry"
-            className="group relative overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-10 text-left transition-all duration-500 hover:bg-white/10 hover:border-blue-500/50 hover:-translate-y-2 shadow-2xl shadow-black/50"
+            href={isLogged ? "/driver/form" : "/driver/entry"}
+            className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a]/60 backdrop-blur-xl overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-               <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
+            
+            <div className="p-8 pb-0 text-center relative z-10 mt-2">
+               <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                  Conductor<br />Estratégico
+               </h3>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-6 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            
+            <div className="relative flex-1 flex flex-col items-center justify-center p-6 min-h-[260px]">
+               {/* Professional Tactical Vertical Alignment */}
+               <div className="flex flex-col items-center justify-center w-full relative z-10 gap-4 pt-2">
+                  <div className="w-full flex flex-col items-center justify-center transition-all duration-700 group-hover:-translate-y-2 relative z-10">
+                     <div className="absolute bottom-14 w-[70%] max-w-[110px] h-[5px] bg-black/85 blur-[2px] rounded-[100%] z-0"></div>
+                     <img src="/icons/etios_tactic_v2.png" className="w-full max-w-[160px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] z-10 relative" alt="Etios" />
+                  </div>
+                  <div className="w-full flex flex-col items-center justify-center transition-all duration-700 group-hover:-translate-y-2 relative z-20">
+                     <div className="absolute bottom-6 w-[85%] max-w-[170px] h-[6px] bg-black/85 blur-[3px] rounded-[100%] z-0"></div>
+                     <img src="/icons/pickup_tactic.png" className="w-full max-w-[210px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] z-10 relative" alt="Hilux" />
+                  </div>
+                  <div className="w-full flex flex-col items-center justify-center transition-all duration-700 group-hover:-translate-y-2 relative z-30">
+                     <div className="absolute bottom-6 w-[95%] max-w-[155px] h-[4px] bg-black/80 blur-[2px] rounded-[100%] z-0"></div>
+                     {/* Moto: boosted saturation to pop gray and orange colors */}
+                     <img src="/icons/moto_tactic.png" className="w-full max-w-[150px] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] z-10 relative saturate-[2.5] contrast-[1.25] brightness-110" alt="Moto XR 300" />
+                  </div>
+               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Soy Chofer</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">Cargá el kilometraje diario, sucursales visitadas y novedades del vehículo.</p>
-            <div className="mt-8 flex items-center gap-2 text-blue-400 font-bold text-sm">
-              INGRESAR <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            
+            <div className="p-8 pt-0 text-center space-y-6 relative z-10">
+               <p className="text-slate-400 text-[11px] uppercase tracking-widest">Optimización de unidades</p>
+               <div className="inline-block px-10 py-3 rounded-full border border-blue-500/50 text-blue-400 text-[10px] font-black uppercase tracking-widest group-hover:bg-blue-500 group-hover:text-white transition-all shadow-lg">Ver Más</div>
             </div>
           </Link>
 
+          {/* MOVILIDAD INTELIGENTE */}
+          <Link 
+            href="/external"
+            className="group flex flex-col relative rounded-[2rem] border border-blue-400/30 bg-[#0f172a]/60 backdrop-blur-xl overflow-hidden hover:border-blue-300/80 hover:shadow-[0_0_30px_rgba(147,197,253,0.3)] transition-all duration-500"
+          >
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-400/20 to-transparent pointer-events-none" />
+            
+            <div className="p-8 pb-0 text-center relative z-10 mt-2">
+               <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(147,197,253,0.5)]">
+                  Movilidad<br />Inteligente
+               </h3>
+            </div>
+            
+            <div className="relative flex-1 flex flex-col items-center justify-center p-6 min-h-[220px]">
+              <div className="relative w-full flex flex-col items-center justify-center z-20 group-hover:scale-110 group-hover:-translate-y-4 transition-all duration-700 pointer-events-none">
+                 {/* Auto Renderizado Transparente Nativamente con sombra de auto-reflejo */}
+                 <img src="/icons/cross_official.png" alt="Toyota Corolla Cross" className="w-full max-w-[340px] px-2 object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] scale-x-[-1] relative z-10"/>
+              </div>
+            </div>
+            
+            <div className="p-8 pt-0 text-center space-y-6 relative z-10">
+               <p className="text-slate-400 text-[11px] uppercase tracking-widest">Soluciones Avanzadas</p>
+               <div className="inline-block px-10 py-3 rounded-full border border-blue-400/50 text-blue-300 text-[10px] font-black uppercase tracking-widest group-hover:bg-blue-400 group-hover:text-slate-900 transition-all shadow-lg">Descubrir</div>
+            </div>
+          </Link>
+
+          {/* GESTIÓN ADMINISTRATIVA */}
           <Link 
             href="/admin"
-            className="group relative overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-10 text-left transition-all duration-500 hover:bg-white/10 hover:border-purple-500/50 hover:-translate-y-2 shadow-2xl shadow-black/50"
+            className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a] overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-               <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
+            
+            <div className="p-8 pb-0 text-center relative z-10 mt-2">
+               <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                  Gestión<br />Administrativa
+               </h3>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-6 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            
+            <div className="relative flex-1 flex flex-col items-center justify-center p-6 min-h-[220px]">
+              <div className="w-56 h-56 relative flex items-center justify-center pl-4 py-2">
+                <img 
+                  src="/icons/admin_hud.png" 
+                  alt="Benjamin Franklin" 
+                  className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700"
+                />
+              </div>
+              <div className="absolute bottom-6 right-8 z-30 opacity-60 group-hover:opacity-100 group-hover:rotate-45 transition-all duration-1000">
+                 <StrategicGearIcon className="text-blue-500/40 animate-spin-slow w-20 h-20" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Soy Admin</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">Gestioná vehículos, sucursales, visualizá resúmenes mensuales y vencimientos.</p>
-            <div className="mt-8 flex items-center gap-2 text-purple-400 font-bold text-sm">
-              INGRESAR <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            
+            <div className="p-8 pt-0 text-center space-y-6 relative z-10">
+               <p className="text-slate-400 text-[11px] uppercase tracking-widest">Control Operacional</p>
+               <div className="inline-block px-10 py-3 rounded-full border border-blue-500/50 text-blue-400 text-[10px] font-black uppercase tracking-widest group-hover:bg-blue-500 group-hover:text-white transition-all shadow-lg">Gestionar</div>
             </div>
           </Link>
+
+        </div>
+
+        {/* Footer Link & Secret Credits */}
+        <div className="mt-16 text-center space-y-6">
+          <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto px-6">
+            <Link 
+              href="/Manual_Conductor_Estrategico.html"
+              target="_blank"
+              className="flex-1 min-w-[240px] inline-flex items-center justify-center gap-3 px-8 py-4 border border-white/5 bg-white/5 text-slate-500 hover:text-blue-400 hover:border-blue-500/20 transition-all text-[10px] font-black uppercase tracking-[0.2em] rounded-none shadow-sm hover:shadow-blue-500/5 group"
+            >
+               Manual Conductor Estratégico
+            </Link>
+            <Link 
+              href="/Manual_Movilidad_Inteligente.html"
+              target="_blank"
+              className="flex-1 min-w-[240px] inline-flex items-center justify-center gap-3 px-8 py-4 border border-white/5 bg-white/5 text-slate-500 hover:text-blue-300 hover:border-blue-400/20 transition-all text-[10px] font-black uppercase tracking-[0.2em] rounded-none shadow-sm hover:shadow-blue-400/5"
+            >
+               Manual Movilidad Inteligente
+            </Link>
+          </div>
+          
+          <p className="text-[7px] font-medium uppercase tracking-[0.5em] text-slate-200/[0.02] select-none pointer-events-none">
+             Desarrollado por Brian Lopez - Todos los derechos reservados
+          </p>
         </div>
       </div>
+      
+      <style jsx global>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

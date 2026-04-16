@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { generarCodigoAutorizacion } from "@/lib/actions";
+import { generarCodigoAutorizacion } from "@/lib/appActions";
 
 export default function MileageAuth({ vehiculoId, initialCode }) {
   const [code, setCode] = useState(initialCode);

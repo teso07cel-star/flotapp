@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
@@ -11,33 +8,72 @@ datasource db {
 }
 
 model Vehiculo {
-  id                Int      @id @default(autoincrement())
-  patente           String   @unique
-  vtvVencimiento    DateTime?
-  seguroVencimiento DateTime?
-  proximoServiceKm  Int?
-  activo            Boolean  @default(true)
-  codigoAutorizacion String?
-  registros         RegistroDiario[]
-  gastos            Gasto[]
+  id                      Int                 @id @default(autoincrement())
+  patente                 String              @unique
+  vtvVencimiento          DateTime?
+  seguroVencimiento       DateTime?
+  proximoServiceKm        Int?
+  activo                  Boolean             @default(true)
+  codigoAutorizacion      String?
+  categoria               String              @default("PICKUP")
+  kmParaCambioCubiertas   Int?                @default(60000)
+  tipo                    String              @default("INTERNO")
+  ultimoCambioCubiertasKm Int?
+  gastos                  Gasto[]
+  InspeccionMensual       InspeccionMensual[]
+  Mantenimiento           Mantenimiento[]
+  registros               RegistroDiario[]
 }
 
 model Sucursal {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  direccion String?
-  registros RegistroDiario[]
+  id               Int                @id @default(autoincrement())
+  nombre           String
+  direccion        String?
+  lat              Float?
+  lng              Float?
+  RegistroSucursal RegistroSucursal[]
+  registros        RegistroDiario[]   @relation("RegistroDiarioToSucursal")
+}
+
+model Chofer {
+  id                Int                 @id @default(autoincrement())
+  nombre            String              @unique
+  activo            Boolean             @default(true)
+  passkeyId         String?             @unique
+  passkeyPubKey     Bytes?
+  patenteAsignada   String?
+  InspeccionMensual InspeccionMensual[]
+  registros         RegistroDiario[]
 }
 
 model RegistroDiario {
-  id              Int      @id @default(autoincrement())
-  fecha           DateTime @default(now())
-  kmActual        Int
-  novedades       String?
-  nombreConductor String?
-  vehiculoId      Int
-  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[]
+  id                    Int                @id @default(autoincrement())
+  fecha                 DateTime           @default(now())
+  kmActual              Int?
+  kmModificado          Boolean            @default(false)
+  novedades             String?
+  nombreConductor       String?
+  vehiculoId            Int?
+  lugarGuarda           String?
+  nivelCombustible      String?
+  motivoUso             String?
+  tipoReporte           String?
+  frecuenciaRegistro    String?
+  kmTeoricos            Int?               @default(0)
+  choferId              Int?
+  esExterno             Boolean            @default(false)
+  fotoTicketCombustible String?
+  montoCombustible      Float?
+  fotoFrente            String?
+  fotoTrasera           String?
+  fotoLateralIzq        String?
+  fotoLateralDer        String?
+  fotoVTV               String?
+  fotoSeguro            String?
+  chofer                Chofer?            @relation(fields: [choferId], references: [id])
+  vehiculo              Vehiculo?          @relation(fields: [vehiculoId], references: [id])
+  RegistroSucursal      RegistroSucursal[]
+  sucursales            Sucursal[]         @relation("RegistroDiarioToSucursal")
 }
 
 model Gasto {
@@ -45,7 +81,58 @@ model Gasto {
   fecha       DateTime @default(now())
   monto       Float
   descripcion String
-  tipo        String   
+  tipo        String
   vehiculoId  Int
-  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+}
+
+model InspeccionMensual {
+  id                   Int      @id @default(autoincrement())
+  vehiculoId           Int
+  choferId             Int?
+  nombreConductor      String?
+  mes                  Int
+  anio                 Int
+  fecha                DateTime @default(now())
+  fotoFrente           String?
+  fotoTrasera          String?
+  fotoLateralIzq       String?
+  fotoLateralDer       String?
+  fotoVTV              String?
+  fotoSeguro           String?
+  lugarGuardaFijo      String?
+  lugarGuardaResguardo String?
+  Chofer               Chofer?  @relation(fields: [choferId], references: [id])
+  Vehiculo             Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+
+  @@unique([vehiculoId, mes, anio])
+}
+
+model Mantenimiento {
+  id           Int      @id @default(autoincrement())
+  vehiculoId   Int
+  fecha        DateTime @default(now())
+  tipoServicio String
+  descripcion  String?
+  taller       String?
+  costo        Float?
+  kilometraje  Int?
+  Vehiculo     Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+}
+
+model RegistroSucursal {
+  id              Int            @id @default(autoincrement())
+  registroId      Int
+  sucursalId      Int
+  cantidadVisitas Int            @default(1)
+  RegistroDiario  RegistroDiario @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  Sucursal        Sucursal       @relation(fields: [sucursalId], references: [id], onDelete: Cascade)
+}
+
+model AutorizacionDispositivo {
+  id                Int      @id @default(autoincrement())
+  nombreSolicitante String
+  deviceId          String   @unique
+  estado            String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  fechaSolicitud    DateTime @default(now())
 }

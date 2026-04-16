@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { updateSucursal, deleteSucursal } from "@/lib/actions";
+import { updateSucursal, deleteSucursal } from "@/lib/appActions";
 
 export default function BranchList({ initialSucursales }) {
   const [sucursales, setSucursales] = useState(initialSucursales);
@@ -48,37 +48,37 @@ export default function BranchList({ initialSucursales }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5">
+    <div className="bg-[#0f172a] border border-slate-800 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50">
       {message && (
-        <div className={`p-4 text-center text-xs font-black uppercase tracking-widest ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+        <div className={`p-4 text-center text-xs font-black uppercase tracking-widest ${message.type === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
           {message.text}
         </div>
       )}
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+          <tr className="bg-slate-900/50 text-[10px] font-black uppercase text-slate-400 border-b border-slate-800">
             <th className="p-5 pl-8 w-20">ID</th>
             <th className="p-5">Nombre</th>
-            <th className="p-5">Dirección</th>
+            <th className="p-5 text-right">Dirección</th>
             <th className="p-5 text-right pr-8">Acciones</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+        <tbody className="divide-y divide-slate-800">
           {sucursales.length === 0 ? (
-            <tr><td colSpan="4" className="p-10 text-center text-gray-500 font-medium">No hay sucursales registradas.</td></tr>
+            <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-medium">No hay sucursales registradas.</td></tr>
           ) : sucursales.map((s) => (
-            <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
-              <td className="p-5 pl-8 text-gray-500 text-xs font-bold">#{s.id}</td>
+            <tr key={s.id} className="hover:bg-slate-800/30 transition-colors group">
+              <td className="p-5 pl-8 text-slate-600 text-xs font-bold">#{s.id}</td>
               <td className="p-5">
                 {editingId === s.id ? (
                   <input 
                     type="text" 
                     value={editForm.nombre}
                     onChange={(e) => setEditForm({...editForm, nombre: e.target.value})}
-                    className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1 font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1 font-bold text-white outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <span className="font-bold tracking-tight">{s.nombre}</span>
+                  <span className="font-bold tracking-tight text-slate-300">{s.nombre}</span>
                 )}
               </td>
               <td className="p-5">
@@ -87,10 +87,10 @@ export default function BranchList({ initialSucursales }) {
                     type="text" 
                     value={editForm.direccion}
                     onChange={(e) => setEditForm({...editForm, direccion: e.target.value})}
-                    className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1 text-xs font-medium text-white outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <span className="text-gray-500 text-xs font-medium">{s.direccion || "-"}</span>
+                  <span className="text-slate-500 text-xs font-medium">{s.direccion || "-"}</span>
                 )}
               </td>
               <td className="p-5 pr-8 text-right">
@@ -118,14 +118,14 @@ export default function BranchList({ initialSucursales }) {
                     <>
                       <button 
                         onClick={() => handleEdit(s)}
-                        className="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="text-blue-500 hover:bg-blue-500/10 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                         title="Editar"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
                       <button 
                         onClick={() => handleDelete(s.id)}
-                        className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                         title="Eliminar"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>

@@ -4,20 +4,25 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && (prisma db push --accept-data-loss || echo 'DB Push failed but continuing...') && next build",
+    "build": "prisma generate && (prisma db push || echo 'DB Push failed but continuing...') && next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "date-fns": "^2.30.0",
     "dotenv": "^17.3.1",
     "http-node": "^1.2.0",
     "isomorphic-git": "^1.37.4",
+    "jimp": "^1.6.0",
+    "leaflet": "^1.9.4",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "next": "16.2.0",
     "pg": "^8.20.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
