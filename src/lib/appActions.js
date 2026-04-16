@@ -340,36 +340,38 @@ export async function deleteRegistroDiario(id) {
 }
 
 export async function getMonthlySummary(month, year) {
+  // BUILD GUARD: Si no hay URL o es fase de construcción, retornamos datos vacíos de inmediato
+  if (process.env.NEXT_PHASE === 'phase-production-build' || !process.env.DATABASE_URL) {
+    return { success: true, data: { summary: [], totalFleetVisits: 0, mapBranches: [] } };
+  }
+
   try {
-    // OPTIMIZACIÓN: Filtrar por fecha con ISO strings para evitar desfases de zona horaria
-    const [yearNum, monthNum] = [parseInt(year), parseInt(month)];
+    const monthNum = parseInt(month);
+    const yearNum = parseInt(year);
+    
     const isoStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0).toISOString();
     const isoEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
 
     const vehiculos = (await prisma.vehiculo.findMany()) || [];
     const allRegistros = (await prisma.registroDiario.findMany({
-      where: {
-        fecha: { gte: isoStart, lte: isoEnd }
-      },
+      where: { fecha: { gte: isoStart, lte: isoEnd } },
       include: { vehiculo: true, sucursales: true }
     })) || [];
     const allGastos = (await prisma.gasto.findMany({
-      where: {
-        fecha: { gte: isoStart, lte: isoEnd }
-      }
+      where: { fecha: { gte: isoStart, lte: isoEnd } }
     })) || [];
 
-    const summary = vehiculos.map(v => {
+    const summary = Array.isArray(vehiculos) ? vehiculos.map(v => {
       const records = allRegistros.filter(r => {
         if (!r.fecha) return false;
         const d = new Date(r.fecha);
-        return r.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
+        return r.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
       });
 
       const expenses = allGastos.filter(g => {
         if (!g.fecha) return false;
         const d = new Date(g.fecha);
-        return g.vehiculoId === v.id && d.getMonth() === month && d.getFullYear() === year;
+        return g.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
       });
 
       let initialKm = 0;
@@ -386,17 +388,16 @@ export async function getMonthlySummary(month, year) {
         kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
         totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
         cantidadRegistros: records.length,
-        visitasSucursales: records.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0),
+        visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
         novedades: records.filter(r => r.novedades).map(r => r.novedades),
         ultimoConductor: records[records.length - 1]?.nombreConductor || "S/D"
       };
-    });
+    }) : [];
 
-    // AGREGAR ENTRADA PARA REGISTROS SIN VEHÍCULO (ORPHANS)
     const orphanRecords = allRegistros.filter(r => {
       if (!r.fecha) return false;
       const d = new Date(r.fecha);
-      return !r.vehiculoId && d.getMonth() === month && d.getFullYear() === year;
+      return !r.vehiculoId && d.getMonth() === monthNum && d.getFullYear() === yearNum;
     });
 
     if (orphanRecords.length > 0) {
@@ -409,7 +410,7 @@ export async function getMonthlySummary(month, year) {
         kmRecorridos: (orphanFinalKm - orphanInitialKm) > 0 ? (orphanFinalKm - orphanInitialKm) : 0,
         totalGastos: 0,
         cantidadRegistros: orphanRecords.length,
-        visitasSucursales: orphanRecords.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0),
+        visitasSucursales: orphanRecords.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
         novedades: orphanRecords.filter(r => r.novedades).map(r => r.novedades),
         ultimoConductor: orphanRecords[orphanRecords.length - 1]?.nombreConductor || "S/D"
       });
@@ -418,29 +419,32 @@ export async function getMonthlySummary(month, year) {
     const currentMonthVisits = allRegistros.filter(r => {
       if (!r.fecha) return false;
       const d = new Date(r.fecha);
-      return d.getMonth() === month && d.getFullYear() === year;
+      return d.getMonth() === monthNum && d.getFullYear() === yearNum;
     });
     
-    const totalFleetVisits = currentMonthVisits.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0);
+    const totalFleetVisits = currentMonthVisits.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0);
 
     const mapBranchesMap = new Map();
-    currentMonthVisits.forEach(r => {
-      r.sucursales?.forEach(s => {
-        if (!mapBranchesMap.has(s.id)) {
-          mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: s.lat, lng: s.lng, visitas: 1 });
-        } else {
-          const b = mapBranchesMap.get(s.id);
-          b.visitas++;
+    if (Array.isArray(currentMonthVisits)) {
+      currentMonthVisits.forEach(r => {
+        if (Array.isArray(r.sucursales)) {
+          r.sucursales.forEach(s => {
+            if (!mapBranchesMap.has(s.id)) {
+              mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: s.lat, lng: s.lng, visitas: 1 });
+            } else {
+              const b = mapBranchesMap.get(s.id);
+              b.visitas++;
+            }
+          });
         }
       });
-    });
+    }
     
     const mapBranches = Array.from(mapBranchesMap.values());
-
     return { success: true, data: { summary, totalFleetVisits, mapBranches } };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
-    return { success: false, error: error.message, data: [] };
+    return { success: false, error: error.message, data: { summary: [], totalFleetVisits: 0, mapBranches: [] } };
   }
 }
 
