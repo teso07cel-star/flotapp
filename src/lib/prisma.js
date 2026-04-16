@@ -1,16 +1,18 @@
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
-  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build' || process.env.IS_BUILD === 'true';
+  const dbUrl = process.env.DATABASE_URL;
+  const options = {
+    log: ['error']
+  };
 
-  if (isBuildPhase) {
-    console.log("🛡️ PRISMA: Modo Construcción Detectado - Aplicando Proxy de Seguridad");
-    return createPrismaProxy("BUILD_PHASE");
+  // En Prisma 7, si usamos un proxy de datos (db.prisma.io o prisma://), 
+  // debemos pasarlo como accelerateUrl. datasources y datasourceUrl ya no son válidos.
+  if (dbUrl && (dbUrl.includes('db.prisma.io') || dbUrl.includes('prisma://'))) {
+    options.accelerateUrl = dbUrl;
   }
 
-  return new PrismaClient({
-    log: ['error']
-  });
+  return new PrismaClient(options);
 }
 
 function createPrismaProxy(errorMessage) {
