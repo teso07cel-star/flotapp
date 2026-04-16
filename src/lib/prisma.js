@@ -10,11 +10,11 @@ const prismaClientSingleton = () => {
   };
 
   if (dbUrl) {
-    if (dbUrl.includes('db.prisma.io') || dbUrl.includes('prisma://')) {
-      // Caso Prisma Accelerate / Data Proxy
+    if (dbUrl.startsWith('prisma://') || dbUrl.startsWith('prisma+postgres://')) {
+      // Caso Prisma Accelerate / Data Proxy genuino
       options.accelerateUrl = dbUrl;
     } else {
-      // Caso PostgreSQL estándar en Prisma 7: Requiere Adaptador
+      // Caso PostgreSQL estándar (incluyendo Supabase/Prisma Direct que usen postgres://)
       const pool = new Pool({ connectionString: dbUrl });
       options.adapter = new PrismaPg(pool);
     }
