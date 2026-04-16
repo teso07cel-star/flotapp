@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getVehiculoById, updateVehiculo } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
+import MileageAuth from "@/components/MileageAuth";
 
 async function saveAction(formData) {
   "use server";
@@ -164,6 +165,8 @@ export default async function VehicleDetails({ params }) {
               ))}
             </div>
           </div>
+
+          <MileageAuth vehiculoId={vehiculo.id} initialCode={vehiculo.codigoAutorizacion} />
         </div>
 
         {/* Columna Derecha: Historial */}

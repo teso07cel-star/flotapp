@@ -17,6 +17,7 @@ model Vehiculo {
   seguroVencimiento DateTime?
   proximoServiceKm  Int?
   activo            Boolean  @default(true)
+  codigoAutorizacion String?
   registros         RegistroDiario[]
   gastos            Gasto[]
 }

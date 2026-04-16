@@ -1,5 +1,5 @@
 "use server";
-import prisma from "./prisma";
+import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
 
 export async function getVehiculoByPatente(patente) {
@@ -90,10 +90,36 @@ export async function addSucursal(nombre, direccion) {
 
 export async function createRegistroDiario(data) {
   try {
+    const vehiculoId = parseInt(data.vehiculoId);
+    const kmActual = parseInt(data.kmActual);
+
+    // Buscar el último registro para este vehículo
+    const lastRecord = await prisma.registroDiario.findFirst({
+      where: { vehiculoId },
+      orderBy: { fecha: 'desc' }
+    });
+
+    if (lastRecord && kmActual <= lastRecord.kmActual) {
+      // Si el kilometraje no aumentó, verificamos el código de autorización
+      const vehiculo = await prisma.vehiculo.findUnique({
+        where: { id: vehiculoId }
+      });
+
+      if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+        return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+      }
+
+      // Si el código es correcto, lo limpiamos (se usa una sola vez)
+      await prisma.vehiculo.update({
+        where: { id: vehiculoId },
+        data: { codigoAutorizacion: null }
+      });
+    }
+
     const registro = await prisma.registroDiario.create({
       data: {
-        vehiculoId: parseInt(data.vehiculoId),
-        kmActual: parseInt(data.kmActual),
+        vehiculoId,
+        kmActual,
         novedades: data.novedades || null,
         nombreConductor: data.nombreConductor || null,
         sucursales: {
@@ -168,6 +194,36 @@ export async function deleteSucursal(id) {
     await prisma.sucursal.delete({ where: { id: parseInt(id) } });
     revalidatePath("/admin/branches");
     return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateSucursal(id, data) {
+  try {
+    const s = await prisma.sucursal.update({
+      where: { id: parseInt(id) },
+      data: {
+        nombre: data.nombre,
+        direccion: data.direccion
+      }
+    });
+    revalidatePath("/admin/branches");
+    return { success: true, data: s };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function generarCodigoAutorizacion(vehiculoId) {
+  try {
+    const nuevoCodigo = Math.floor(1000 + Math.random() * 9000).toString();
+    await prisma.vehiculo.update({
+      where: { id: parseInt(vehiculoId) },
+      data: { codigoAutorizacion: nuevoCodigo }
+    });
+    revalidatePath("/admin/vehicles/[id]", "page");
+    return { success: true, code: nuevoCodigo };
   } catch (error) {
     return { success: false, error: error.message };
   }
