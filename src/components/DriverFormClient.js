@@ -205,7 +205,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       </div>
     );
   }
-   }
+
 
   // --- STAGE 2: ROUTINE ---
   if (stage === 2) {
