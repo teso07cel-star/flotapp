@@ -8,5 +8,5 @@ echo Iniciando FLOTAPP...
 echo.
 echo Una vez que diga "Ready", abre http://localhost:%PORT% en tu navegador.
 echo.
-"C:\Users\USUARIO\AppData\Local\ms-playwright-go\1.50.1\node.exe" node_modules\next\dist\bin\next dev -H 0.0.0.0
+npm run dev
 pause

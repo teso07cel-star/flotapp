@@ -191,13 +191,15 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
 
          <div className="space-y-4">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] block pl-2">Selección de Sucursales</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar p-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-80 overflow-y-auto pr-2 custom-scrollbar p-1">
                {sucursales.map(s => (
-                  <label key={s.id} className="flex items-center gap-4 p-5 bg-slate-900/40 border border-white/5 rounded-[2rem] hover:bg-slate-900/80 hover:border-blue-500/30 transition-all cursor-pointer group">
-                     <input type="checkbox" name="sucursalIds" value={s.id} className="w-5 h-5 rounded border-slate-700 bg-slate-950 text-blue-500 focus:ring-blue-500" />
+                  <label key={s.id} className="flex items-center gap-4 p-6 bg-slate-900/60 border-2 border-white/5 rounded-[2.5rem] hover:bg-blue-600/10 hover:border-blue-500/40 transition-all cursor-pointer group relative overflow-hidden">
+                     <input type="checkbox" name="sucursalIds" value={s.id} className="w-6 h-6 rounded-lg border-slate-700 bg-slate-950 text-blue-500 focus:ring-blue-500 transition-transform group-hover:scale-110" />
                      <div className="flex-1">
-                        <p className="text-[11px] font-black text-slate-300 group-hover:text-white uppercase transition-colors">{s.nombre}</p>
-                        <p className="text-[9px] text-slate-600 font-bold uppercase">{s.direccion}</p>
+                        <p className="text-[12px] font-black text-white uppercase tracking-tight group-hover:text-blue-400 transition-colors leading-tight">{s.nombre}</p>
+                     </div>
+                     <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-10 transition-opacity">
+                        <svg className="w-10 h-10 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                      </div>
                   </label>
                ))}
