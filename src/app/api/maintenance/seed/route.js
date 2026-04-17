@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import fs from 'fs';
-import path from 'path';
+
+export const dynamic = 'force-dynamic';
 
 // ESTA RUTA ES TEMPORAL PARA SINCRONIZAR LA DATA EN PRODUCCIÓN
 export async function GET() {
   try {
     console.log('🌱 Iniciando Carga Remota de Semillas...');
     
+    // Importación dinámica para evitar problemas de inicialización en build
+    const prismaModule = await import('@/lib/prisma');
+    const prisma = prismaModule.default;
+
     // 1. Choferes Críticos
     const defaultDrivers = [
       'Tomás Casco', 'Iván Santillán', 'Gali Nelson', 'Juan Cruz Hidalgo', 
