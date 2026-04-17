@@ -11,10 +11,12 @@ export async function GET() {
     const prismaModule = await import('@/lib/prisma');
     const prisma = prismaModule.default;
 
-    // 1. Choferes Críticos
+    // 1. Choferes Completos (Local Sync)
     const defaultDrivers = [
-      'Tomás Casco', 'Iván Santillán', 'Gali Nelson', 'Juan Cruz Hidalgo', 
-      'Matías Chaile', 'Vega Jorge Daniel', 'Christian González', 'VideoTest'
+      "Brian Lopez", "Christian González", "David f", "Diego r", "Esteban diaz", "GONZALO", 
+      "Gali Nelson", "Gally Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
+      "Juan Cruz Hidalgo", "Lucio Bello", "MARIANO", "Matías Chaile", "Miguel c", 
+      "Tomas C", "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
     ];
     
     for (const name of defaultDrivers) {
@@ -25,10 +27,19 @@ export async function GET() {
       });
     }
 
-    // 2. Vehículos Críticos (Los que fallaban)
+    // 2. Vehículos Completos (Local Sync)
     const criticalVehicles = [
-      { patente: 'AF668JR', lastKm: 29147 },
-      { patente: 'AF601QS', lastKm: 28453 }
+      { patente: 'A122WQX', lastKm: 0 }, { patente: 'AD848KQ', lastKm: 528224 },
+      { patente: 'PGX770', lastKm: 555451 }, { patente: 'A122WRA', lastKm: 7370 },
+      { patente: 'AD380TS', lastKm: 714444 }, { patente: 'A239WDL', lastKm: 10952 },
+      { patente: 'ONR078', lastKm: 417491 }, { patente: 'AF601QS', lastKm: 28453 },
+      { patente: 'PGX769', lastKm: 515893 }, { patente: 'AD724VP', lastKm: 449756 },
+      { patente: 'AF668JV', lastKm: 417795 }, { patente: 'AF668JR', lastKm: 29147 },
+      { patente: 'A239WDM', lastKm: 7441 }, { patente: 'AD848LH', lastKm: 0 },
+      { patente: 'AD724VQ', lastKm: 0 }, { patente: 'AD848KR', lastKm: 529084 },
+      { patente: 'AH279KZ', lastKm: 70114 }, { patente: 'AH336BA', lastKm: 84411 },
+      { patente: 'AE982AS', lastKm: 348145 }, { patente: 'AE982AR', lastKm: 453085 },
+      { patente: 'A122WQZ', lastKm: 0 }, { patente: 'A124TJW', lastKm: 0 }
     ];
 
     for (const v of criticalVehicles) {
@@ -38,9 +49,9 @@ export async function GET() {
         create: { patente: v.patente, activo: true },
       });
 
-      // Crear registro inicial corregido si no existe ninguno
+      // Crear registro inicial corregido si no existe ninguno o KM es 0
       const count = await prisma.registroDiario.count({ where: { vehiculoId: veh.id } });
-      if (count === 0) {
+      if (count === 0 && v.lastKm > 0) {
         await prisma.registroDiario.create({
           data: {
             vehiculoId: veh.id,
@@ -56,9 +67,9 @@ export async function GET() {
 
     return NextResponse.json({ 
       success: true, 
-      message: "Seeding en producción completado",
+      message: "Seeding en producción completado (Sync Local)",
       driversLoaded: defaultDrivers.length,
-      vehiclesVerified: criticalVehicles.map(v => v.patente)
+      vehiclesVerified: criticalVehicles.length
     });
 
   } catch (error) {
