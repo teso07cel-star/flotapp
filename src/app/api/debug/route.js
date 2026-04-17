@@ -11,8 +11,23 @@ export async function GET() {
       NODE_ENV: process.env.NODE_ENV,
       NEXT_PHASE: process.env.NEXT_PHASE || "none",
     },
+    fs: {},
     tests: {}
   };
+
+  // Test 0: List API files
+  try {
+    const fs = await import("fs");
+    const path = await import("path");
+    const apiDir = path.join(process.cwd(), "src", "app", "api");
+    if (fs.existsSync(apiDir)) {
+      diagnostics.fs.apiDir = fs.readdirSync(apiDir, { recursive: true });
+    } else {
+      diagnostics.fs.apiDir = "NOT_FOUND: " + apiDir;
+    }
+  } catch (err) {
+    diagnostics.fs.apiDir = "ERROR: " + err.message;
+  }
 
   // Test 1: Can we import prisma?
   try {
