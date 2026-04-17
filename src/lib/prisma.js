@@ -1,54 +1,38 @@
 import { PrismaClient } from '@prisma/client'
-
-/**
- * Super Safety Proxy V2: Blindaje total ante fallos de base de datos.
- */
-function createSafetyProxy(message) {
-  console.warn(`🛡️  [PRISMA SAFETY PROXY]: ${message}`);
-  const stubArray = async () => [];
-  const stubNull = async () => null;
-  const stubVoid = async () => {};
-
-  return new Proxy({}, {
-    get: (target, prop) => {
-      if (prop === '$connect' || prop === '$disconnect') return stubVoid;
-      if (prop === '$transaction') return async (fn) => (typeof fn === 'function' ? fn(createSafetyProxy(message)) : []);
-      if (typeof prop === 'string' && prop.startsWith('$')) return stubArray;
-
-      return new Proxy({}, {
-        get: (target, method) => {
-          const m = method.toString();
-          if (m.includes('Many') || m.includes('groupBy') || m.includes('Raw') || m.includes('count')) return stubArray;
-          return stubNull;
-        }
-      });
-    }
-  });
-}
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
 
 const prismaClientSingleton = () => {
-  // Guard de fase de construcción en Vercel
-  if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.IS_BUILD === 'true') {
-    return createSafetyProxy("Modo Build");
+  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  
+  console.log("🚀 PRISMA: Iniciando conexión...");
+  
+  if (!dbUrl) {
+    console.warn("⚠️ PRISMA: No hay DATABASE_URL en .env");
+    return new PrismaClient();
   }
 
+  // Log para depuración
+  const maskedUrl = dbUrl.replace(/:([^:@]+)@/, ':****@');
+  console.log(`🔗 Conectando a: ${maskedUrl}`);
+
   try {
-    // Pattern V2: Minimalista. Prisma 7 lee la URL de DATABASE_URL automáticamente.
-    // Evitamos pasar 'adapter' o 'accelerateUrl' explícitamente para prevenir errores de compatibilidad.
-    return new PrismaClient({
-      log: ['error']
+    const pool = new pg.Pool({ connectionString: dbUrl });
+    const adapter = new PrismaPg(pool);
+    return new PrismaClient({ 
+      adapter,
+      log: ['error', 'warn'] 
     });
-  } catch (err) {
-    console.error("🔥 Error crítico en constructor Prisma:", err.message);
-    return createSafetyProxy(err.message);
+  } catch (error) {
+    console.error("❌ ERROR CRÍTICO PRISMA:", error.message);
+    return new PrismaClient();
   }
 }
 
-const globalForPrisma = globalThis;
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+const globalForPrisma = globalThis
 
-export default prisma;
+const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export default prisma
 
-
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

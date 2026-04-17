@@ -5,7 +5,7 @@ import { calculateSequentialRoute } from "./geoUtils.js";
 import { getArDate } from "./utils.js";
 
 export async function getVehiculoByPatente(patente) {
-  if (!patente || !process.env.DATABASE_URL) return { success: true, data: null }; // Build Guard
+  // Eliminado guardia de construcción manual para forzar visibilidad real
   try {
     if (!patente) return { success: false, error: "Patente requerida" };
     const vehiculo = await prisma.vehiculo.findUnique({
@@ -93,7 +93,7 @@ export async function updateVehiculo(id, data) {
 }
 
 export async function getAllSucursales() {
-  if (!process.env.DATABASE_URL) return { success: true, data: [] };
+  console.log("🔍 APP_ACTIONS: Obteniendo todas las sucursales...");
   try {
     const sucursales = await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } });
     return { success: true, data: sucursales };
@@ -340,8 +340,8 @@ export async function deleteRegistroDiario(id) {
 }
 
 export async function getMonthlySummary(month, year) {
-  // BUILD GUARD: Si no hay URL o es fase de construcción, retornamos datos vacíos de inmediato
-  if (process.env.NEXT_PHASE === 'phase-production-build' || !process.env.DATABASE_URL) {
+  // BUILD GUARD FLEXIBILIZADO: Intentar siempre en runtime
+  if (process.env.NEXT_PHASE === 'phase-production-build' && !process.env.DATABASE_URL) {
     return { success: true, data: { summary: [], totalFleetVisits: 0, mapBranches: [] } };
   }
 
@@ -639,11 +639,13 @@ export async function getDailyReport(dateString) {
   }
 }
 export async function getAllChoferes() {
+  console.log("🔍 APP_ACTIONS: Consultando lista de choferes activos...");
   try {
     const choferes = await prisma.chofer.findMany({ 
       where: { activo: true },
       orderBy: { nombre: 'asc' } 
     });
+    console.log(`✅ APP_ACTIONS: Se encontraron ${choferes.length} choferes.`);
     return { success: true, data: choferes };
   } catch (error) {
     console.error("Error in getAllChoferes:", error);
