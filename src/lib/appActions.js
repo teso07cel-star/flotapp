@@ -1,5 +1,6 @@
 "use server";
-import prisma from "./prisma.js";
+import { getPrisma } from "./prisma.js";
+const prisma = getPrisma();
 import { revalidatePath } from "next/cache";
 import { calculateSequentialRoute } from "./geoUtils.js";
 import { getArDate } from "./utils.js";

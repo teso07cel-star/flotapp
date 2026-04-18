@@ -34,8 +34,15 @@ const prismaClientSingleton = () => {
 
 const globalForPrisma = globalThis
 
+export function getPrisma() {
+  if (globalForPrisma.prisma) return globalForPrisma.prisma;
+  
+  const client = prismaClientSingleton();
+  if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client;
+  return client;
+}
+
+// Para compatibilidad hacia atrás si es necesario, pero usaremos getPrisma() preferentemente
 const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
-
-export default prisma
-
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+export default prisma
