@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
 
 export default async function ExternalAdmin() {

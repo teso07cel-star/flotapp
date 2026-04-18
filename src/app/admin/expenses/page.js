@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getMonthlySummary, deleteGasto } from "@/lib/appActions";
 import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import VehicleIcon from "@/components/VehicleIcon";
 
 export const dynamic = 'force-dynamic';

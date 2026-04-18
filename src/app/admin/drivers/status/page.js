@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { getDriverTraces, getArDate } from "@/lib/utils";
 import DriverStatusClient from "@/components/DriverStatusClient";
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export default async function DriverStatusPage({ searchParams }) {

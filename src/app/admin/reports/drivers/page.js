@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export default async function DriversDailyReport({ searchParams }) {
   const params = await searchParams;

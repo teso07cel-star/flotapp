@@ -1,5 +1,5 @@
 "use server";
-import { getPrisma } from "./getPrisma().js";
+import { getPrisma } from "./prisma.js";
 
 import { revalidatePath } from "next/cache";
 
