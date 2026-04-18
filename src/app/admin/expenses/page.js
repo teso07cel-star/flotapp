@@ -26,7 +26,7 @@ export default async function GlobalExpenses() {
     const res = await getMonthlySummary(month, year);
     summary = res.success ? res.data.summary : [];
 
-    allGastos = (await prisma.gasto.findMany({
+    allGastos = (await getPrisma().gasto.findMany({
       include: { vehiculo: true }
     })) || [];
     

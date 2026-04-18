@@ -1,5 +1,6 @@
 "use server";
-import prisma from "./prisma";
+import { getPrisma } from "./getPrisma().js";
+
 import { revalidatePath } from "next/cache";
 
 export async function processExternalEntry(formData) {
@@ -13,12 +14,12 @@ export async function processExternalEntry(formData) {
     let redirectTo = "";
     try {
       // 1. Find or Create Vehiculo
-      let vehiculo = await prisma.vehiculo.findUnique({
+      let vehiculo = await getPrisma().vehiculo.findUnique({
         where: { patente }
       });
   
       if (!vehiculo) {
-        vehiculo = await prisma.vehiculo.create({
+        vehiculo = await getPrisma().vehiculo.create({
           data: {
             patente,
             activo: true,
@@ -49,7 +50,7 @@ export async function getExternalVehicleStatus(patente) {
   }
 
   try {
-    const vehiculo = await prisma.vehiculo.findUnique({
+    const vehiculo = await getPrisma().vehiculo.findUnique({
       where: { patente: patente.toUpperCase() },
       include: {
         InspeccionMensual: {
@@ -85,7 +86,7 @@ export async function getExternalVehicleStatus(patente) {
       requiredFrequency = "mensual";
     } else {
       // 2. Need Weekly? (Si no hay un registro con KM esta semana)
-      const lastKmLog = await prisma.registroDiario.findFirst({
+      const lastKmLog = await getPrisma().registroDiario.findFirst({
         where: { 
           vehiculoId: vehiculo.id,
           kmActual: { not: null },
@@ -98,7 +99,7 @@ export async function getExternalVehicleStatus(patente) {
         requiredFrequency = "semanal";
       } else {
         // 3. Diario: ¿Inicio o Cierre?
-        const lastLogToday = await prisma.registroDiario.findFirst({
+        const lastLogToday = await getPrisma().registroDiario.findFirst({
           where: {
             vehiculoId: vehiculo.id,
             fecha: { gte: hoyInicio }
@@ -140,7 +141,7 @@ export async function submitExternalLog(data) {
 
     // Primer paso: update fechas del Vehiculo si vienen
     if (formPayload.vtvVencimiento || formPayload.seguroVencimiento) {
-       await prisma.vehiculo.update({
+       await getPrisma().vehiculo.update({
          where: { id: parseInt(vehiculoId) },
          data: {
            vtvVencimiento: formPayload.vtvVencimiento ? new Date(formPayload.vtvVencimiento) : undefined,
@@ -161,7 +162,7 @@ export async function submitExternalLog(data) {
 
         // Si el chofer confirmó que las fotos son las mismas, buscamos la inspección anterior
         if (confirmPreviousPhotos) {
-          const lastInsp = await prisma.inspeccionMensual.findFirst({
+          const lastInsp = await getPrisma().inspeccionMensual.findFirst({
             where: { vehiculoId: parseInt(vehiculoId) },
             orderBy: { fecha: 'desc' }
           });
@@ -175,7 +176,7 @@ export async function submitExternalLog(data) {
           }
         }
 
-        await prisma.inspeccionMensual.create({
+        await getPrisma().inspeccionMensual.create({
             data: {
                vehiculoId: parseInt(vehiculoId),
                nombreConductor: driver,
@@ -194,7 +195,7 @@ export async function submitExternalLog(data) {
     }
 
     // Always create a RegistroDiario to keep track of the log
-    const registro = await prisma.registroDiario.create({
+    const registro = await getPrisma().registroDiario.create({
       data: {
         vehiculoId: parseInt(vehiculoId),
         esExterno: true,

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
+
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export async function GET() {
     ];
     
     for (const name of defaultDrivers) {
-      await prisma.chofer.upsert({
+      await getPrisma().chofer.upsert({
         where: { nombre: name },
         update: { activo: true },
         create: { nombre: name, activo: true },
@@ -37,16 +38,16 @@ export async function GET() {
     ];
 
     for (const v of criticalVehicles) {
-      const veh = await prisma.vehiculo.upsert({
+      const veh = await getPrisma().vehiculo.upsert({
         where: { patente: v.patente },
         update: { activo: true },
         create: { patente: v.patente, activo: true },
       });
 
       // Asegurar registro inicial para evitar saltos en reportes
-      const count = await prisma.registroDiario.count({ where: { vehiculoId: veh.id } });
+      const count = await getPrisma().registroDiario.count({ where: { vehiculoId: veh.id } });
       if (count === 0) {
-        await prisma.registroDiario.create({
+        await getPrisma().registroDiario.create({
           data: {
             vehiculoId: veh.id,
             kmActual: v.lastKm,
@@ -81,7 +82,7 @@ export async function GET() {
     ];
 
     for (const b of branches) {
-       await prisma.sucursal.upsert({
+       await getPrisma().sucursal.upsert({
           where: { id: b.id },
           update: { nombre: b.nombre },
           create: { id: b.id, nombre: b.nombre }

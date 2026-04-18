@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
 
 export default async function ExternalAdmin() {
-  const vehiculos = await prisma.vehiculo.findMany({
+  const vehiculos = await getPrisma().vehiculo.findMany({
     where: { tipo: "EXTERNO" },
     orderBy: { patente: 'asc' },
     include: {

@@ -1,6 +1,5 @@
 "use server";
-import { getPrisma } from "./prisma.js";
-const prisma = getPrisma();
+import { getPrisma } from "./getPrisma().js";
 import { revalidatePath } from "next/cache";
 import { calculateSequentialRoute } from "./geoUtils.js";
 import { getArDate } from "./utils.js";
@@ -9,7 +8,7 @@ export async function getVehiculoByPatente(patente) {
   // Eliminado guardia de construcción manual para forzar visibilidad real
   try {
     if (!patente) return { success: false, error: "Patente requerida" };
-    const vehiculo = await prisma.vehiculo.findUnique({
+    const vehiculo = await getPrisma().vehiculo.findUnique({
       where: { patente: patente.toUpperCase().trim() },
       include: {
         registros: { orderBy: { fecha: 'desc' }, take: 1 },
@@ -26,13 +25,13 @@ export async function getDriverOperationalStatus(driverName) {
     if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const lastRecord = await prisma.registroDiario.findFirst({
+    const lastRecord = await getPrisma().registroDiario.findFirst({
        where: { nombreConductor: driverName, fecha: { gte: todayStart } },
        orderBy: { fecha: 'desc' },
        include: { vehiculo: true }
     });
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
-       const choferDB = await prisma.chofer.findUnique({ where: { nombre: driverName } });
+       const choferDB = await getPrisma().chofer.findUnique({ where: { nombre: driverName } });
        return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
     }
     const lastKm = lastRecord.kmActual || 0;
@@ -45,7 +44,7 @@ export async function getDriverOperationalStatus(driverName) {
 
 export async function getAllVehiculos() {
   try {
-    const vehiculos = await prisma.vehiculo.findMany({
+    const vehiculos = await getPrisma().vehiculo.findMany({
       orderBy: { id: 'asc' },
       include: {
         registros: { orderBy: { fecha: 'desc' }, take: 1 }
@@ -59,7 +58,7 @@ export async function getAllVehiculos() {
 
 export async function createVehiculo(data) {
   try {
-    const v = await prisma.vehiculo.create({
+    const v = await getPrisma().vehiculo.create({
       data: {
         patente: data.patente.toUpperCase().trim(),
         vtvVencimiento: data.vtvVencimiento ? new Date(data.vtvVencimiento) : null,
@@ -81,7 +80,7 @@ export async function updateVehiculo(id, data) {
     if (updateData.seguroVencimiento) updateData.seguroVencimiento = new Date(updateData.seguroVencimiento);
     if (updateData.proximoServiceKm !== undefined) updateData.proximoServiceKm = parseInt(updateData.proximoServiceKm) || null;
 
-    const vehiculo = await prisma.vehiculo.update({
+    const vehiculo = await getPrisma().vehiculo.update({
       where: { id: parseInt(id) },
       data: updateData
     });
@@ -96,7 +95,7 @@ export async function updateVehiculo(id, data) {
 export async function getAllSucursales() {
   console.log("🔍 APP_ACTIONS: Obteniendo todas las sucursales...");
   try {
-    const sucursales = await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } });
+    const sucursales = await getPrisma().sucursal.findMany({ orderBy: { nombre: 'asc' } });
     return { success: true, data: sucursales };
   } catch (error) {
     return { success: false, error: error.message };
@@ -105,7 +104,7 @@ export async function getAllSucursales() {
 
 export async function addSucursal(nombre, direccion) {
   try {
-    const s = await prisma.sucursal.create({
+    const s = await getPrisma().sucursal.create({
       data: { nombre, direccion }
     });
     revalidatePath("/admin/branches");
@@ -123,7 +122,7 @@ export async function createRegistroDiario(data) {
 
     // Solo buscar último registro si hay un vehiculoId válido
     if (vehiculoId) {
-      const lastRecord = await prisma.registroDiario.findFirst({
+      const lastRecord = await getPrisma().registroDiario.findFirst({
         where: { vehiculoId, kmActual: { not: null } },
         orderBy: { fecha: 'desc' }
       });
@@ -131,7 +130,7 @@ export async function createRegistroDiario(data) {
       if (kmActual !== null) {
         if (lastRecord) {
           if (kmActual < lastRecord.kmActual) {
-            const vehiculo = await prisma.vehiculo.findUnique({
+            const vehiculo = await getPrisma().vehiculo.findUnique({
               where: { id: vehiculoId }
             });
 
@@ -139,7 +138,7 @@ export async function createRegistroDiario(data) {
               return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
             }
 
-            await prisma.vehiculo.update({
+            await getPrisma().vehiculo.update({
               where: { id: vehiculoId },
               data: { codigoAutorizacion: null }
             });
@@ -160,7 +159,7 @@ export async function createRegistroDiario(data) {
     // CALCULO DE KM TEÓRICOS (TACTICA B8.2)
     let kmTeoricos = 0;
     if (data.sucursalIds && data.sucursalIds.length > 0) {
-       const stops = await prisma.sucursal.findMany({
+       const stops = await getPrisma().sucursal.findMany({
           where: { id: { in: data.sucursalIds.map(id => parseInt(id)) } },
           select: { nombre: true }
        });
@@ -187,7 +186,7 @@ export async function createRegistroDiario(data) {
       registroData.vehiculoId = vehiculoId;
     }
 
-    const registro = await prisma.registroDiario.create({
+    const registro = await getPrisma().registroDiario.create({
       data: registroData
     });
 
@@ -207,7 +206,7 @@ export async function addGasto(formData) {
     const tipo = formData.get("tipo");
     const fecha = formData.get("fecha") ? new Date(formData.get("fecha")) : undefined;
 
-    const gasto = await prisma.gasto.create({
+    const gasto = await getPrisma().gasto.create({
       data: { vehiculoId, monto, descripcion, tipo, fecha }
     });
     
@@ -221,8 +220,8 @@ export async function addGasto(formData) {
 
 export async function deleteGasto(id) {
   try {
-    const gasto = await prisma.gasto.findUnique({ where: { id: parseInt(id) } });
-    await prisma.gasto.delete({ where: { id: parseInt(id) } });
+    const gasto = await getPrisma().gasto.findUnique({ where: { id: parseInt(id) } });
+    await getPrisma().gasto.delete({ where: { id: parseInt(id) } });
     if (gasto) revalidatePath(`/admin/vehicles/${gasto.vehiculoId}/expenses`);
     revalidatePath("/admin/summary");
     return { success: true };
@@ -233,7 +232,7 @@ export async function deleteGasto(id) {
 
 export async function getGastosByVehiculo(vehiculoId) {
   try {
-    const gastos = await prisma.gasto.findMany({
+    const gastos = await getPrisma().gasto.findMany({
       where: { vehiculoId: parseInt(vehiculoId) },
       orderBy: { fecha: 'desc' }
     });
@@ -247,7 +246,7 @@ export async function getRouteMileage(driverName, sucursalIds) {
   try {
     if (!sucursalIds || sucursalIds.length === 0) return { success: true, data: 0 };
     
-    const stops = await prisma.sucursal.findMany({
+    const stops = await getPrisma().sucursal.findMany({
       where: { id: { in: sucursalIds.map(id => parseInt(id)) } },
       select: { nombre: true }
     });
@@ -263,7 +262,7 @@ export async function getRouteMileage(driverName, sucursalIds) {
 
 export async function deleteVehiculo(id) {
   try {
-    await prisma.vehiculo.delete({ where: { id: parseInt(id) } });
+    await getPrisma().vehiculo.delete({ where: { id: parseInt(id) } });
     revalidatePath("/admin");
     return { success: true };
   } catch (error) {
@@ -273,7 +272,7 @@ export async function deleteVehiculo(id) {
 
 export async function deleteSucursal(id) {
   try {
-    await prisma.sucursal.delete({ where: { id: parseInt(id) } });
+    await getPrisma().sucursal.delete({ where: { id: parseInt(id) } });
     revalidatePath("/admin/branches");
     return { success: true };
   } catch (error) {
@@ -283,7 +282,7 @@ export async function deleteSucursal(id) {
 
 export async function updateSucursal(id, data) {
   try {
-    const s = await prisma.sucursal.update({
+    const s = await getPrisma().sucursal.update({
       where: { id: parseInt(id) },
       data: {
         nombre: data.nombre,
@@ -300,7 +299,7 @@ export async function updateSucursal(id, data) {
 export async function generarCodigoAutorizacion(vehiculoId) {
   try {
     const nuevoCodigo = Math.floor(1000 + Math.random() * 9000).toString();
-    await prisma.vehiculo.update({
+    await getPrisma().vehiculo.update({
       where: { id: parseInt(vehiculoId) },
       data: { codigoAutorizacion: nuevoCodigo }
     });
@@ -327,7 +326,7 @@ export async function deleteRegistroDiario(id) {
     }
 
     // Usamos una transacción para asegurar que todo o nada ocurra
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await getPrisma().$transaction(async (tx) => {
        // 1. Desconectar la relación implícita con sucursales
        await tx.registroDiario.update({
          where: { id: rid },
@@ -371,12 +370,12 @@ export async function getMonthlySummary(month, year) {
     const isoStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0).toISOString();
     const isoEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
 
-    const vehiculos = (await prisma.vehiculo.findMany()) || [];
-    const allRegistros = (await prisma.registroDiario.findMany({
+    const vehiculos = (await getPrisma().vehiculo.findMany()) || [];
+    const allRegistros = (await getPrisma().registroDiario.findMany({
       where: { fecha: { gte: isoStart, lte: isoEnd } },
       include: { vehiculo: true, sucursales: true }
     })) || [];
-    const allGastos = (await prisma.gasto.findMany({
+    const allGastos = (await getPrisma().gasto.findMany({
       where: { fecha: { gte: isoStart, lte: isoEnd } }
     })) || [];
 
@@ -392,7 +391,7 @@ export async function getMonthlySummary(month, year) {
       });
 
       // BUSQUEDA TACTICA DEL KM BASE (ESTADO ANTERIOR AL MES)
-      const lastPrev = await prisma.registroDiario.findFirst({
+      const lastPrev = await getPrisma().registroDiario.findFirst({
         where: {
           vehiculoId: v.id,
           fecha: { lt: isoStart },
@@ -483,7 +482,7 @@ export async function getMonthlySummary(month, year) {
 
 export async function getUltimosRegistros(limit = 10) {
   try {
-    const registros = await prisma.registroDiario.findMany({
+    const registros = await getPrisma().registroDiario.findMany({
       take: limit,
       orderBy: { fecha: 'desc' },
       include: {
@@ -499,7 +498,7 @@ export async function getUltimosRegistros(limit = 10) {
 
 export async function getVehiculoById(id) {
   try {
-    const vehiculo = await prisma.vehiculo.findUnique({
+    const vehiculo = await getPrisma().vehiculo.findUnique({
       where: { id: parseInt(id) },
       include: {
         registros: { 
@@ -581,7 +580,7 @@ export async function getDailyReport(dateString) {
     const isoStart = new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
     const isoEnd = new Date(year, month - 1, day, 23, 59, 59, 999).toISOString();
 
-    const registros = (await prisma.registroDiario.findMany({
+    const registros = (await getPrisma().registroDiario.findMany({
       where: {
         fecha: {
           gte: isoStart,
@@ -605,7 +604,7 @@ export async function getDailyReport(dateString) {
     // Para cada vehículo, buscar su lectura inmediatamente anterior a hoy
     const previousKms = {};
     await Promise.all(vehicleIds.map(async (vId) => {
-      const lastPrev = await prisma.registroDiario.findFirst({
+      const lastPrev = await getPrisma().registroDiario.findFirst({
         where: {
           vehiculoId: vId,
           fecha: { lt: isoStart }
@@ -674,7 +673,7 @@ export async function getDailyReport(dateString) {
 export async function getAllChoferes() {
   console.log("🔍 APP_ACTIONS: Consultando lista de choferes activos...");
   try {
-    const choferes = await prisma.chofer.findMany({ 
+    const choferes = await getPrisma().chofer.findMany({ 
       where: { activo: true },
       orderBy: { nombre: 'asc' } 
     });
@@ -688,7 +687,7 @@ export async function getAllChoferes() {
 
 export async function addChofer(nombre) {
   try {
-    const c = await prisma.chofer.create({
+    const c = await getPrisma().chofer.create({
       data: { nombre }
     });
     revalidatePath("/admin/choferes");
@@ -700,7 +699,7 @@ export async function addChofer(nombre) {
 
 export async function deleteChofer(id) {
   try {
-    await prisma.chofer.delete({
+    await getPrisma().chofer.delete({
       where: { id: parseInt(id) }
     });
     revalidatePath("/admin/choferes");
@@ -712,7 +711,7 @@ export async function deleteChofer(id) {
 
 export async function updateChoferPatente(id, patenteAsignada) {
   try {
-    const c = await prisma.chofer.update({
+    const c = await getPrisma().chofer.update({
       where: { id: parseInt(id) },
       data: { patenteAsignada: patenteAsignada?.trim()?.toUpperCase() || null }
     });
@@ -725,7 +724,7 @@ export async function updateChoferPatente(id, patenteAsignada) {
 
 export async function getDriverTodayInfo(id) {
   try {
-    const chofer = await prisma.chofer.findUnique({
+    const chofer = await getPrisma().chofer.findUnique({
       where: { id: parseInt(id) }
     });
     if (!chofer) return { success: false, error: "Chofer no encontrado" };
@@ -735,7 +734,7 @@ export async function getDriverTodayInfo(id) {
     const todayEnd = new Date(todayStart);
     todayEnd.setHours(23, 59, 59, 999);
 
-    const registros = await prisma.registroDiario.findMany({
+    const registros = await getPrisma().registroDiario.findMany({
       where: {
         nombreConductor: chofer.nombre,
         fecha: { gte: todayStart, lte: todayEnd }
@@ -771,7 +770,7 @@ export async function getDriverTodayInfo(id) {
 
 export async function bindDriverToDevice(nombre, deviceId) {
   try {
-    const chofer = await prisma.chofer.findUnique({
+    const chofer = await getPrisma().chofer.findUnique({
       where: { nombre }
     });
     if (!chofer) return { success: false, error: "Chofer no encontrado" };
@@ -779,7 +778,7 @@ export async function bindDriverToDevice(nombre, deviceId) {
     if (!chofer.passkeyId || chofer.passkeyId !== deviceId) {
       // Trying to log in from a DIFFERENT device (due to cache clear, etc)
       // Act as silent override as requested
-      await prisma.chofer.update({
+      await getPrisma().chofer.update({
         where: { id: chofer.id },
         data: { passkeyId: deviceId }
       });
@@ -794,7 +793,7 @@ export async function bindDriverToDevice(nombre, deviceId) {
 
 export async function resetDriverDevice(id) {
   try {
-    await prisma.chofer.update({
+    await getPrisma().chofer.update({
       where: { id: parseInt(id) },
       data: { passkeyId: null }
     });
@@ -808,7 +807,7 @@ export async function resetDriverDevice(id) {
 export async function addMantenimiento(data) {
   try {
     const { vehiculoId, tipoServicio, descripcion, taller, costo, kilometraje, fecha } = data;
-    const m = await prisma.mantenimiento.create({
+    const m = await getPrisma().mantenimiento.create({
       data: {
         vehiculoId: parseInt(vehiculoId),
         tipoServicio,
@@ -823,7 +822,7 @@ export async function addMantenimiento(data) {
     // Optionally update vehiculo's last service km
     if (tipoServicio.toLowerCase() === "service" || tipoServicio.toLowerCase() === "mantenimiento regular") {
       if (kilometraje) { // update Proximo Service + 10k
-         await prisma.vehiculo.update({
+         await getPrisma().vehiculo.update({
            where: { id: parseInt(vehiculoId) },
            data: { proximoServiceKm: parseInt(kilometraje) + 10000 }
          });
@@ -842,8 +841,8 @@ export async function addMantenimiento(data) {
 // ---------------------------------------------------------
 
 export async function resetSystem() {
-  if (prisma.$reset) {
-    prisma.$reset();
+  if (getPrisma().$reset) {
+    getPrisma().$reset();
     revalidatePath("/admin/choferes");
     return { success: true };
   }
@@ -855,7 +854,7 @@ export async function solicitarAutorizacion(nombre, deviceId) {
   
   const attemptWithRawSQL = async () => {
     try {
-      const rows = await prisma.$queryRawUnsafe(
+      const rows = await getPrisma().$queryRawUnsafe(
         'SELECT id, estado FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
         deviceId
       );
@@ -864,12 +863,12 @@ export async function solicitarAutorizacion(nombre, deviceId) {
         const existing = rows[0];
         if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
         
-        await prisma.$executeRawUnsafe(
+        await getPrisma().$executeRawUnsafe(
           'UPDATE "AutorizacionDispositivo" SET "nombreSolicitante" = $1, "estado" = \'PENDIENTE\', "fechaSolicitud" = NOW() WHERE "id" = $2',
           nombre, existing.id
         );
       } else {
-        await prisma.$executeRawUnsafe(
+        await getPrisma().$executeRawUnsafe(
           'INSERT INTO "AutorizacionDispositivo" ("nombreSolicitante", "deviceId", "estado", "fechaSolicitud") VALUES ($1, $2, \'PENDIENTE\', NOW())',
           nombre, deviceId
         );
@@ -883,16 +882,16 @@ export async function solicitarAutorizacion(nombre, deviceId) {
   };
 
   try {
-    if (prisma.autorizacionDispositivo) {
-      const existing = await prisma.autorizacionDispositivo.findUnique({ where: { deviceId } });
+    if (getPrisma().autorizacionDispositivo) {
+      const existing = await getPrisma().autorizacionDispositivo.findUnique({ where: { deviceId } });
       if (existing) {
         if (existing.estado === "APROBADO") return { success: true, status: "APROBADO" };
-        await prisma.autorizacionDispositivo.update({
+        await getPrisma().autorizacionDispositivo.update({
           where: { id: existing.id },
           data: { nombreSolicitante: nombre, estado: "PENDIENTE", fechaSolicitud: new Date() }
         });
       } else {
-        await prisma.autorizacionDispositivo.create({ data: { nombreSolicitante: nombre, deviceId } });
+        await getPrisma().autorizacionDispositivo.create({ data: { nombreSolicitante: nombre, deviceId } });
       }
       revalidatePath("/admin/choferes");
       return { success: true, status: "PENDIENTE" };
@@ -907,14 +906,14 @@ export async function solicitarAutorizacion(nombre, deviceId) {
 
 export async function getAutorizacionesPendientes() {
   try {
-    if (prisma.autorizacionDispositivo) {
-      const solicitudes = await prisma.autorizacionDispositivo.findMany({
+    if (getPrisma().autorizacionDispositivo) {
+      const solicitudes = await getPrisma().autorizacionDispositivo.findMany({
         where: { estado: "PENDIENTE" },
         orderBy: { fechaSolicitud: 'desc' }
       });
       return { success: true, data: solicitudes };
     } else {
-      const rows = await prisma.$queryRawUnsafe(
+      const rows = await getPrisma().$queryRawUnsafe(
         'SELECT * FROM "AutorizacionDispositivo" WHERE "estado" = \'PENDIENTE\' ORDER BY "fechaSolicitud" DESC'
       );
       return { success: true, data: rows };
@@ -922,7 +921,7 @@ export async function getAutorizacionesPendientes() {
   } catch (error) {
     console.error("Error en getAutorizacionesPendientes:", error.message);
     try {
-      const rows = await prisma.$queryRawUnsafe(
+      const rows = await getPrisma().$queryRawUnsafe(
         'SELECT * FROM "AutorizacionDispositivo" WHERE "estado" = \'PENDIENTE\' ORDER BY "fechaSolicitud" DESC'
       );
       return { success: true, data: rows };
@@ -934,13 +933,13 @@ export async function getAutorizacionesPendientes() {
 
 export async function aprobarAutorizacion(id) {
   try {
-    if (prisma.autorizacionDispositivo) {
-      await prisma.autorizacionDispositivo.update({
+    if (getPrisma().autorizacionDispositivo) {
+      await getPrisma().autorizacionDispositivo.update({
         where: { id: parseInt(id) },
         data: { estado: "APROBADO" }
       });
     } else {
-      await prisma.$executeRawUnsafe(
+      await getPrisma().$executeRawUnsafe(
         'UPDATE "AutorizacionDispositivo" SET "estado" = \'APROBADO\' WHERE "id" = $1',
         parseInt(id)
       );
@@ -954,13 +953,13 @@ export async function aprobarAutorizacion(id) {
 
 export async function rechazarAutorizacion(id) {
   try {
-    if (prisma.autorizacionDispositivo) {
-      await prisma.autorizacionDispositivo.update({
+    if (getPrisma().autorizacionDispositivo) {
+      await getPrisma().autorizacionDispositivo.update({
         where: { id: parseInt(id) },
         data: { estado: "RECHAZADO" }
       });
     } else {
-      await prisma.$executeRawUnsafe(
+      await getPrisma().$executeRawUnsafe(
         'UPDATE "AutorizacionDispositivo" SET "estado" = \'RECHAZADO\' WHERE "id" = $1',
         parseInt(id)
       );
@@ -974,13 +973,13 @@ export async function rechazarAutorizacion(id) {
 
 export async function checkEstadoAutorizacion(deviceId) {
   try {
-    if (prisma.autorizacionDispositivo) {
-      const solicitud = await prisma.autorizacionDispositivo.findUnique({
+    if (getPrisma().autorizacionDispositivo) {
+      const solicitud = await getPrisma().autorizacionDispositivo.findUnique({
         where: { deviceId }
       });
       return { success: true, estado: solicitud?.estado || "NO_EXISTE" };
     } else {
-      const rows = await prisma.$queryRawUnsafe(
+      const rows = await getPrisma().$queryRawUnsafe(
         'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
         deviceId
       );
@@ -989,7 +988,7 @@ export async function checkEstadoAutorizacion(deviceId) {
   } catch (error) {
     console.error("Error en checkEstadoAutorizacion:", error.message);
     try {
-      const rows = await prisma.$queryRawUnsafe(
+      const rows = await getPrisma().$queryRawUnsafe(
         'SELECT "estado" FROM "AutorizacionDispositivo" WHERE "deviceId" = $1',
         deviceId
       );
@@ -1023,7 +1022,7 @@ export async function getDriverTraces(driverName, dateString) {
     const isoStart = new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
     const isoEnd   = new Date(year, month - 1, day, 23, 59, 59, 999).toISOString();
 
-    const registros = await prisma.registroDiario.findMany({
+    const registros = await getPrisma().registroDiario.findMany({
       where: {
         nombreConductor: driverName,
         fecha: { gte: isoStart, lte: isoEnd },
@@ -1055,7 +1054,7 @@ export async function autoCloseInternalShifts() {
     todayStart.setHours(0, 0, 0, 0);
 
     // Registros abiertos (APERTURA o PARADA) de días anteriores
-    const openShifts = await prisma.registroDiario.findMany({
+    const openShifts = await getPrisma().registroDiario.findMany({
       where: {
         tipoReporte: { in: ["APERTURA", "PARADA"] },
         fecha: { lt: todayStart },
@@ -1073,7 +1072,7 @@ export async function autoCloseInternalShifts() {
     let closedCount = 0;
     for (const shift of Object.values(latestByDriver)) {
       // Verificar si ya existe un CIERRE posterior
-      const hasClose = await prisma.registroDiario.findFirst({
+      const hasClose = await getPrisma().registroDiario.findFirst({
         where: {
           nombreConductor: shift.nombreConductor,
           tipoReporte: "CIERRE",
@@ -1081,7 +1080,7 @@ export async function autoCloseInternalShifts() {
         },
       });
       if (!hasClose) {
-        await prisma.registroDiario.create({
+        await getPrisma().registroDiario.create({
           data: {
             vehiculoId: shift.vehiculoId || null,
             nombreConductor: shift.nombreConductor,
@@ -1114,7 +1113,7 @@ export async function getNovedadesPendientes() {
   try {
     if (!process.env.DATABASE_URL) return { success: true, data: [] };
 
-    const registros = await prisma.registroDiario.findMany({
+    const registros = await getPrisma().registroDiario.findMany({
       where: { novedades: { not: null } },
       orderBy: { fecha: "desc" },
       take: 60,
@@ -1144,7 +1143,7 @@ export async function getNovedadesPendientes() {
  */
 export async function resolveNovedad(id) {
   try {
-    await prisma.registroDiario.update({
+    await getPrisma().registroDiario.update({
       where: { id: parseInt(id) },
       data: { novedades: null },
     });
@@ -1175,7 +1174,7 @@ export async function getRangeReport(startDateStr, endDateStr) {
     const isoStart = new Date(sy, sm - 1, sd, 0, 0, 0, 0).toISOString();
     const isoEnd   = new Date(ey, em - 1, ed, 23, 59, 59, 999).toISOString();
 
-    const registros = (await prisma.registroDiario.findMany({
+    const registros = (await getPrisma().registroDiario.findMany({
       where: { fecha: { gte: isoStart, lte: isoEnd } },
       include: { vehiculo: true, sucursales: true },
       orderBy: { fecha: "asc" },
@@ -1241,7 +1240,7 @@ export async function trackGpsPulse({ driverName, vehiculoId, lat, lng }) {
       return { success: false, error: "Datos GPS incompletos" };
     }
 
-    const latestRegistro = await prisma.registroDiario.findFirst({
+    const latestRegistro = await getPrisma().registroDiario.findFirst({
       where: {
         nombreConductor: driverName,
         tipoReporte: { not: "CIERRE" },
@@ -1250,7 +1249,7 @@ export async function trackGpsPulse({ driverName, vehiculoId, lat, lng }) {
     });
 
     if (latestRegistro) {
-      await prisma.registroDiario.update({
+      await getPrisma().registroDiario.update({
         where: { id: latestRegistro.id },
         data: {
           lugarGuarda: `${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}`,

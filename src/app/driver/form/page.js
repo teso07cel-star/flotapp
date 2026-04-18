@@ -4,11 +4,12 @@ import { getVehiculoByPatente, getAllSucursales, handleDriverEntry } from "@/lib
 import { redirect } from "next/navigation";
 import DriverFormClient from "@/components/DriverFormClient";
 import { cookies } from "next/headers";
-import prisma from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import PatenteSelector from "@/components/PatenteSelector";
 
 export default async function DriverForm({ searchParams }) {
+  const prisma = getPrisma();
   try {
     const params = await searchParams;
     let patente = params?.patente;
@@ -120,7 +121,7 @@ export default async function DriverForm({ searchParams }) {
                   </h1>
                   <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.5em] flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    Registro de Bitácora B8.1
+                    Registro de Bitácora B8.3
                   </p>
                 </div>
               </div>

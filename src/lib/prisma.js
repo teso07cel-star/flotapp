@@ -41,8 +41,3 @@ export function getPrisma() {
   if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client;
   return client;
 }
-
-// Para compatibilidad hacia atrás si es necesario, pero usaremos getPrisma() preferentemente
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-export default prisma

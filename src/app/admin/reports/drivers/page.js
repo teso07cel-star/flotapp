@@ -13,7 +13,7 @@ export default async function DriversDailyReport({ searchParams }) {
   const endDate = new Date(`${dateStr}T23:59:59.999`);
 
   // Fetch all logs within the date
-  const logs = await prisma.registroDiario.findMany({
+  const logs = await getPrisma().registroDiario.findMany({
     where: {
       fecha: { gte: startDate, lte: endDate },
     },

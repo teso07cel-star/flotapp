@@ -9,7 +9,7 @@ export default async function DriverStatusPage({ searchParams }) {
   const dateStr = params?.date || getArDate();
 
   // Obtener todos los choferes activos
-  const choferes = await prisma.chofer.findMany({
+  const choferes = await getPrisma().chofer.findMany({
     where: { activo: true },
     orderBy: { nombre: "asc" },
   });
@@ -19,7 +19,7 @@ export default async function DriverStatusPage({ searchParams }) {
   const isoStart = new Date(sy, sm - 1, sd, 0, 0, 0, 0).toISOString();
   const isoEnd   = new Date(sy, sm - 1, sd, 23, 59, 59, 999).toISOString();
 
-  const registrosHoy = await prisma.registroDiario.findMany({
+  const registrosHoy = await getPrisma().registroDiario.findMany({
     where: { fecha: { gte: isoStart, lte: isoEnd } },
     include: { sucursales: true },
     orderBy: { fecha: "desc" },
