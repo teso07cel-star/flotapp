@@ -123,7 +123,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
          <div className="text-center relative">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent animate-[shimmer_2s_infinite]" />
             <h2 className="text-3xl font-black text-white uppercase tracking-[0.3em] mb-4 drop-shadow-2xl">
-               TACTICA <span className="text-blue-500 animate-pulse">b8.3</span>
+               TACTICA <span className="text-blue-500 animate-pulse">B8.3</span>
             </h2>
             <div className="flex items-center justify-center gap-3 overflow-hidden h-4">
                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.5em] translate-y-0 animate-[slideUp_4s_infinite]">
@@ -271,7 +271,6 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                         <p className="text-[13px] font-black text-white/90 uppercase tracking-tight group-hover:text-blue-400 transition-colors leading-tight">{s.nombre}</p>
                         <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest mt-1">{s.direccion || `ID: HUB-0${s.id}`}</p>
                      </div>
-div>
                      <div className="absolute top-1/2 -translate-y-1/2 -right-4 opacity-0 group-hover:opacity-10 group-hover:right-4 transition-all duration-500">
                         <svg className="w-12 h-12 text-blue-500/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                      </div>

@@ -28,7 +28,7 @@ export default async function MonthlySummary({ searchParams }) {
         <div>
           <div className="flex items-center gap-3 mb-4">
              <div className="h-1 w-12 bg-blue-500 rounded-full" />
-             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500/80">Inteligencia de Flota v8.3</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500/80">Inteligencia de Flota B8.3</span>
           </div>
           <h1 className="text-6xl font-black tracking-tighter mb-2 uppercase italic text-white drop-shadow-2xl">
             Estado de <span className="text-blue-500">Flota</span>
