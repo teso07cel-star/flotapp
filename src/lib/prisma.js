@@ -25,62 +25,6 @@ const prismaClientSingleton = () => {
       log: ['error', 'warn'] 
     });
     
-    // GUARDIA DE AUTO-CONFIGURACIÓN (TACTICA b4.0)
-    if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-       client.chofer.count().then(async (count) => {
-          if (count === 0) {
-             console.log("🌱 PRISMA: Sincronizando datos maestros en producción...");
-             
-             // 1. Choferes
-             const defaultDrivers = [
-               "Brian Lopez", "Christian González", "David f", "Diego r", "Esteban diaz", "GONZALO", 
-               "Gali Nelson", "Gally Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
-               "Juan Cruz Hidalgo", "Lucio Bello", "MARIANO", "Matías Chaile", "Miguel c", 
-               "Tomas C", "Tomás Casco", "Vega Jorge Daniel"
-             ];
-             
-             for (const name of defaultDrivers) {
-                await client.chofer.upsert({
-                   where: { nombre: name },
-                   update: { activo: true },
-                   create: { nombre: name, activo: true }
-                });
-             }
-
-             // 2. Vehículos
-             const criticalVehicles = [
-               { patente: 'AD848KQ', lastKm: 528224 }, { patente: 'PGX770', lastKm: 555451 },
-               { patente: 'AD380TS', lastKm: 714444 }, { patente: 'ONR078', lastKm: 417491 },
-               { patente: 'AF601QS', lastKm: 28453 }, { patente: 'PGX769', lastKm: 515893 },
-               { patente: 'AD724VP', lastKm: 449756 }, { patente: 'AF668JV', lastKm: 417795 },
-               { patente: 'AF668JR', lastKm: 29147 }, { patente: 'AD848KR', lastKm: 529084 },
-               { patente: 'AH279KZ', lastKm: 70114 }, { patente: 'AH336BA', lastKm: 84411 },
-               { patente: 'AE982AS', lastKm: 348145 }, { patente: 'AE982AR', lastKm: 453085 }
-             ];
-
-             for (const v of criticalVehicles) {
-                const veh = await client.vehiculo.upsert({
-                   where: { patente: v.patente },
-                   update: { activo: true },
-                   create: { patente: v.patente, activo: true }
-                });
-                
-                await client.registroDiario.create({
-                   data: {
-                      vehiculoId: veh.id,
-                      kmActual: v.lastKm,
-                      nombreConductor: 'SISTEMA',
-                      tipoReporte: 'CIERRE',
-                      fecha: new Date(),
-                      novedades: 'Inicialización de Base Maestral'
-                   }
-                });
-             }
-             console.log("✅ PRISMA: Sincronización completa.");
-          }
-       }).catch(e => console.error("⚠️ PRISMA: Error en auto-config:", e.message));
-    }
-
     return client;
   } catch (error) {
     console.error("❌ ERROR CRÍTICO PRISMA:", error.message);
