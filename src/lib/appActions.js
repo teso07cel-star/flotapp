@@ -156,15 +156,15 @@ export async function createRegistroDiario(data) {
       finalNovedades = `[UNIDAD: ${data.patenteManual}] ${finalNovedades}`.trim();
     }
 
-    // CALCULO DE KM TEÓRICOS (TACTICA b4.0)
+    // CALCULO DE KM TEÓRICOS (TACTICA B8.2)
     let kmTeoricos = 0;
     if (data.sucursalIds && data.sucursalIds.length > 0) {
        const stops = await prisma.sucursal.findMany({
-          where: { id: { in: data.sucursalIds.map(id => parseInt(id)) } }
+          where: { id: { in: data.sucursalIds.map(id => parseInt(id)) } },
+          select: { nombre: true }
        });
-       // El orden de las sucursales en stops no está garantizado por 'in',
-       // pero para un cálculo de distancia total de jornada sirve como aproximación.
-       kmTeoricos = Math.round(calculateSequentialRoute(stops));
+       const stopNames = stops.map(s => s.nombre);
+       kmTeoricos = Math.round(calculateSequentialRoute(stopNames, data.nombreConductor));
     }
 
     const registroData = {
@@ -237,6 +237,24 @@ export async function getGastosByVehiculo(vehiculoId) {
       orderBy: { fecha: 'desc' }
     });
     return { success: true, data: gastos };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getRouteMileage(driverName, sucursalIds) {
+  try {
+    if (!sucursalIds || sucursalIds.length === 0) return { success: true, data: 0 };
+    
+    const stops = await prisma.sucursal.findMany({
+      where: { id: { in: sucursalIds.map(id => parseInt(id)) } },
+      select: { nombre: true }
+    });
+    
+    const stopNames = stops.map(s => s.nombre);
+    const distance = Math.round(calculateSequentialRoute(stopNames, driverName));
+    
+    return { success: true, data: distance };
   } catch (error) {
     return { success: false, error: error.message };
   }

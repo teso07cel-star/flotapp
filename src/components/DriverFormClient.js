@@ -15,6 +15,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [novedades, setNovedades] = useState("");
   const [changingVehicle, setChangingVehicle] = useState(false);
   const [newPatente, setNewPatente] = useState("");
+  const [selectedSucursales, setSelectedSucursales] = useState([]);
+  const [dynamicProposedKm, setDynamicProposedKm] = useState(proposedKm);
 
   // 1. Stage 0 -> 1 Automated transition
   useEffect(() => {
@@ -35,10 +37,33 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     }
   }, []);
 
+  // 3. Dynamic Mileage Suggestion
+  useEffect(() => {
+    const updateMileage = async () => {
+      if (selectedSucursales.length === 0) {
+        setDynamicProposedKm(operationalStatus.lastKm || proposedKm);
+        return;
+      }
+      
+      const res = await import("@/lib/appActions").then(m => m.getRouteMileage(identifiedDriver, selectedSucursales));
+      if (res.success) {
+        const baseKm = operationalStatus.lastKm || (lastLog?.kmActual || 0);
+        setDynamicProposedKm(baseKm + res.data);
+      }
+    };
+    updateMileage();
+  }, [selectedSucursales, identifiedDriver, operationalStatus.lastKm, proposedKm, lastLog]);
+
   const handlePlateChange = () => {
     if (newPatente.trim()) {
       window.location.href = `/driver/form?patente=${newPatente.trim().toUpperCase()}`;
     }
+  };
+
+  const toggleSucursal = (id) => {
+    setSelectedSucursales(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
   };
 
   const handleSubmit = async (e, type = "PARADA") => {
@@ -46,16 +71,13 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     setLoading(true);
     setError(null);
 
-    const formData = e ? new FormData(e.target) : new FormData();
-    const sucursalIds = e ? formData.getAll("sucursalIds").map(id => parseInt(id)) : [];
-    
     const payload = {
       vehiculoId: vehiculo.id,
       nombreConductor: identifiedDriver,
       kmActual: currentKm,
-      nivelCombustible: formData.get("nivelCombustible"),
+      nivelCombustible: e ? new FormData(e.target).get("nivelCombustible") : null,
       novedades: novedades,
-      sucursalIds: sucursalIds,
+      sucursalIds: selectedSucursales,
       tipoReporte: type,
       lugarGuarda: gpsLocation,
       authCode,
@@ -101,7 +123,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
          <div className="text-center relative">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent animate-[shimmer_2s_infinite]" />
             <h2 className="text-3xl font-black text-white uppercase tracking-[0.3em] mb-4 drop-shadow-2xl">
-               TACTICA <span className="text-blue-500 animate-pulse">b4.0</span>
+               TACTICA <span className="text-blue-500 animate-pulse">b8.2</span>
             </h2>
             <div className="flex items-center justify-center gap-3 overflow-hidden h-4">
                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.5em] translate-y-0 animate-[slideUp_4s_infinite]">
@@ -158,19 +180,20 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
             </div>
 
             <div className="text-center space-y-4">
-               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic flex items-center justify-center gap-2">
-                  <span className="w-4 h-[1px] bg-slate-800" />
-                  {isFirstLog ? `Último Cierre: ${proposedKm?.toLocaleString()} KM` : `Sugerido: ${proposedKm?.toLocaleString()} KM`}
-                  <span className="w-4 h-[1px] bg-slate-800" />
-               </p>
-               {currentKm !== proposedKm && (
-                  <button 
-                    onClick={() => setCurrentKm(proposedKm)} 
-                    className="group px-6 py-2 rounded-full border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
-                  >
-                    <span className="text-[9px] text-blue-400 font-black uppercase tracking-[0.2em]">Sincronizar con Sugerido</span>
-                  </button>
-               )}
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic flex items-center justify-center gap-2">
+                   <span className="w-4 h-[1px] bg-slate-800" />
+                   {isFirstLog ? `Último Cierre: ${dynamicProposedKm?.toLocaleString()} KM` : `Sugerencia Táctica: ${dynamicProposedKm?.toLocaleString()} KM`}
+                   <span className="w-4 h-[1px] bg-slate-800" />
+                </p>
+                {currentKm !== dynamicProposedKm && (
+                   <button 
+                     type="button"
+                     onClick={() => setCurrentKm(dynamicProposedKm)} 
+                     className="group px-6 py-2 rounded-full border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
+                   >
+                     <span className="text-[9px] text-blue-400 font-black uppercase tracking-[0.2em]">Sincronizar Odómetro</span>
+                   </button>
+                )}
             </div>
          </div>
 
@@ -234,15 +257,21 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                {sucursales.map(s => (
                   <label key={s.id} className="flex items-center gap-5 p-7 bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-[2.5rem] hover:bg-blue-600/10 hover:border-blue-500/40 transition-all cursor-pointer group relative overflow-hidden">
                      <div className="relative">
-                        <input type="checkbox" name="sucursalIds" value={s.id} className="peer sr-only" />
+                        <input 
+                          type="checkbox" 
+                          checked={selectedSucursales.includes(s.id)}
+                          onChange={() => toggleSucursal(s.id)}
+                          className="peer sr-only" 
+                        />
                         <div className="w-7 h-7 rounded-xl border-2 border-slate-800 bg-black/40 peer-checked:bg-blue-600 peer-checked:border-blue-500 transition-all flex items-center justify-center">
                            <svg className="w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
                         </div>
                      </div>
                      <div className="flex-1">
                         <p className="text-[13px] font-black text-white/90 uppercase tracking-tight group-hover:text-blue-400 transition-colors leading-tight">{s.nombre}</p>
-                        <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest mt-1">ID: HUB-0{s.id}</p>
+                        <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest mt-1">{s.direccion || `ID: HUB-0${s.id}`}</p>
                      </div>
+div>
                      <div className="absolute top-1/2 -translate-y-1/2 -right-4 opacity-0 group-hover:opacity-10 group-hover:right-4 transition-all duration-500">
                         <svg className="w-12 h-12 text-blue-500/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                      </div>
