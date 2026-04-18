@@ -123,7 +123,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
          <div className="text-center relative">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent animate-[shimmer_2s_infinite]" />
             <h2 className="text-3xl font-black text-white uppercase tracking-[0.3em] mb-4 drop-shadow-2xl">
-               TACTICA <span className="text-blue-500 animate-pulse">b8.2</span>
+               TACTICA <span className="text-blue-500 animate-pulse">b8.3</span>
             </h2>
             <div className="flex items-center justify-center gap-3 overflow-hidden h-4">
                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.5em] translate-y-0 animate-[slideUp_4s_infinite]">

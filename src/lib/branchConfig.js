@@ -14,12 +14,19 @@ export const START_POINTS = {
     }
 };
 
-// Mapeo de conductores a punto de partida
+// Mapeo de conductores a punto de partida (Nombres Completos B8.3)
 export const DRIVER_START_MAP = {
-    "Gali Nelson": "TESO_NORTE",
+    "Gally Nelson": "TESO_NORTE",
     "Iván Santillán": "TESO_NORTE",
     "Juan Cruz Hidalgo": "TESO_NORTE",
-    "Tomás Casco": "TESO_NORTE"
+    "Tomás Casco": "TESO_NORTE",
+    "David Francisconi": "TESO_SAN_TELMO",
+    "Diego Retamar": "TESO_SAN_TELMO",
+    "Gonzalo Martinez": "TESO_SAN_TELMO",
+    "Gerardo Visconti": "TESO_SAN_TELMO",
+    "Jonathan Vondrak": "TESO_SAN_TELMO",
+    "Miguel Cejas": "TESO_SAN_TELMO",
+    "Daniel": "TESO_SAN_TELMO"
 };
 
 export const BRANCH_COORDINATES = {
@@ -68,5 +75,7 @@ export const BRANCH_COORDINATES = {
     "Tres Arroyo": { lat: -38.3752, lng: -60.2791, direccion: "Hipólito Yrigoyen 35" },
     "Coronel Suarez": { lat: -37.4582, lng: -61.9331, direccion: "Sarmiento 202" },
     "Independencia (MDQ)": { lat: -37.9942, lng: -57.5581, direccion: "Av. Independencia 1497" },
-    "Güemes (MDQ)": { lat: -38.0132, lng: -57.5451, direccion: "Güemes 2551" }
+    "Güemes (MDQ)": { lat: -38.0132, lng: -57.5451, direccion: "Güemes 2551" },
+    "VOY Y VUELVO": { lat: -34.6037, lng: -58.3792, direccion: "Av. Corrientes 809, CABA" },
+    "Nordelta 2": { lat: -34.4132, lng: -58.6441, direccion: "Av. de los Lagos 6855" }
 };
