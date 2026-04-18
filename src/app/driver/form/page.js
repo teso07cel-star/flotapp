@@ -80,64 +80,82 @@ export default async function DriverForm({ searchParams }) {
     const proposedKm = operationalStatus.proposedKm || (lastLog?.kmActual || 0);
 
     return (
-      <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none" />
+      <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-12 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
+        {/* ELEMENTOS DE FONDO TÁCTICO */}
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-[0.02] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="w-full max-w-xl relative z-10">
+        <div className="w-full max-w-xl relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <LogoutButton />
 
-          <div className="glass-panel p-8 sm:p-12 rounded-[3.5rem] blue-glow-border relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-6 opacity-30 pointer-events-none mix-blend-screen overflow-visible">
+          <div className="glass-panel p-8 sm:p-14 rounded-[4rem] blue-glow-border relative overflow-hidden bg-slate-900/40 backdrop-blur-2xl shadow-3xl">
+            <div className="absolute top-0 right-0 p-10 opacity-40 pointer-events-none mix-blend-screen overflow-visible group">
                {vehiculo.categoria === "MOTO" ? (
-                 <img src="/icons/moto.png" className="w-56 grayscale contrast-125 brightness-110" alt="Moto" />
+                 <img src="/icons/moto.png" className="w-64 grayscale contrast-125 brightness-110 rotate-3 group-hover:rotate-0 transition-transform duration-1000" alt="Moto" />
                ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA" || vehiculo.patente?.startsWith?.("INT")) ? (
-                 <img src="/icons/pickup.png" className="w-80 relative top-4 right-4 grayscale brightness-[0.7] contrast-[1.2]" alt="Hilux" />
+                 <img src="/icons/pickup.png" className="w-96 relative top-6 right-6 grayscale brightness-[0.8] contrast-[1.3] -rotate-2 group-hover:rotate-0 transition-transform duration-1000" alt="Unidad Pesada" />
                ) : vehiculo.categoria === "AUTO" ? (
-                 <img src="/icons/etios.png" className="w-72 relative top-8 right-4 brightness-125 contrast-125" alt="Etios" />
+                 <img src="/icons/etios.png" className="w-80 relative top-10 right-10 brightness-110 contrast-125 rotate-2 group-hover:rotate-0 transition-transform duration-1000" alt="Unidad Ligera" />
                ) : (
-                 <div className="w-64 h-64 relative flex items-center justify-center mr-2 mt-2 bg-[#0f172a] rounded-3xl">
+                 <div className="w-72 h-72 relative flex items-center justify-center mr-4 mt-4 bg-slate-800/30 rounded-[3rem] border border-white/5">
                    <img 
                      src="/icons/admin_hud.png" 
-                     className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 transition-all duration-700" 
-                     alt="Operator Verified" 
+                     className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-80 group-hover:scale-110 transition-all duration-1000" 
+                     alt="Sello de Operación" 
                    />
                  </div>
                )}
             </div>
             
-            <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
-              <div className="h-16 w-32 bg-blue-500/10 rounded-2xl flex items-center justify-center border-2 border-blue-500/20 shadow-2xl relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-all" />
-                 <span className="font-mono font-black text-white tracking-[0.2em] text-xl relative z-10 uppercase">{vehiculo.patente}</span>
+            <div className="flex flex-col gap-8 mb-12 pb-12 border-b border-white/10 relative z-10">
+              <div className="flex items-center gap-6">
+                <div className="h-20 w-40 bg-blue-600/10 rounded-3xl flex items-center justify-center border-2 border-blue-500/30 shadow-2xl relative overflow-hidden group">
+                   <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/20 transition-all duration-500" />
+                   <span className="font-mono font-black text-white tracking-[0.25em] text-3xl relative z-10 uppercase drop-shadow-lg">{vehiculo.patente}</span>
+                </div>
+                <div className="space-y-1">
+                  <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">
+                    Protocolo <span className="text-blue-500">Operativo</span>
+                  </h1>
+                  <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.5em] flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    Registro de Bitácora B8.1
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-1">Protocolo <span className="text-blue-500">Operativo</span></h1>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.4em]">Registro de Bitácora Estratégica</p>
-              </div>
+
+              {isManualVehicle && patente !== "NUEVA" ? (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-500 text-[9px] font-black uppercase tracking-[0.3em] text-center animate-pulse shadow-inner">
+                   Advertencia: Unidad no identificada en Red — Modo Backup Activado
+                </div>
+              ) : null}
             </div>
 
-            {isManualVehicle && patente !== "NUEVA" ? (
-              <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
-                 Atención: Unidad no registrada. Los datos se guardarán como backup manual.
-              </div>
-            ) : null}
-
-            {patente === "NUEVA" ? (
-              <form action={handleDriverEntry}>
-                <input type="hidden" name="nombreConductor" value={identifiedDriver} />
-                <PatenteSelector defaultPatente={null} />
-              </form>
-            ) : (
-              <DriverFormClient 
-                vehiculo={vehiculo} 
-                sucursales={sucursales} 
-                lastLog={vehiculo.registros?.[0]} 
-                identifiedDriver={identifiedDriver}
-                isFirstLog={isFirstLog}
-                operationalStatus={operationalStatus}
-                proposedKm={proposedKm}
-              />
-            )}
+            <div className="relative z-10">
+              {patente === "NUEVA" ? (
+                <form action={handleDriverEntry} className="space-y-8">
+                  <input type="hidden" name="nombreConductor" value={identifiedDriver} />
+                  <PatenteSelector defaultPatente={null} />
+                </form>
+              ) : (
+                <DriverFormClient 
+                  vehiculo={vehiculo} 
+                  sucursales={sucursales} 
+                  lastLog={vehiculo.registros?.[0]} 
+                  identifiedDriver={identifiedDriver}
+                  isFirstLog={isFirstLog}
+                  operationalStatus={operationalStatus}
+                  proposedKm={proposedKm}
+                />
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-8 flex justify-center gap-8 opacity-30 select-none grayscale">
+             <img src="/icons/toyota.png" className="h-4 object-contain" alt="Toyota" />
+             <div className="w-px h-4 bg-white/20" />
+             <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">FlotApp Tactical Division</span>
           </div>
         </div>
       </div>

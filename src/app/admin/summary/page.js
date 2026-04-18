@@ -21,14 +21,25 @@ export default async function MonthlySummary({ searchParams }) {
   const totalFlotaKm = summary.reduce((sum, v) => sum + v.kmRecorridos, 0);
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-24 relative">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-96 bg-blue-500/5 blur-[120px] pointer-events-none -z-10" />
+      
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/5 pb-10">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Estado de Flota</h1>
-          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Rendimiento Operativo y Financiero</p>
+          <div className="flex items-center gap-3 mb-4">
+             <div className="h-1 w-12 bg-blue-500 rounded-full" />
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500/80">Inteligencia de Flota v8.1</span>
+          </div>
+          <h1 className="text-6xl font-black tracking-tighter mb-2 uppercase italic text-white drop-shadow-2xl">
+            Estado de <span className="text-blue-500">Flota</span>
+          </h1>
+          <p className="text-slate-400 font-bold uppercase text-xs tracking-[0.3em] flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            Monitoreo Operativo y Financiero en Vivo
+          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-6">
           <ShareReportButton 
             title="Resumen Mensual FlotApp"
             data={{ 
@@ -39,96 +50,126 @@ export default async function MonthlySummary({ searchParams }) {
             }}
             type="monthly"
           />
+          
+          <form className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-xl p-3 rounded-3xl border border-white/10 shadow-2xl">
+            <select 
+              name="month"
+              defaultValue={month}
+              className="bg-transparent text-xs font-black uppercase tracking-widest outline-none px-4 py-2 border-r border-white/5 text-white"
+            >
+              {months.map((m, i) => (
+                <option key={m} value={i} className="bg-slate-900">{m}</option>
+              ))}
+            </select>
+            <input 
+              name="year"
+              type="number" 
+              defaultValue={year}
+              className="bg-transparent text-xs font-black w-20 outline-none px-4 text-white"
+            />
+            <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all transform active:scale-95 shadow-lg shadow-blue-500/20">
+              Sincronizar
+            </button>
+          </form>
         </div>
-        
-        <form className="flex items-center gap-3 bg-slate-900/40 bg-[#0f172a] p-2 rounded-2xl border border-slate-700  shadow-xl shadow-black/5">
-          <select 
-            name="month"
-            defaultValue={month}
-            className="bg-transparent text-sm font-bold uppercase tracking-wider outline-none p-2 border-r border-slate-800/50 "
-          >
-            {months.map((m, i) => (
-              <option key={m} value={i}>{m}</option>
-            ))}
-          </select>
-          <input 
-            name="year"
-            type="number" 
-            defaultValue={year}
-            className="bg-transparent text-sm font-bold w-16 outline-none p-2"
-          />
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Filtrar</button>
-        </form>
       </div>
 
-      <div className="mb-8">
-         <h2 className="text-xl font-black mb-4 uppercase tracking-tighter text-blue-500">Cartografía Mensual - TACTICA B4.0</h2>
-         <DynamicMap branchesData={mapBranches} />
+      <div className="relative group">
+         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+         <div className="relative bg-slate-900/40 backdrop-blur-md rounded-[3rem] p-4 border border-white/5 overflow-hidden">
+            <div className="flex items-center justify-between px-8 py-4 border-b border-white/5 mb-4">
+               <h2 className="text-sm font-black uppercase tracking-[0.3em] text-blue-400">Cartografía Operacional - B8.1</h2>
+               <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" /> Cobertura Total
+               </div>
+            </div>
+            <DynamicMap branchesData={mapBranches} />
+         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-         <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-[3rem] p-10 text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden group">
+         <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-[3.5rem] p-12 text-white shadow-3xl shadow-blue-500/30 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
             <div className="relative z-10">
-              <p className="text-blue-100 text-xs font-black uppercase tracking-[0.2em] mb-4">Uso de Flota (Total)</p>
-              <h2 className="text-5xl font-black tracking-tighter mb-2">{totalFlotaKm.toLocaleString()} <span className="text-lg">KM</span></h2>
-              <p className="text-blue-200 font-bold text-sm tracking-tight opacity-80 uppercase">{months[month]} {year}</p>
+              <p className="text-blue-100/60 text-[10px] font-black uppercase tracking-[0.4em] mb-6">Actividad Métrica Total</p>
+              <h2 className="text-6xl font-black tracking-tighter mb-2 tabular-nums">
+                {totalFlotaKm.toLocaleString()} <span className="text-xl opacity-50">KM</span>
+              </h2>
+              <p className="text-blue-100 font-bold text-[10px] tracking-widest opacity-80 uppercase bg-white/10 inline-block px-3 py-1 rounded-full">{months[month]} {year}</p>
             </div>
-            <div className="absolute top-0 right-0 p-8 opacity-10 scale-150"><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-         </div>
-
-         <div className="bg-slate-900/40 bg-[#0f172a] border-2 border-blue-600/10 rounded-[3rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden group">
-            <div className="relative z-10">
-              <p className="text-gray-500  text-xs font-black uppercase tracking-[0.2em] mb-4">Visitas Generales</p>
-              <h2 className="text-5xl font-black tracking-tighter mb-2 text-blue-600 dark:text-blue-400">{totalFleetVisits.toLocaleString()}</h2>
-              <p className="text-gray-400 font-bold text-sm tracking-tight opacity-80 uppercase">Logística Mensual</p>
+            <div className="absolute top-0 right-0 p-10 opacity-20 scale-150 transition-transform group-hover:rotate-12 duration-700">
+               <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
             </div>
          </div>
 
-         <div className="bg-slate-900/40 bg-[#0f172a] border-2 border-blue-600/10 rounded-[3rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden group">
+         <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-[3.5rem] p-12 shadow-2xl relative overflow-hidden group">
             <div className="relative z-10">
-              <p className="text-gray-500  text-xs font-black uppercase tracking-[0.2em] mb-4">Inversión Operativa</p>
-              <h2 className="text-5xl font-black tracking-tighter mb-2 text-blue-600 dark:text-blue-400">$ {totalFlotaGastos.toLocaleString()}</h2>
-              <p className="text-gray-400 font-bold text-sm tracking-tight opacity-80 uppercase">Gasto Consolidado</p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6">Eficiencia Logística</p>
+              <h2 className="text-6xl font-black tracking-tighter mb-2 text-white tabular-nums">{totalFleetVisits.toLocaleString()}</h2>
+              <p className="text-blue-500 font-bold text-[10px] tracking-widest uppercase">Visitas a Sucursales</p>
+            </div>
+         </div>
+
+         <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-[3.5rem] p-12 shadow-2xl relative overflow-hidden group">
+            <div className="relative z-10">
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6">Caja Operativa</p>
+              <h2 className="text-6xl font-black tracking-tighter mb-2 text-white tabular-nums">
+                <span className="text-2xl text-blue-500 mr-1">$</span>{totalFlotaGastos.toLocaleString()}
+              </h2>
+              <p className="text-blue-500 font-bold text-[10px] tracking-widest uppercase">Gastos Consolidados</p>
             </div>
          </div>
       </div>
 
-      <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[3rem] overflow-hidden shadow-2xl shadow-black/5">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-[4rem] overflow-hidden shadow-2xl">
+        <div className="px-12 py-10 border-b border-white/10 flex items-center justify-between">
+            <h3 className="text-lg font-black uppercase tracking-tighter text-white">Desglose por Unidades Operativas</h3>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{summary.length} Vehículos Activos</span>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-800/30 /50 text-[10px] font-black uppercase text-gray-500  border-b border-slate-700 ">
-                <th className="p-8 pl-12">Unidad</th>
-                <th className="p-8">Recorrido</th>
-                <th className="p-8">Egresos</th>
-                <th className="p-8">Actividad</th>
-                <th className="p-8 text-right pr-12">Detalles</th>
+              <tr className="bg-white/5 text-[9px] font-black uppercase text-slate-400 tracking-[0.2em]">
+                <th className="p-8 pl-12">Unidad / Patente</th>
+                <th className="p-8">Recorrido del Mes</th>
+                <th className="p-8">Inversión</th>
+                <th className="p-8">Estatus Actividad</th>
+                <th className="p-8 text-right pr-12">Expediente</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-sans">
+            <tbody className="divide-y divide-white/5">
               {summary.length === 0 ? (
-                <tr><td colSpan="5" className="p-20 text-center text-gray-400 font-black uppercase tracking-widest">No hay datos para este período.</td></tr>
+                <tr><td colSpan="5" className="p-24 text-center text-slate-500 font-black uppercase tracking-[0.3em] italic">Sin registros para el ciclo actual.</td></tr>
               ) : summary.map((v) => (
-                <tr key={v.id} className="hover:bg-slate-800/30 dark:hover:bg-gray-800/20 transition-colors group">
+                <tr key={v.id} className="hover:bg-blue-500/5 transition-all duration-300 group">
                   <td className="p-8 pl-12">
-                    <div className="font-mono font-black text-xl tracking-tighter bg-slate-800/50  px-4 py-1.5 rounded-xl inline-block border border-slate-700 ">{v.patente}</div>
-                  </td>
-                  <td className="p-8">
-                    <div className="font-black text-xl tracking-tight leading-none">{v.kmRecorridos.toLocaleString()} <span className="text-[10px] text-gray-400 font-black uppercase ml-1">km</span></div>
-                  </td>
-                  <td className="p-8">
-                    <div className="font-black text-xl tracking-tight text-blue-600 dark:text-blue-400 leading-none">$ {v.totalGastos.toLocaleString()}</div>
-                    <div className="mt-1">
-                       <Link href={`/admin/vehicles/${v.id}/expenses`} className="text-[9px] font-black uppercase text-blue-500 hover:underline tracking-widest">Ver Desglose &rarr;</Link>
+                    <div className="font-mono font-black text-2xl tracking-tighter bg-slate-800/80 px-6 py-2 rounded-2xl inline-block border border-white/10 text-white shadow-xl group-hover:border-blue-500/50 group-hover:text-blue-400 transition-all">
+                      {v.patente}
                     </div>
                   </td>
                   <td className="p-8">
-                    <span className="bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-200/50 dark:border-blue-500/20">
-                      {v.visitasSucursales} Visitas a Suc.
-                    </span>
+                    <div className="font-black text-3xl tracking-tighter text-white mb-1 tabular-nums">
+                      {v.kmRecorridos.toLocaleString()}
+                      <span className="text-[10px] text-slate-500 font-black uppercase ml-2 tracking-widest">km</span>
+                    </div>
+                    <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden">
+                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, (v.kmRecorridos / 5000) * 100)}%` }} />
+                    </div>
+                  </td>
+                  <td className="p-8">
+                    <div className="font-black text-2xl tracking-tighter text-blue-500 mb-1 tabular-nums">$ {v.totalGastos.toLocaleString()}</div>
+                    <Link href={`/admin/vehicles/${v.id}/expenses`} className="text-[9px] font-black uppercase text-slate-500 hover:text-white transition-colors tracking-widest">Auditar Gastos &rarr;</Link>
+                  </td>
+                  <td className="p-8">
+                    <div className="flex flex-col gap-2">
+                       <span className="bg-blue-500/10 text-blue-400 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-500/20 inline-block w-fit">
+                         {v.visitasSucursales} Visitas a Red
+                       </span>
+                       <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest ml-2">CONDUCTOR: {v.ultimoConductor}</span>
+                    </div>
                   </td>
                   <td className="p-8 pr-12 text-right">
-                     <Link href={`/admin/vehicles/${v.id}`} className="inline-flex h-10 px-6 items-center bg-gray-900  text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg hover:shadow-black/20">
+                     <Link href={`/admin/vehicles/${v.id}`} className="inline-flex h-12 px-8 items-center bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-xl">
                        Ver Ficha
                      </Link>
                   </td>
@@ -139,10 +180,11 @@ export default async function MonthlySummary({ searchParams }) {
         </div>
       </div>
       
-      <div className="flex justify-center">
-        <Link href="/admin" className="text-xs font-black text-gray-400 hover:text-blue-500 transition-colors uppercase tracking-[0.3em] flex items-center gap-3 group">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-2"><path d="m15 18-6-6 6-6"/></svg>
-          REGRESAR AL PANEL PRINCIPAL
+      <div className="flex justify-center pt-8">
+        <Link href="/admin" className="text-[10px] font-black text-slate-500 hover:text-blue-500 transition-all uppercase tracking-[0.5em] flex items-center gap-4 group">
+          <div className="h-px w-12 bg-slate-800 group-hover:w-20 group-hover:bg-blue-500 transition-all" />
+          Retorno al Centro de Mando
+          <div className="h-px w-12 bg-slate-800 group-hover:w-20 group-hover:bg-blue-500 transition-all" />
         </Link>
       </div>
     </div>

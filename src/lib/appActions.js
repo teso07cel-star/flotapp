@@ -361,12 +361,10 @@ export async function getMonthlySummary(month, year) {
       where: { fecha: { gte: isoStart, lte: isoEnd } }
     })) || [];
 
-    const summary = Array.isArray(vehiculos) ? vehiculos.map(v => {
-      const records = allRegistros.filter(r => {
-        if (!r.fecha) return false;
-        const d = new Date(r.fecha);
-        return r.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
-      });
+    const summary = Array.isArray(vehiculos) ? await Promise.all(vehiculos.map(async (v) => {
+      const records = allRegistros
+        .filter(r => r.vehiculoId === v.id)
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
       const expenses = allGastos.filter(g => {
         if (!g.fecha) return false;
@@ -374,12 +372,28 @@ export async function getMonthlySummary(month, year) {
         return g.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
       });
 
+      // BUSQUEDA TACTICA DEL KM BASE (ESTADO ANTERIOR AL MES)
+      const lastPrev = await prisma.registroDiario.findFirst({
+        where: {
+          vehiculoId: v.id,
+          fecha: { lt: isoStart },
+          kmActual: { not: null }
+        },
+        orderBy: { fecha: 'desc' },
+        select: { kmActual: true }
+      });
+
       let initialKm = 0;
       let finalKm = 0;
+
       if (records.length > 0) {
-        const sorted = [...records].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-        initialKm = sorted[0].kmActual || 0;
-        finalKm = sorted[sorted.length - 1].kmActual || 0;
+        // El punto de partida es el último del mes pasado, o el primero de este mes si no hay anterior
+        initialKm = lastPrev?.kmActual !== undefined && lastPrev?.kmActual !== null ? lastPrev.kmActual : records[0].kmActual || 0;
+        finalKm = records[records.length - 1].kmActual || initialKm;
+      } else {
+        // Si no hay registros este mes, el kilometraje es el último conocido (pero el recorrido es 0)
+        initialKm = lastPrev?.kmActual || 0;
+        finalKm = initialKm;
       }
 
       return {
@@ -392,7 +406,7 @@ export async function getMonthlySummary(month, year) {
         novedades: records.filter(r => r.novedades).map(r => r.novedades),
         ultimoConductor: records[records.length - 1]?.nombreConductor || "S/D"
       };
-    }) : [];
+    })) : [];
 
     const orphanRecords = allRegistros.filter(r => {
       if (!r.fecha) return false;
