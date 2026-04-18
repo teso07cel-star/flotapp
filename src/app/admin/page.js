@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-widest mb-2 uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Panel General</h1>
-          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">Versión B7 - Victoria Total</p>
+          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">v8.3 Protocolo de Enlace Táctico</p>
         </div>
         <div className="flex flex-wrap gap-4">
           <Link href="/api/sync" className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 hover:text-white rounded-2xl font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] text-[10px] uppercase tracking-widest backdrop-blur-md">

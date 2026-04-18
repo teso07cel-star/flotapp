@@ -1,4 +1,4 @@
-import { getAllSucursales, addSucursal, updateSucursal, deleteSucursal, generarCodigoAutorizacion, createRegistroDiario, getVehiculoByPatente } from './src/lib/actions.js';
+import { getAllSucursales, addSucursal, updateSucursal, deleteSucursal, generarCodigoAutorizacion, createRegistroDiario, getVehiculoByPatente } from './src/lib/appActions.js';
 
 async function test() {
   console.log("--- Testing Sucursales ---");

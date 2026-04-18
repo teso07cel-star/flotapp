@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import prisma from './src/lib/prisma.js';
+import { getPrisma } from './src/lib/prisma.js';
+const prisma = getPrisma();
 
 async function fix() {
   console.log('--- INICIANDO CORRECCIÓN DE DATOS ---');

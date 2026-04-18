@@ -75,7 +75,7 @@ export default async function ChoferesAdmin() {
       
       {/* BANNER DE VERSIÓN PARA VERIFICACIÓN */}
       <div className="bg-blue-600 px-6 py-2 rounded-full inline-block mb-4 shadow-[0_0_20px_rgba(37,99,235,0.4)]">
-         <p className="text-[9px] font-black text-white uppercase tracking-[0.4em]">Protocolo de Enlace Táctico v2.0 Activo</p>
+         <p className="text-[9px] font-black text-white uppercase tracking-[0.4em]">Protocolo de Enlace Táctico v8.3 Activo</p>
       </div>
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">

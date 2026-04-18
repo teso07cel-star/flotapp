@@ -8,12 +8,12 @@ export async function GET() {
   try {
     console.log('🚀 Iniciando Sincronización Táctica de Datos...');
     
-    // 1. Choferes Maestros (Versión B8.1)
+    // 1. Choferes Maestros (v8.3)
     const defaultDrivers = [
-      "Brian Lopez", "Christian González", "David f", "Diego r", "Esteban diaz", "GONZALO", 
-      "Gali Nelson", "Gally Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
+      "Brian Lopez", "Christian González", "David Francisconi", "Diego r", "Esteban diaz", "GONZALO", 
+      "Gali Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
       "Juan Cruz Hidalgo", "Lucio Bello", "MARIANO", "Matías Chaile", "Miguel c", 
-      "Tomas C", "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
+      "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
     ];
     
     for (const name of defaultDrivers) {
@@ -54,7 +54,7 @@ export async function GET() {
             nombreConductor: 'SISTEMA',
             tipoReporte: 'CIERRE',
             fecha: new Date(),
-            novedades: 'Sync Maestro Inicial (B8.1)'
+            novedades: 'Sync Maestro Inicial (v8.3)'
           }
         });
       }
@@ -91,7 +91,7 @@ export async function GET() {
 
     return NextResponse.json({ 
       success: true, 
-      message: "Base de datos sincronizada con éxito (Versión B8.1)",
+      message: "Base de datos sincronizada con éxito (v8.3)",
       drivers: defaultDrivers.length,
       vehicles: criticalVehicles.length,
       branches: branches.length

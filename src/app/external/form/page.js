@@ -39,7 +39,7 @@ export default async function ExternalFormPage({ searchParams }) {
             Cancelar
           </Link>
           <div className="bg-white/10 px-4 py-1.5 rounded-full border border-white/5 backdrop-blur-xl">
-             <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">Versión B6.1 - Estabilidad Total</p>
+             <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">v8.3 Protocolo Táctico Activo</p>
              <span className="text-xs font-black tracking-widest uppercase text-pink-400">{vehiculo.patente}</span>
           </div>
         </div>

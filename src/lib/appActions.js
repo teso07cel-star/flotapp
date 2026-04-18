@@ -8,8 +8,9 @@ export async function getVehiculoByPatente(patente) {
   // Eliminado guardia de construcción manual para forzar visibilidad real
   try {
     if (!patente) return { success: false, error: "Patente requerida" };
+    const cleanPatente = patente.toString().replace(/\s+/g, "").toUpperCase().trim();
     const vehiculo = await getPrisma().vehiculo.findUnique({
-      where: { patente: patente.toUpperCase().trim() },
+      where: { patente: cleanPatente },
       include: {
         registros: { orderBy: { fecha: 'desc' }, take: 1 },
       }
@@ -31,7 +32,8 @@ export async function getDriverOperationalStatus(driverName) {
        include: { vehiculo: true }
     });
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
-       const choferDB = await getPrisma().chofer.findUnique({ where: { nombre: driverName } });
+       const cleanName = driverName.toString().trim();
+       const choferDB = await getPrisma().chofer.findUnique({ where: { nombre: cleanName } });
        return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
     }
     const lastKm = lastRecord.kmActual || 0;
@@ -60,7 +62,7 @@ export async function createVehiculo(data) {
   try {
     const v = await getPrisma().vehiculo.create({
       data: {
-        patente: data.patente.toUpperCase().trim(),
+        patente: data.patente.toString().replace(/\s+/g, "").toUpperCase().trim(),
         vtvVencimiento: data.vtvVencimiento ? new Date(data.vtvVencimiento) : null,
         seguroVencimiento: data.seguroVencimiento ? new Date(data.seguroVencimiento) : null,
         proximoServiceKm: data.proximoServiceKm ? parseInt(data.proximoServiceKm) : null,
@@ -549,7 +551,8 @@ export async function logoutAdmin() {
 }
 
 export async function handleDriverEntry(formData) {
-  const patente = formData.get("patente")?.toString().toUpperCase().trim();
+  const patenteRaw = formData.get("patente")?.toString();
+  const patente = patenteRaw?.replace(/\s+/g, "").toUpperCase().trim();
   const nombreConductor = formData.get("nombreConductor")?.toString();
 
   if (!patente) {
@@ -687,8 +690,15 @@ export async function getAllChoferes() {
 
 export async function addChofer(nombre) {
   try {
+    const cleanName = nombre?.toString().trim();
+    if (!cleanName) return { success: false, error: "Nombre requerido" };
+    
+    // Check if already exists to avoid 500 on unique constraint
+    const existing = await getPrisma().chofer.findUnique({ where: { nombre: cleanName } });
+    if (existing) return { success: true, data: existing };
+
     const c = await getPrisma().chofer.create({
-      data: { nombre }
+      data: { nombre: cleanName }
     });
     revalidatePath("/admin/choferes");
     return { success: true, data: c };
@@ -713,7 +723,7 @@ export async function updateChoferPatente(id, patenteAsignada) {
   try {
     const c = await getPrisma().chofer.update({
       where: { id: parseInt(id) },
-      data: { patenteAsignada: patenteAsignada?.trim()?.toUpperCase() || null }
+      data: { patenteAsignada: patenteAsignada?.toString().replace(/\s+/g, "").toUpperCase().trim() || null }
     });
     revalidatePath("/admin/choferes");
     return { success: true, data: c };
