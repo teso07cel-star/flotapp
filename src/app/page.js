@@ -36,7 +36,7 @@ function HomePageContent() {
           <div className="inline-flex items-center justify-center space-x-4 mb-10">
              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
              <h1 className="text-6xl font-black tracking-[-0.05em] text-white flex items-center gap-4">
-                FLOT<span className="text-blue-500">APP</span>
+                FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-red-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.5)]">v8.3 BLINDADA</span>
              </h1>
              <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
