@@ -4,6 +4,7 @@ import Link from "next/link";
 import FormattedDate from "@/components/FormattedDate";
 import DeleteLogButton from "@/components/DeleteLogButton";
 import ShareReportButton from "@/components/ShareReportButton";
+import PrintButton from "@/components/PrintButton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -44,12 +45,7 @@ export default async function DailyReport({ searchParams }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <button 
-              onClick={() => window.print()}
-              className="bg-white text-slate-900 px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-xl"
-            >
-              PDF Profesional
-            </button>
+            <PrintButton />
             <ShareReportButton 
               title="Auditoría v2.0"
               data={{ 

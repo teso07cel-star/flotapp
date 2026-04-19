@@ -38,7 +38,7 @@ export async function getDriverOperationalStatus(driverName) {
     }
     const lastKm = lastRecord.kmActual || 0;
     const addedDistance = lastRecord.kmTeoricos || 0;
-    return { success: true, data: { active: true, vehiculo: lastRecord.vehiculo, lastKm: lastKm, proposedKm: lastKm + addedDistance, lastLogType: lastRecord.tipoReporte } };
+    return purify({ success: true, data: { active: true, vehiculo: lastRecord.vehiculo, lastKm: lastKm, proposedKm: lastKm + addedDistance, lastLogType: lastRecord.tipoReporte } });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -69,7 +69,7 @@ export async function createVehiculo(data) {
       }
     });
     revalidatePath("/admin");
-    return { success: true, data: v };
+    return purify({ success: true, data: v });
   } catch(error) {
     return { success: false, error: error.message };
   }
@@ -88,7 +88,7 @@ export async function updateVehiculo(id, data) {
     });
     revalidatePath("/admin/vehicles/[id]", "page");
     revalidatePath("/admin");
-    return { success: true, data: vehiculo };
+    return purify({ success: true, data: vehiculo });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -98,7 +98,7 @@ export async function getAllSucursales() {
   console.log("🔍 APP_ACTIONS: Obteniendo todas las sucursales...");
   try {
     const sucursales = await getPrisma().sucursal.findMany({ orderBy: { nombre: 'asc' } });
-    return { success: true, data: sucursales };
+    return purify({ success: true, data: sucursales });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -110,7 +110,7 @@ export async function addSucursal(nombre, direccion) {
       data: { nombre, direccion }
     });
     revalidatePath("/admin/branches");
-    return { success: true, data: s };
+    return purify({ success: true, data: s });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -815,14 +815,14 @@ export async function getDriverTodayInfo(id) {
       });
     });
 
-    return { 
+    return purify({ 
       success: true, 
       data: { 
         chofer, 
         mapBranches: Array.from(mapBranchesMap.values()),
         totalRegistrosHoy: registros.length
       } 
-    };
+    });
   } catch (error) {
     return { success: false, error: error.message };
   }
