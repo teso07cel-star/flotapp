@@ -366,14 +366,25 @@ export async function getMonthlySummary(month, year) {
   }
 
   try {
-    const monthNum = parseInt(month);
-    const yearNum = parseInt(year);
+    let monthNum = parseInt(month);
+    let yearNum = parseInt(year);
+    
+    // BLINDAJE SEÑOR X: Validar tipos antes de operar
+    if (isNaN(monthNum) || monthNum < 0 || monthNum > 11) monthNum = new Date().getMonth();
+    if (isNaN(yearNum) || yearNum < 2000) yearNum = new Date().getFullYear();
     
     // Rango robusto para el mes completo
-    const isoStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0).toISOString();
-    const isoEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+    const dStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0);
+    const dEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999);
+    
+    if (isNaN(dStart.getTime()) || isNaN(dEnd.getTime())) {
+       throw new Error("Fechas de resumen inválidas");
+    }
 
-    console.log(`📊 GENERANDO RESUMEN: ${monthNum}/${yearNum} (${isoStart} a ${isoEnd})`);
+    const isoStart = dStart.toISOString();
+    const isoEnd = dEnd.toISOString();
+
+    console.log(`📊 GENERANDO RESUMEN SEÑOR X: ${monthNum}/${yearNum} (${isoStart} a ${isoEnd})`);
 
     const [vehiculos, allRegistros, allGastos] = await Promise.all([
       getPrisma().vehiculo.findMany(),
@@ -584,9 +595,27 @@ export async function handleDriverEntry(formData) {
 export async function getDailyReport(dateString) {
   try {
     // Procesar la fecha localmente para evitar desfases UTC
-    const [year, month, day] = dateString.split('-').map(Number);
-    const isoStart = new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
-    const isoEnd = new Date(year, month - 1, day, 23, 59, 59, 999).toISOString();
+    const dateParts = dateString?.split('-').map(Number) || [];
+    let year, month, day;
+
+    if (dateParts.length === 3 && !dateParts.some(isNaN)) {
+      [year, month, day] = dateParts;
+    } else {
+      const now = new Date();
+      year = now.getFullYear();
+      month = now.getMonth() + 1;
+      day = now.getDate();
+    }
+
+    const dStart = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const dEnd = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    if (isNaN(dStart.getTime())) {
+      throw new Error("Fecha de reporte diaria inválida");
+    }
+
+    const isoStart = dStart.toISOString();
+    const isoEnd = dEnd.toISOString();
 
     const registros = (await getPrisma().registroDiario.findMany({
       where: {

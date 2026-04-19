@@ -17,8 +17,9 @@ export default async function MonthlySummary({ searchParams }) {
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
 
-  const totalFlotaGastos = summary.reduce((sum, v) => sum + v.totalGastos, 0);
-  const totalFlotaKm = summary.reduce((sum, v) => sum + v.kmRecorridos, 0);
+   const summaryList = Array.isArray(summary) ? summary : [];
+   const totalFlotaGastos = summaryList.reduce((sum, v) => sum + (Number(v.totalGastos) || 0), 0);
+   const totalFlotaKm = summaryList.reduce((sum, v) => sum + (Number(v.kmRecorridos) || 0), 0);
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-24 relative">
