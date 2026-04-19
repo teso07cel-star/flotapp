@@ -31,27 +31,32 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
 /**
  * Calcula la ruta secuencial basada en el conductor: Origen -> A -> B -> ... -> Retorno
  */
-export function calculateSequentialRoute(stopsNames, driverName) {
-  if (!Array.isArray(stopsNames) || stopsNames.length === 0) return 0;
+export function calculateSequentialRoute(stops, driverName) {
+  if (!Array.isArray(stops) || stops.length === 0) return 0;
 
-  // Determinar punto de partida según el conductor
+  // Determinar punto de partida según el conductor con guard robusto
   const startKey = DRIVER_START_MAP[driverName] || "TESO_SAN_TELMO";
-  const startPoint = START_POINTS[startKey];
+  const startPoint = START_POINTS[startKey] || START_POINTS["TESO_SAN_TELMO"];
   
   let total = 0;
   let current = { lat: startPoint.lat, lng: startPoint.lng };
 
-  // 1. Tramo: De Base a primera parada, y entre paradas sucesivas
-  stopsNames.forEach(name => {
-    const stopCoord = BRANCH_COORDINATES[name];
-    if (stopCoord) {
+  stops.forEach(stop => {
+    // Soportar tanto el nombre (string) como el objeto de sucursal (Prisma)
+    const stopName = typeof stop === 'string' ? stop : stop.nombre;
+    const stopCoord = BRANCH_COORDINATES[stopName];
+    
+    // Solo acumular y mover el punto actual si encontramos coordenadas válidas
+    if (stopCoord && stopCoord.lat && stopCoord.lng) {
       total += calculateDistance(current.lat, current.lng, stopCoord.lat, stopCoord.lng);
-      current = stopCoord;
+      current = { lat: stopCoord.lat, lng: stopCoord.lng };
     }
   });
 
-  // 2. Tramo: Regreso a Base desde la última parada
-  total += calculateDistance(current.lat, current.lng, startPoint.lat, startPoint.lng);
+  // Retorno a base seguro
+  if (current.lat && current.lng) {
+    total += calculateDistance(current.lat, current.lng, startPoint.lat, startPoint.lng);
+  }
 
   return total;
 }

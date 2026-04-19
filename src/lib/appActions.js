@@ -454,7 +454,13 @@ export async function getMonthlySummary(month, year) {
         if (Array.isArray(r.sucursales)) {
           r.sucursales.forEach(s => {
             if (!mapBranchesMap.has(s.id)) {
-              mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: s.lat, lng: s.lng, visitas: 1 });
+              mapBranchesMap.set(s.id, { 
+                id: s.id, 
+                nombre: s.nombre, 
+                lat: Number(s.lat || 0), 
+                lng: Number(s.lng || 0), 
+                visitas: 1 
+              });
             } else {
               const b = mapBranchesMap.get(s.id);
               b.visitas++;
