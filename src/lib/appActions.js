@@ -483,10 +483,31 @@ export async function getMonthlySummary(month, year) {
     
     const mapBranches = Array.from(mapBranchesMap.values());
     
-    // SERIALIZACIÓN FINAL PARA NEXT.js 15 (Protección contra Error 500)
+    // SERIALIZACIÓN ATÓMICA v2.0 (Protección absoluta contra Error 500)
+    const finalData = { 
+       summary: summary.map(v => ({
+         id: String(v.id),
+         patente: String(v.patente),
+         kmRecorridos: Number(v.kmRecorridos) || 0,
+         totalGastos: Number(v.totalGastos) || 0,
+         cantidadRegistros: Number(v.cantidadRegistros) || 0,
+         visitasSucursales: Number(v.visitasSucursales) || 0,
+         novedades: Array.isArray(v.novedades) ? v.novedades : [],
+         ultimoConductor: String(v.ultimoConductor || "S/D")
+       })), 
+       totalFleetVisits: Number(totalFleetVisits) || 0, 
+       mapBranches: mapBranches.map(b => ({
+         id: String(b.id),
+         nombre: String(b.nombre),
+         lat: Number(b.lat) || 0,
+         lng: Number(b.lng) || 0,
+         visitas: Number(b.visitas) || 0
+       }))
+    };
+
     return { 
       success: true, 
-      data: JSON.parse(JSON.stringify({ summary, totalFleetVisits, mapBranches })) 
+      data: finalData 
     };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
@@ -684,20 +705,32 @@ export async function getDailyReport(dateString) {
     const uniqueVehicles = Object.keys(vehicleData).length;
     const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
 
-    // SERIALIZACIÓN FINAL PARA NEXT.js 15 (Protección contra Error 500)
-    const safeData = JSON.parse(JSON.stringify({
-      registros: registrosMapeados,
-      stats: {
-        totalKm,
-        uniqueVehicles,
-        totalVisits,
-        branchBreakdown
-      }
+    // SERIALIZACIÓN ATÓMICA v2.0 (Protección absoluta contra Error 500)
+    const finalRegistros = registrosMapeados.map(r => ({
+      id: String(r.id),
+      fecha: r.fecha instanceof Date ? r.fecha.toISOString() : String(r.fecha),
+      kmActual: Number(r.kmActual) || 0,
+      kmTeoricos: Number(r.kmTeoricos) || 0,
+      nombreConductor: String(r.nombreConductor || "Sin Asignar"),
+      tipoReporte: String(r.tipoReporte || "REGISTRO"),
+      novedades: String(r.novedades || ""),
+      vehiculo: r.vehiculo ? { patente: String(r.vehiculo.patente) } : null,
+      sucursales: Array.isArray(r.sucursales) ? r.sucursales.map(s => ({ id: String(s.id), nombre: String(s.nombre) })) : []
     }));
+
+    const finalData = {
+      registros: finalRegistros,
+      stats: {
+        totalKm: Number(totalKm) || 0,
+        uniqueVehicles: Number(uniqueVehicles) || 0,
+        totalVisits: Number(totalVisits) || 0,
+        branchBreakdown: branchBreakdown || {}
+      }
+    };
 
     return { 
       success: true, 
-      data: safeData 
+      data: finalData 
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
