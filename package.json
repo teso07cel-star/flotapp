@@ -1,7 +1,7 @@
 {
   "name": "flota-app",
-  "version": "3.0.0",
-  "comment": "SEÑOR_X_GLOBAL_SHIELD_v3.0.0",
+  "version": "4.0.0",
+  "comment": "SEÑOR_X_ATOMIC_PURGE_v4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

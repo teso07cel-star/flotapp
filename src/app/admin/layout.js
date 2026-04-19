@@ -4,6 +4,9 @@ import { logoutAdmin } from "@/lib/appActions";
 import Image from "next/image";
 import { AdminFaceIcon, StrategicGearIcon } from "@/components/FuturisticIcons";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminLayout({ children }) {
   try {
     const cookieStore = await cookies();

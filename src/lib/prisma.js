@@ -7,8 +7,8 @@ const prismaClientSingleton = () => {
   
   console.log("🚀 PRISMA: Iniciando conexión unificada...");
   
-  if (!dbUrl) {
-    console.warn("⚠️ PRISMA: No hay DATABASE_URL configurada");
+  if (!dbUrl || process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'build') {
+    console.warn("⚠️ PRISMA: Modo BUILD detectado o sin URL. Devolviendo cliente dummy.");
     return new PrismaClient();
   }
 
