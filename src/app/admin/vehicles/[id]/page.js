@@ -76,6 +76,7 @@ export default async function VehicleDetails({ params }) {
         </div>
       </div>
 
+      {(() => {
         const hoy = new Date();
         const quinceDias = new Date(hoy.getTime() + (15 * 24 * 60 * 60 * 1000));
         const kmActual = vehiculo.registros?.[0]?.kmActual || 0;
