@@ -369,17 +369,22 @@ export async function getMonthlySummary(month, year) {
     const monthNum = parseInt(month);
     const yearNum = parseInt(year);
     
+    // Rango robusto para el mes completo
     const isoStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0).toISOString();
     const isoEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
 
-    const vehiculos = (await getPrisma().vehiculo.findMany()) || [];
-    const allRegistros = (await getPrisma().registroDiario.findMany({
-      where: { fecha: { gte: isoStart, lte: isoEnd } },
-      include: { vehiculo: true, sucursales: true }
-    })) || [];
-    const allGastos = (await getPrisma().gasto.findMany({
-      where: { fecha: { gte: isoStart, lte: isoEnd } }
-    })) || [];
+    console.log(`📊 GENERANDO RESUMEN: ${monthNum}/${yearNum} (${isoStart} a ${isoEnd})`);
+
+    const [vehiculos, allRegistros, allGastos] = await Promise.all([
+      getPrisma().vehiculo.findMany(),
+      getPrisma().registroDiario.findMany({
+        where: { fecha: { gte: isoStart, lte: isoEnd } },
+        include: { sucursales: true }
+      }),
+      getPrisma().gasto.findMany({
+        where: { fecha: { gte: isoStart, lte: isoEnd } }
+      })
+    ]);
 
     const summary = Array.isArray(vehiculos) ? await Promise.all(vehiculos.map(async (v) => {
       const records = allRegistros
