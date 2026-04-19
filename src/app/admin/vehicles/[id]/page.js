@@ -76,12 +76,18 @@ export default async function VehicleDetails({ params }) {
         </div>
       </div>
 
-      {/* Alertas Detalladas */}
-      {(() => {
         const hoy = new Date();
         const quinceDias = new Date(hoy.getTime() + (15 * 24 * 60 * 60 * 1000));
         const kmActual = vehiculo.registros?.[0]?.kmActual || 0;
         const kmParaService = vehiculo.proximoServiceKm ? (vehiculo.proximoServiceKm - kmActual) : null;
+
+        // Rastreo de Cubiertas (v8.3 Audit)
+        const ultimoCambioCubiertas = vehiculo.Mantenimiento?.find(m => m.tipoServicio === "Cambio de cubiertas");
+        const kmEnCambio = ultimoCambioCubiertas?.kilometraje || 0;
+        const kmRecorridosCubiertas = kmEnCambio > 0 ? (kmActual - kmEnCambio) : 0;
+        const vidaUtilCubiertas = 50000; // km promedio
+        const restanteCubiertas = Math.max(0, vidaUtilCubiertas - kmRecorridosCubiertas);
+        const porcVidaCubiertas = Math.max(0, Math.min(100, (restanteCubiertas / vidaUtilCubiertas) * 100));
 
         const alerts = [];
         if (vehiculo.vtvVencimiento && new Date(vehiculo.vtvVencimiento) < hoy) alerts.push({ type: 'red', msg: 'VTV Vencida' });
@@ -95,10 +101,35 @@ export default async function VehicleDetails({ params }) {
           else if (kmParaService <= 500) alerts.push({ type: 'amber', msg: `Service Cercano: Faltan ${kmParaService} km` });
         }
 
-        if (alerts.length === 0) return null;
+        if (restanteCubiertas <= 5000) alerts.push({ type: 'red', msg: `NEUMÁTICOS CRÍTICOS: Quedan ${restanteCubiertas.toLocaleString()} km de vida` });
 
         return (
           <div className="flex flex-col gap-3">
+            {/* Widget de Cubiertas Táctico */}
+            <div className="bg-slate-900/60 border border-blue-500/20 rounded-3xl p-6 shadow-xl mb-4 flex items-center justify-between">
+               <div className="flex items-center gap-6">
+                  <div className="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30">
+                     <svg className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10M12 22a10 10 0 0 1-10-10"/></svg>
+                  </div>
+                  <div>
+                     <h3 className="text-sm font-black uppercase tracking-[0.3em] text-blue-400">Estado de Cubiertas</h3>
+                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Estimación de vida útil v8.3</p>
+                  </div>
+               </div>
+               <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-baseline gap-2">
+                     <span className="text-3xl font-black text-white tracking-tighter">{restanteCubiertas.toLocaleString()}</span>
+                     <span className="text-[10px] font-black text-slate-500 uppercase">km restantes</span>
+                  </div>
+                  <div className="w-48 h-2 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                     <div 
+                        className={`h-full transition-all duration-1000 shadow-[0_0_10px_rgba(59,130,246,0.5)] ${porcVidaCubiertas < 20 ? 'bg-red-500' : porcVidaCubiertas < 50 ? 'bg-amber-500' : 'bg-blue-500'}`} 
+                        style={{ width: `${porcVidaCubiertas}%` }} 
+                     />
+                  </div>
+               </div>
+            </div>
+
             {alerts.map((a, i) => (
               <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border ${
                 a.type === 'red' 

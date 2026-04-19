@@ -8,12 +8,12 @@ export async function GET() {
   try {
     console.log('🚀 Iniciando Sincronización Táctica de Datos...');
     
-    // 1. Choferes Maestros (v8.3)
+    // 1. Choferes Maestros (v8.3 - Audio Ultimátum)
     const defaultDrivers = [
-      "Brian Lopez", "Christian González", "David Francisconi", "Diego r", "Esteban diaz", "GONZALO", 
-      "Gali Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
-      "Juan Cruz Hidalgo", "Lucio Bello", "MARIANO", "Matías Chaile", "Miguel c", 
-      "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
+      "Brian Lopez", "Christian González", "David Francisconi", "Diego Retamar", 
+      "Esteban diaz", "Gonzalo Martinez", "Gally Nelson", "Gerardo Visconti", 
+      "Ivan Santillan", "Jonathan Vondrack", "Juan Cruz Hidalgo", "Lucio Bello", 
+      "Mariano Dejasman", "Matías Chaile", "Miguel Cejas", "Tomas Casco"
     ];
     
     for (const name of defaultDrivers) {

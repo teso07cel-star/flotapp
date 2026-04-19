@@ -386,52 +386,53 @@ export async function getMonthlySummary(month, year) {
       })
     ]);
 
-    const summary = Array.isArray(vehiculos) ? await Promise.all(vehiculos.map(async (v) => {
-      const records = allRegistros
-        .filter(r => r.vehiculoId === v.id)
-        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    const summary = Array.isArray(vehiculos) ? [] : [];
+    if (Array.isArray(vehiculos)) {
+      for (const v of vehiculos) {
+        const records = allRegistros
+          .filter(r => r.vehiculoId === v.id)
+          .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
-      const expenses = allGastos.filter(g => {
-        if (!g.fecha) return false;
-        const d = new Date(g.fecha);
-        return g.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
-      });
+        const expenses = allGastos.filter(g => {
+          if (!g.fecha) return false;
+          const d = new Date(g.fecha);
+          return g.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
+        });
 
-      // BUSQUEDA TACTICA DEL KM BASE (ESTADO ANTERIOR AL MES)
-      const lastPrev = await getPrisma().registroDiario.findFirst({
-        where: {
-          vehiculoId: v.id,
-          fecha: { lt: isoStart },
-          kmActual: { not: null }
-        },
-        orderBy: { fecha: 'desc' },
-        select: { kmActual: true }
-      });
+        // BUSQUEDA TACTICA DEL KM BASE (ESTADO ANTERIOR AL MES) - SECUENCIAL PARA EVITAR ERROR 500
+        const lastPrev = await getPrisma().registroDiario.findFirst({
+          where: {
+            vehiculoId: v.id,
+            fecha: { lt: isoStart },
+            kmActual: { not: null }
+          },
+          orderBy: { fecha: 'desc' },
+          select: { kmActual: true }
+        });
 
-      let initialKm = 0;
-      let finalKm = 0;
+        let initialKm = 0;
+        let finalKm = 0;
 
-      if (records.length > 0) {
-        // El punto de partida es el último del mes pasado, o el primero de este mes si no hay anterior
-        initialKm = lastPrev?.kmActual !== undefined && lastPrev?.kmActual !== null ? lastPrev.kmActual : records[0].kmActual || 0;
-        finalKm = records[records.length - 1].kmActual || initialKm;
-      } else {
-        // Si no hay registros este mes, el kilometraje es el último conocido (pero el recorrido es 0)
-        initialKm = lastPrev?.kmActual || 0;
-        finalKm = initialKm;
+        if (records.length > 0) {
+          initialKm = lastPrev?.kmActual !== undefined && lastPrev?.kmActual !== null ? lastPrev.kmActual : records[0].kmActual || 0;
+          finalKm = records[records.length - 1].kmActual || initialKm;
+        } else {
+          initialKm = lastPrev?.kmActual || 0;
+          finalKm = initialKm;
+        }
+
+        summary.push({
+          id: v.id,
+          patente: v.patente,
+          kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
+          totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
+          cantidadRegistros: records.length,
+          visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
+          novedades: records.filter(r => r.novedades).map(r => r.novedades),
+          ultimoConductor: records[records.length - 1]?.nombreConductor || "S/D"
+        });
       }
-
-      return {
-        id: v.id,
-        patente: v.patente,
-        kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
-        totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
-        cantidadRegistros: records.length,
-        visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
-        novedades: records.filter(r => r.novedades).map(r => r.novedades),
-        ultimoConductor: records[records.length - 1]?.nombreConductor || "S/D"
-      };
-    })) : [];
+    }
 
     const orphanRecords = allRegistros.filter(r => {
       if (!r.fecha) return false;

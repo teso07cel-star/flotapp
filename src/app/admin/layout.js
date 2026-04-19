@@ -30,10 +30,11 @@ export default async function AdminLayout({ children }) {
                      <StrategicGearIcon className="w-4 h-4 text-slate-400 animate-spin-slow" />
                   </div>
                </div>
-               <div className="flex flex-col">
-                  <span className="text-sm font-black tracking-[0.1em] text-white leading-tight uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">Gestión</span>
-                  <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase opacity-90 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">Administrativa</span>
-               </div>
+               <div className="flex flex-col relative">
+                   <span className="text-sm font-black tracking-[0.1em] text-white leading-tight uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">Gestión</span>
+                   <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase opacity-90 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">Administrativa</span>
+                   <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[6px] px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]">v8.3</div>
+                </div>
             </div>
             
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

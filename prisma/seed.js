@@ -51,7 +51,7 @@ async function main() {
   const defaultDrivers = [
     'Brian Lopez', 'Christian González', 'David Francisconi', 'Diego Retamar',
     'Esteban diaz', 'Gonzalo Martinez', 'Gally Nelson', 'Gerardo Visconti',
-    'Ivan Santillan', 'Jonathan Bondrack', 'Juan Cruz Hidalgo', 'Lucio Bello',
+    'Ivan Santillan', 'Jonathan Vondrack', 'Juan Cruz Hidalgo', 'Lucio Bello',
     'Mariano Dejasman', 'Matías Chaile', 'Miguel Cejas', 'Tomas Casco'
   ];
   console.log(`👨‍✈️ Cargando ${defaultDrivers.length} conductores críticos...`);

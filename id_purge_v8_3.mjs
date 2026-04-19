@@ -28,7 +28,7 @@ async function main() {
     await mergeById(2039, 1756, "Gally Nelson");  // Gali Nelson -> Gally Nelson
     await mergeById(2040, 3, "Gerardo Visconti"); // Gerardo v -> Gerardo Visconti
     await mergeById(2041, 1904, "Ivan Santillan"); // Iván Santillán -> Ivan Santillan
-    await mergeById(2042, 1960, "Jonathan Bondrack"); // Jonathan v -> Jonathan Bondrack
+    await mergeById(2042, 1960, "Jonathan Vondrack"); // Jonathan v -> Jonathan Vondrack
     await mergeById(2045, 30, "Mariano Dejasman"); // MARIANO -> Mariano Dejasman
     await mergeById(2047, 142, "Miguel Cejas");   // Miguel c -> Miguel Cejas
     await mergeById(1976, 1902, "Tomas Casco");     // Tomás Casco -> Tomas Casco
