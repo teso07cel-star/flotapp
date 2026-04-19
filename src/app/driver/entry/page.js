@@ -72,7 +72,7 @@ export default async function DriverEntry({ searchParams }) {
               Centro <span className="text-blue-500">Táctico</span>
             </h1>
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.6em] pl-2">
-              Operador Estratégico <span className="text-blue-500/50">v8.1</span>
+              Operador Estratégico <span className="text-blue-500/50">v8.3 Protocolo Táctico</span>
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default async function DriverEntry({ searchParams }) {
         </div>
 
         <p className="text-center mt-12 text-[8px] font-bold text-slate-600 uppercase tracking-[0.5em]">
-          Protocolo de Encriptación Activo — Nodo B8.1
+          Protocolo de Encriptación Activo — Nodo B8.3
         </p>
       </div>
     </div>
