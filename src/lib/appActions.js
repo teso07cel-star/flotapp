@@ -829,13 +829,24 @@ export async function addMantenimiento(data) {
       }
     });
 
-    // Optionally update vehiculo's last service km
-    if (tipoServicio.toLowerCase() === "service" || tipoServicio.toLowerCase() === "mantenimiento regular") {
-      if (kilometraje) { // update Proximo Service + 10k
+    // 1. Service regular (cada 10k)
+    if (tipoServicio.toLowerCase().includes("service") || tipoServicio.toLowerCase().includes("mantenimiento regular")) {
+      if (kilometraje) {
          await getPrisma().vehiculo.update({
            where: { id: parseInt(vehiculoId) },
            data: { proximoServiceKm: parseInt(kilometraje) + 10000 }
          });
+      }
+    }
+
+    // 2. Cambio de Cubiertas (TÁCTICA v8.3)
+    if (tipoServicio.toLowerCase().includes("cubierta") || tipoServicio.toLowerCase().includes("neumático") || tipoServicio.toLowerCase().includes("goma")) {
+      if (kilometraje) {
+         await getPrisma().vehiculo.update({
+           where: { id: parseInt(vehiculoId) },
+           data: { ultimoCambioCubiertasKm: parseInt(kilometraje) }
+         });
+         console.log(`🛞 KM de cubiertas actualizado para vehículo ${vehiculoId} a ${kilometraje}`);
       }
     }
 
