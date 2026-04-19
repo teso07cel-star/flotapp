@@ -18,7 +18,7 @@
     "jimp": "^1.6.0",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
-    "next": "15.1.13",
+    "next": "15.1.11",
     "pg": "^8.20.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "15.1.0",
+    "eslint-config-next": "15.1.11",
     "prisma": "7.5.0",
     "tailwindcss": "^4"
   }
