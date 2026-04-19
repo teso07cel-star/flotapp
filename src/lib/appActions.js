@@ -465,10 +465,19 @@ export async function getMonthlySummary(month, year) {
     }
     
     const mapBranches = Array.from(mapBranchesMap.values());
-    return { success: true, data: { summary, totalFleetVisits, mapBranches } };
+    
+    // SERIALIZACIÓN FINAL PARA NEXT.js 15 (Protección contra Error 500)
+    return { 
+      success: true, 
+      data: JSON.parse(JSON.stringify({ summary, totalFleetVisits, mapBranches })) 
+    };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
-    return { success: false, error: error.message, data: { summary: [], totalFleetVisits: 0, mapBranches: [] } };
+    return { 
+      success: false, 
+      error: error.message, 
+      data: { summary: [], totalFleetVisits: 0, mapBranches: [] } 
+    };
   }
 }
 
@@ -640,17 +649,20 @@ export async function getDailyReport(dateString) {
     const uniqueVehicles = Object.keys(vehicleData).length;
     const totalVisits = Object.values(vehicleData).reduce((sum, v) => sum + v.visits, 0);
 
+    // SERIALIZACIÓN FINAL PARA NEXT.js 15 (Protección contra Error 500)
+    const safeData = JSON.parse(JSON.stringify({
+      registros: registrosMapeados,
+      stats: {
+        totalKm,
+        uniqueVehicles,
+        totalVisits,
+        branchBreakdown
+      }
+    }));
+
     return { 
       success: true, 
-      data: {
-        registros: registrosMapeados,
-        stats: {
-          totalKm,
-          uniqueVehicles,
-          totalVisits,
-          branchBreakdown
-        }
-      } 
+      data: safeData 
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
