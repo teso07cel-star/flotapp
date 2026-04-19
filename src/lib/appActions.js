@@ -386,45 +386,29 @@ export async function getMonthlySummary(month, year) {
       })
     ]);
 
-    const summary = Array.isArray(vehiculos) ? [] : [];
+    const summary = [];
     if (Array.isArray(vehiculos)) {
       for (const v of vehiculos) {
         const records = allRegistros
           .filter(r => r.vehiculoId === v.id)
           .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
-        const expenses = allGastos.filter(g => {
-          if (!g.fecha) return false;
-          const d = new Date(g.fecha);
-          return g.vehiculoId === v.id && d.getMonth() === monthNum && d.getFullYear() === yearNum;
-        });
+        const expenses = allGastos.filter(g => g.vehiculoId === v.id);
 
-        // BUSQUEDA TACTICA DEL KM BASE (ESTADO ANTERIOR AL MES) - SECUENCIAL PARA EVITAR ERROR 500
-        const lastPrev = await getPrisma().registroDiario.findFirst({
-          where: {
-            vehiculoId: v.id,
-            fecha: { lt: isoStart },
-            kmActual: { not: null }
-          },
-          orderBy: { fecha: 'desc' },
-          select: { kmActual: true }
-        });
-
-        let initialKm = 0;
-        let finalKm = 0;
-
-        if (records.length > 0) {
-          initialKm = lastPrev?.kmActual !== undefined && lastPrev?.kmActual !== null ? lastPrev.kmActual : records[0].kmActual || 0;
-          finalKm = records[records.length - 1].kmActual || initialKm;
-        } else {
-          initialKm = lastPrev?.kmActual || 0;
-          finalKm = initialKm;
+        let kmRecorridos = 0;
+        if (records.length > 1) {
+          const initialKm = records[0].kmActual || 0;
+          const finalKm = records[records.length - 1].kmActual || initialKm;
+          kmRecorridos = Math.max(0, finalKm - initialKm);
+        } else if (records.length === 1) {
+          // Si solo hay un registro, asumimos 0 recorrido o usamos el kmActual
+          kmRecorridos = 0; 
         }
 
         summary.push({
           id: v.id,
           patente: v.patente,
-          kmRecorridos: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
+          kmRecorridos,
           totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
           cantidadRegistros: records.length,
           visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
@@ -603,34 +587,28 @@ export async function getDailyReport(dateString) {
       orderBy: { fecha: 'asc' }
     })) || [];
 
-    // Calcular estadísticas del día con lógica basada en el estado anterior
+    const allPrev = await getPrisma().registroDiario.findMany({
+      where: { fecha: { lt: isoStart } },
+      orderBy: { fecha: 'desc' },
+      select: { vehiculoId: true, kmActual: true }
+    });
+
+    const previousKms = {};
+    allPrev.forEach(r => {
+      if (r.vehiculoId && previousKms[r.vehiculoId] === undefined) {
+        previousKms[r.vehiculoId] = r.kmActual;
+      }
+    });
+
     const vehicleData = {};
     const branchBreakdown = {};
     
-    // Obtener IDs de vehículos únicos que tuvieron actividad hoy
-    const vehicleIds = [...new Set(registros.map(r => r.vehiculoId))];
-    
-    // Para cada vehículo, buscar su lectura inmediatamente anterior a hoy
-    const previousKms = {};
-    await Promise.all(vehicleIds.map(async (vId) => {
-      const lastPrev = await getPrisma().registroDiario.findFirst({
-        where: {
-          vehiculoId: vId,
-          fecha: { lt: isoStart }
-        },
-        orderBy: { fecha: 'desc' },
-        select: { kmActual: true }
-      });
-      previousKms[vId] = lastPrev?.kmActual || null;
-    }));
-
     registros.forEach(r => {
       const km = r.kmActual || 0;
       const vehicleKey = r.vehiculoId || "SD";
 
       if (!vehicleData[vehicleKey]) {
-        // El punto de partida es la lectura anterior a hoy si existe, o la primera de hoy si no
-        const startKm = (r.vehiculoId && previousKms[r.vehiculoId] !== null) ? previousKms[r.vehiculoId] : km;
+        const startKm = (r.vehiculoId && previousKms[r.vehiculoId] !== undefined) ? previousKms[r.vehiculoId] : km;
         vehicleData[vehicleKey] = { 
           start: startKm, 
           max: km, 

@@ -13,7 +13,7 @@ export async function GET() {
       "Brian Lopez", "Christian González", "David Francisconi", "Diego Retamar", 
       "Esteban diaz", "Gonzalo Martinez", "Gally Nelson", "Gerardo Visconti", 
       "Ivan Santillan", "Jonathan Vondrack", "Juan Cruz Hidalgo", "Lucio Bello", 
-      "Mariano Dejasman", "Matías Chaile", "Miguel Cejas", "Tomas Casco"
+      "Mariano", "Matías Chaile", "Miguel Cejas", "Tomas Casco"
     ];
     
     for (const name of defaultDrivers) {
