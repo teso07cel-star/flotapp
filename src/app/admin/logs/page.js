@@ -12,8 +12,9 @@ async function deleteRegistroAction(formData) {
   redirect("/admin/logs");
 }
 
-export default async function AdminLogs() {
-  const dateString = new Date().toISOString().split('T')[0];
+export default async function AdminLogs({ searchParams }) {
+  const params = await searchParams;
+  const dateString = params?.date || new Date().toISOString().split('T')[0];
   const res = await getDailyReport(dateString);
   
   // getDailyReport devuelve ordenado por fecha ascendente. Los invertimos para ver los más recientes primero.
@@ -23,16 +24,31 @@ export default async function AdminLogs() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700  pb-6 mb-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Bitácoras del Día</h1>
-          <p className="text-gray-500 ">Mostrando todos los {registros.length} registros generados hoy.</p>
+          <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase italic">Bitácoras <span className="text-blue-500">Operativas</span></h1>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">{dateString} · {registros.length} registros</p>
         </div>
-        <Link 
-          href="/admin"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900/40 text-black hover:bg-slate-800/50 rounded-2xl font-black transition-all shadow-xl shadow-white/5 text-[10px] uppercase tracking-widest"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-          Volver al Panel
-        </Link>
+        
+        <div className="flex items-center gap-4">
+          <form method="get" className="flex items-center gap-2">
+            <input 
+              type="date" 
+              name="date" 
+              defaultValue={dateString}
+              className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all">
+              Filtrar
+            </button>
+          </form>
+
+          <Link 
+            href="/admin"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 rounded-2xl font-black transition-all shadow-lg text-[10px] uppercase tracking-widest"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Panel
+          </Link>
+        </div>
       </div>
 
       <div className="bg-slate-900/40 bg-[#0f172a] border border-slate-700  rounded-[2rem] p-8 shadow-2xl shadow-black/5 flex flex-col gap-6">
