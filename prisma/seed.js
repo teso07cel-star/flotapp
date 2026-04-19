@@ -47,10 +47,12 @@ async function main() {
     });
   }
 
-  // 3. Choferes
+  // 3. Choferes OFICIALES v8.3 (Audio Ultimátum)
   const defaultDrivers = [
-    'Tomás Casco', 'Iván Santillán', 'Gali Nelson', 'Juan Cruz Hidalgo', 
-    'Matías Chaile', 'Vega Jorge Daniel', 'Christian González', 'VideoTest'
+    'Brian Lopez', 'Christian González', 'David Francisconi', 'Diego Retamar',
+    'Esteban diaz', 'Gonzalo Martinez', 'Gally Nelson', 'Gerardo Visconti',
+    'Ivan Santillan', 'Jonathan Bondrack', 'Juan Cruz Hidalgo', 'Lucio Bello',
+    'Mariano Dejasman', 'Matías Chaile', 'Miguel Cejas', 'Tomas Casco'
   ];
   console.log(`👨‍✈️ Cargando ${defaultDrivers.length} conductores críticos...`);
   for (const name of defaultDrivers) {

@@ -147,6 +147,11 @@
   ],
   "sucursales": [
     {
+      "id": 1,
+      "nombre": "Boedo",
+      "direccion": "Avenida Corrientes 809"
+    },
+    {
       "id": 4,
       "nombre": "San Martin",
       "direccion": ""
@@ -262,16 +267,6 @@
       "direccion": ""
     },
     {
-      "id": 27,
-      "nombre": "VOY Y VUELVO",
-      "direccion": ""
-    },
-    {
-      "id": 28,
-      "nombre": "Madero",
-      "direccion": ""
-    },
-    {
       "id": 29,
       "nombre": "Canning",
       "direccion": ""
@@ -333,7 +328,7 @@
     },
     {
       "id": 41,
-      "nombre": "La Plata",
+      "nombre": "La Plata 50",
       "direccion": ""
     },
     {
