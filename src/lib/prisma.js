@@ -17,9 +17,9 @@ const prismaClientSingleton = () => {
     console.log("🚀 PRISMA: Inicializando Pool de Conexiones...");
     const pool = new pg.Pool({ 
       connectionString: dbUrl,
-      max: 2,
+      max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
+      connectionTimeoutMillis: 15000,
     });
     
     pool.on('error', (err) => console.error('❌ Error imprevisto en Pool de PG:', err));

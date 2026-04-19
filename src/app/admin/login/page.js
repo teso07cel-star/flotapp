@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginAdmin } from "@/lib/appActions";
+import { loginAdmin } from "@/lib/authActions";
 import { AdminFaceIcon } from "@/components/FuturisticIcons";
 
 export default function AdminLogin() {

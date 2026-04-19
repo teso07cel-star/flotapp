@@ -52,7 +52,7 @@ export async function getAllVehiculos() {
         registros: { orderBy: { fecha: 'desc' }, take: 1 }
       }
     });
-    return { success: true, data: vehiculos };
+    return purify({ success: true, data: vehiculos });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -529,7 +529,7 @@ export async function getUltimosRegistros(limit = 10) {
         sucursales: true
       }
     });
-    return { success: true, data: registros };
+    return purify({ success: true, data: registros });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -552,32 +552,10 @@ export async function getVehiculoById(id) {
         }
       }
     });
-    return { success: true, data: vehiculo };
+    return purify({ success: true, data: vehiculo });
   } catch (error) {
     return { success: false, error: error.message };
   }
-}
-export async function loginAdmin(formData) {
-  const password = typeof formData === "string" ? formData : formData.get("password")?.toString();
-  
-  if (password === "admin123") {
-    const { cookies } = await import("next/headers");
-    (await cookies()).set("flotapp_admin_auth", "true", { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7 // 1 week
-    });
-    
-    // Redirect if it's a form submission (Zero-JS fallback)
-    if (typeof formData !== "string") {
-      const { redirect } = await import("next/navigation");
-      redirect("/admin");
-    }
-    
-    return { success: true };
-  }
-  return { success: false, error: "Contraseña incorrecta" };
 }
 
 
@@ -753,7 +731,7 @@ export async function getAllChoferes() {
       orderBy: { nombre: 'asc' } 
     });
     console.log(`✅ APP_ACTIONS: Se encontraron ${choferes.length} choferes.`);
-    return { success: true, data: choferes };
+    return purify({ success: true, data: choferes });
   } catch (error) {
     console.error("Error in getAllChoferes:", error);
     return { success: false, error: error.message };
