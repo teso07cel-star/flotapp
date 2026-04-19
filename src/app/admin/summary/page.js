@@ -28,7 +28,7 @@ export default async function MonthlySummary({ searchParams }) {
         <div>
           <div className="flex items-center gap-3 mb-4">
              <div className="h-1 w-12 bg-blue-500 rounded-full" />
-             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500/80">Inteligencia de Flota B8.3</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500/80">Inteligencia de Flota v8.3 Protocolo Táctico</span>
           </div>
           <h1 className="text-6xl font-black tracking-tighter mb-2 uppercase italic text-white drop-shadow-2xl">
             Estado de <span className="text-blue-500">Flota</span>
@@ -51,6 +51,24 @@ export default async function MonthlySummary({ searchParams }) {
             type="monthly"
           />
           
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => window.print()}
+              className="bg-white text-slate-900 px-5 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-500 hover:text-white transition-all shadow-xl flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+              Exportar PDF
+            </button>
+            <a 
+              href={`https://wa.me/?text=${encodeURIComponent(`Resumen de Flota v8.3 - ${months[month]} ${year}\nKilometraje Total: ${totalFlotaKm} KM\nGastos: $${totalFlotaGastos}`)}`}
+              target="_blank"
+              className="bg-emerald-600 text-white px-5 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-emerald-500 transition-all shadow-xl flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+
           <form className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-xl p-3 rounded-3xl border border-white/10 shadow-2xl">
             <select 
               name="month"
@@ -58,7 +76,7 @@ export default async function MonthlySummary({ searchParams }) {
               className="bg-transparent text-xs font-black uppercase tracking-widest outline-none px-4 py-2 border-r border-white/5 text-white"
             >
               {months.map((m, i) => (
-                <option key={m} value={i} className="bg-slate-900">{m}</option>
+                <option key={m} value={i} className="bg-slate-900 text-white">{m}</option>
               ))}
             </select>
             <input 

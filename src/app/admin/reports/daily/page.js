@@ -32,13 +32,19 @@ export default async function DailyReport({ searchParams }) {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte <span className="text-slate-400">TACTICA b4.0</span></h1>
-          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Actividad operativa centralizada</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Jornada <span className="text-slate-400">TACTICA v8.3</span></h1>
+          <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Auditoría Operativa Centralizada</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
+          <button 
+            onClick={() => window.print()}
+            className="bg-white text-slate-900 px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-xl"
+          >
+            PDF Profesional
+          </button>
           <ShareReportButton 
-            title="Reporte Diario FlotApp"
+            title="Auditoría v8.3"
             data={{ 
               stats, 
               date: format(new Date(dateStr + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es }) 
@@ -48,15 +54,77 @@ export default async function DailyReport({ searchParams }) {
         </div>
         
         <form className="flex items-center gap-3 bg-slate-900/40 bg-[#0f172a] p-2 rounded-2xl border border-slate-700  shadow-xl shadow-black/5">
-          <label className="pl-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Fecha:</label>
+          <label className="pl-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Calendario:</label>
           <input 
             name="date"
             type="date" 
             defaultValue={dateStr}
             className="bg-transparent text-sm font-bold outline-none p-2 border-r border-slate-800/50 "
           />
-          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Ver Día</button>
+          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Sincronizar</button>
         </form>
+      </div>
+
+      {/* SECCIÓN LIBRITO (ACORDEÓN POR CONDUCTOR) */}
+      <div className="space-y-6">
+         <h2 className="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-4 border-l-4 border-blue-600 pl-4">Historial por Conductor (Librito v8.3)</h2>
+         {Object.entries(registros.reduce((acc, r) => {
+            const name = r.nombreConductor || "Sin Asignar";
+            if (!acc[name]) acc[name] = [];
+            acc[name].push(r);
+            return acc;
+         }, {})).map(([chofer, logs]) => (
+            <details key={chofer} className="group bg-slate-900/40 border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-500">
+               <summary className="flex items-center justify-between p-8 cursor-pointer hover:bg-white/5 list-none">
+                  <div className="flex items-center gap-6">
+                     <div className="w-12 h-12 bg-blue-600/20 text-blue-500 rounded-2xl flex items-center justify-center font-black text-xl border border-blue-500/20">
+                        {chofer.charAt(0)}
+                     </div>
+                     <div>
+                        <h3 className="text-xl font-black uppercase tracking-tight text-white">{chofer}</h3>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{logs.length} Operaciones registradas</p>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <span className="bg-slate-800 text-[9px] font-black px-4 py-2 rounded-full uppercase tracking-tighter text-slate-400 group-open:hidden">Ver Actividad</span>
+                     <svg className="w-6 h-6 text-slate-600 transform transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+               </summary>
+               <div className="p-8 pt-0 space-y-4">
+                  <div className="grid grid-cols-1 gap-2">
+                     {logs.map((L, idx) => (
+                        <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900/60 rounded-2xl border border-white/5 gap-4">
+                           <div className="flex items-center gap-4">
+                              <span className="font-mono text-xs font-black text-blue-400 bg-blue-400/5 px-3 py-1 rounded-lg border border-blue-400/10">{L.vehiculo?.patente || "S/D"}</span>
+                              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{L.tipoReporte}</span>
+                              <span className="text-[10px] font-bold text-slate-500"><FormattedDate date={L.fecha} showDate={false} /></span>
+                           </div>
+                           <div className="flex items-center gap-6">
+                              <div className="text-right">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">KM Reportado</p>
+                                 <p className="text-sm font-black text-white">{L.kmActual?.toLocaleString() || "0"} KM</p>
+                              </div>
+                              <div className="h-8 w-px bg-white/5" />
+                              <div className="flex items-center gap-1">
+                                 {L.sucursales?.map(s => (
+                                    <span key={s.id} className="text-[8px] bg-slate-800 text-slate-400 px-2 py-1 rounded font-black uppercase">{s.nombre}</span>
+                                 ))}
+                              </div>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+                  <a 
+                    href={`https://wa.me/?text=${encodeURIComponent(`Historial Táctico v8.3 - Conductor: ${chofer}\nFecha: ${dateStr}\nRegistros: ${logs.length}`)}`}
+                    target="_blank"
+                    className="mt-4 inline-flex items-center gap-2 text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Compartir Librito vía WhatsApp
+                  </a>
+               </div>
+            </details>
+         ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
