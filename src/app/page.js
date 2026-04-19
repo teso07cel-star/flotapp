@@ -41,6 +41,9 @@ function HomePageContent() {
              <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
           <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
+          <div className="mt-4 inline-block bg-blue-600/10 border border-blue-500/20 px-4 py-1 rounded-full">
+            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Protocolo de Blindaje v8.3.1 Activo</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
