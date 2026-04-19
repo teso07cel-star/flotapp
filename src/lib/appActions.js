@@ -717,7 +717,22 @@ export async function getDailyReport(dateString) {
  */
 function purify(data) {
   try {
-    return JSON.parse(JSON.stringify(data));
+    const clean = JSON.parse(JSON.stringify(data));
+    
+    // Protocolo de Privacidad Señor X: Purga de Mariano
+    const purge = (obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      for (const key in obj) {
+        if (typeof obj[key] === 'string' && key.toLowerCase().includes('nombre')) {
+          if (obj[key].startsWith('Mariano')) obj[key] = 'Mariano';
+        } else if (typeof obj[key] === 'object') {
+          purge(obj[key]);
+        }
+      }
+    };
+    purge(clean);
+    
+    return clean;
   } catch (e) {
     console.error("Fallo crítico de purificación:", e);
     return null;
