@@ -505,9 +505,9 @@ export async function getMonthlySummary(month, year) {
        }))
     };
 
-    return { 
+     return { 
       success: true, 
-      data: finalData 
+      data: JSON.parse(JSON.stringify(finalData)) 
     };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
@@ -580,12 +580,6 @@ export async function loginAdmin(formData) {
   return { success: false, error: "Contraseña incorrecta" };
 }
 
-export async function logoutAdmin() {
-  const { cookies } = await import("next/headers");
-  (await cookies()).delete("flotapp_admin_auth", { path: "/" });
-  const { redirect } = await import("next/navigation");
-  redirect("/");
-}
 
 export async function handleDriverEntry(formData) {
   const patenteRaw = formData.get("patente")?.toString();
@@ -730,11 +724,25 @@ export async function getDailyReport(dateString) {
 
     return { 
       success: true, 
-      data: finalData 
+      data: JSON.parse(JSON.stringify(finalData))
     };
   } catch (error) {
     console.error("Error in getDailyReport:", error);
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * PROTOCOLO DE PUREZA v5.0.0
+ * Fuerza la conversión de cualquier estructura de datos a JSON puro.
+ * Elimina Símbolos de Prisma, funciones ocultas y tipos no serializables.
+ */
+function purify(data) {
+  try {
+    return JSON.parse(JSON.stringify(data));
+  } catch (e) {
+    console.error("Fallo crítico de purificación:", e);
+    return null;
   }
 }
 export async function getAllChoferes() {

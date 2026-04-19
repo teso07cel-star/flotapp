@@ -1,7 +1,7 @@
 {
   "name": "flota-app",
-  "version": "4.0.0",
-  "comment": "SEÑOR_X_ATOMIC_PURGE_v4.0.0",
+  "version": "5.0.0",
+  "comment": "SEÑOR_X_PURITY_PROTOCOL_v5.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

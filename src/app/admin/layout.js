@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { logoutAdmin } from "@/lib/appActions";
+import { logoutAdmin } from "@/lib/authActions";
 import Image from "next/image";
 import { AdminFaceIcon, StrategicGearIcon } from "@/components/FuturisticIcons";
 
