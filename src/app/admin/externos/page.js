@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
+import { updateVehiculoExterno, getVehiculoByPatente, getAllVehiculosRestricted } from "@/lib/appActions";
+import { purify } from "@/lib/utils";
+import FormExterno from "@/components/admin/FormExterno";
 import { getPrisma } from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
-import { purify } from "@/lib/appActions";
 
 export default async function ExternalAdmin() {
   const vehiculosRaw = await getPrisma().vehiculo.findMany({

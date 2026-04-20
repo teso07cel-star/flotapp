@@ -2,7 +2,7 @@
 import { getPrisma } from "./prisma.js";
 import { revalidatePath } from "next/cache";
 import { calculateSequentialRoute } from "./geoUtils.js";
-import { getArDate } from "./utils.js";
+import { getArDate, purify } from "./utils.js";
 
 export async function getVehiculoByPatente(patente) {
   // Eliminado guardia de construcción manual para forzar visibilidad real
@@ -710,34 +710,11 @@ export async function getDailyReport(dateString) {
   }
 }
 
-/**
- * PROTOCOLO DE PUREZA v5.0.0
- * Fuerza la conversión de cualquier estructura de datos a JSON puro.
- * Elimina Símbolos de Prisma, funciones ocultas y tipos no serializables.
- */
-export function purify(data) {
-  try {
-    const clean = JSON.parse(JSON.stringify(data));
-    
-    // Protocolo de Privacidad Señor X: Purga de Mariano
-    const purge = (obj) => {
-      if (!obj || typeof obj !== 'object') return;
-      for (const key in obj) {
-        if (typeof obj[key] === 'string' && key.toLowerCase().includes('nombre')) {
-          if (obj[key].startsWith('Mariano')) obj[key] = 'Mariano';
-        } else if (typeof obj[key] === 'object') {
-          purge(obj[key]);
-        }
-      }
-    };
-    purge(clean);
-    
-    return clean;
-  } catch (e) {
-    console.error("Fallo crítico de purificación:", e);
-    return null;
-  }
-}
+ /**
+  * PROTOCOLO DE PUREZA v6.0.0
+  * Eliminado de appActions (Server Side) para compatibilidad con Next.js.
+  * Ahora reside en utils.js.
+  */
 export async function getAllChoferes() {
   console.log("🔍 APP_ACTIONS: Consultando lista de choferes activos...");
   try {
