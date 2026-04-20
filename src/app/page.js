@@ -36,13 +36,13 @@ function HomePageContent() {
           <div className="inline-flex items-center justify-center space-x-4 mb-10">
              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
              <h1 className="text-6xl font-black tracking-[-0.05em] text-white flex items-center gap-4">
-                FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-red-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.5)]">v8.3 BLINDADA</span>
+                FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-green-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.5)]">v8.3.1.5 RESTORED</span>
              </h1>
              <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
           </div>
           <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
           <div className="mt-4 inline-block bg-blue-600/10 border border-blue-500/20 px-4 py-1 rounded-full">
-            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Protocolo de Blindaje v8.3.1 Activo</span>
+            <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Protocolo de Restauración v6.2.1 Activo</span>
           </div>
         </div>
 
