@@ -1,11 +1,11 @@
 {
   "name": "flota-app",
-  "version": "6.0.0",
-  "comment": "SEÑOR_X_STEEL_LEGACY_v6.0.0",
+  "version": "6.2.0",
+  "comment": "SEÑOR_X_STEEL_LEGACY_v6.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "DATABASE_URL=postgres://dummy npx prisma@7.5.0 generate && next build",
+    "build": "npx prisma@7.5.0 generate && next build",
     "start": "next start",
     "lint": "eslint"
   },

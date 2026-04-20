@@ -3,9 +3,10 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { getPrisma } from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
+import { purify } from "@/lib/appActions";
 
 export default async function ExternalAdmin() {
-  const vehiculos = await getPrisma().vehiculo.findMany({
+  const vehiculosRaw = await getPrisma().vehiculo.findMany({
     where: { tipo: "EXTERNO" },
     orderBy: { patente: 'asc' },
     include: {
@@ -19,6 +20,8 @@ export default async function ExternalAdmin() {
       }
     }
   });
+
+  const vehiculos = purify(vehiculosRaw) || [];
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">

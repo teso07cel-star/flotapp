@@ -15,7 +15,7 @@ export async function getVehiculoByPatente(patente) {
         registros: { orderBy: { fecha: 'desc' }, take: 1 },
       }
     });
-    return { success: true, data: vehiculo };
+    return purify({ success: true, data: vehiculo });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -34,7 +34,7 @@ export async function getDriverOperationalStatus(driverName) {
     if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
        const cleanName = driverName.toString().trim();
        const choferDB = await getPrisma().chofer.findUnique({ where: { nombre: cleanName } });
-       return { success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } };
+       return purify({ success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } });
     }
     const lastKm = lastRecord.kmActual || 0;
     const addedDistance = lastRecord.kmTeoricos || 0;
@@ -193,7 +193,7 @@ export async function createRegistroDiario(data) {
     });
 
     revalidatePath("/admin");
-    return { success: true, data: registro };
+    return purify({ success: true, data: registro });
   } catch (error) {
     console.error("Error creating registro:", error);
     return { success: false, error: error.message };
@@ -214,7 +214,7 @@ export async function addGasto(formData) {
     
     revalidatePath("/admin/vehicles/[id]/expenses", "page");
     revalidatePath("/admin/summary");
-    return { success: true, data: gasto };
+    return purify({ success: true, data: gasto });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -238,7 +238,7 @@ export async function getGastosByVehiculo(vehiculoId) {
       where: { vehiculoId: parseInt(vehiculoId) },
       orderBy: { fecha: 'desc' }
     });
-    return { success: true, data: gastos };
+    return purify({ success: true, data: gastos });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -256,7 +256,7 @@ export async function getRouteMileage(driverName, sucursalIds) {
     const stopNames = stops.map(s => s.nombre);
     const distance = Math.round(calculateSequentialRoute(stopNames, driverName));
     
-    return { success: true, data: distance };
+    return purify({ success: true, data: distance });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -292,7 +292,7 @@ export async function updateSucursal(id, data) {
       }
     });
     revalidatePath("/admin/branches");
-    return { success: true, data: s };
+    return purify({ success: true, data: s });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -700,10 +700,10 @@ export async function getDailyReport(dateString) {
       }
     };
 
-    return { 
+    return purify({ 
       success: true, 
-      data: JSON.parse(JSON.stringify(finalData))
-    };
+      data: finalData
+    });
   } catch (error) {
     console.error("Error in getDailyReport:", error);
     return { success: false, error: error.message };
@@ -715,7 +715,7 @@ export async function getDailyReport(dateString) {
  * Fuerza la conversión de cualquier estructura de datos a JSON puro.
  * Elimina Símbolos de Prisma, funciones ocultas y tipos no serializables.
  */
-function purify(data) {
+export function purify(data) {
   try {
     const clean = JSON.parse(JSON.stringify(data));
     
@@ -766,7 +766,7 @@ export async function addChofer(nombre) {
       data: { nombre: cleanName }
     });
     revalidatePath("/admin/choferes");
-    return { success: true, data: c };
+    return purify({ success: true, data: c });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -791,7 +791,7 @@ export async function updateChoferPatente(id, patenteAsignada) {
       data: { patenteAsignada: patenteAsignada?.toString().replace(/\s+/g, "").toUpperCase().trim() || null }
     });
     revalidatePath("/admin/choferes");
-    return { success: true, data: c };
+    return purify({ success: true, data: c });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -916,7 +916,7 @@ export async function addMantenimiento(data) {
     }
 
     revalidatePath(`/admin/vehicles/${vehiculoId}`);
-    return { success: true, data: m };
+    return purify({ success: true, data: m });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -997,12 +997,12 @@ export async function getAutorizacionesPendientes() {
         where: { estado: "PENDIENTE" },
         orderBy: { fechaSolicitud: 'desc' }
       });
-      return { success: true, data: solicitudes };
+      return purify({ success: true, data: solicitudes });
     } else {
       const rows = await getPrisma().$queryRawUnsafe(
         'SELECT * FROM "AutorizacionDispositivo" WHERE "estado" = \'PENDIENTE\' ORDER BY "fechaSolicitud" DESC'
       );
-      return { success: true, data: rows };
+      return purify({ success: true, data: rows });
     }
   } catch (error) {
     console.error("Error en getAutorizacionesPendientes:", error.message);
@@ -1010,7 +1010,7 @@ export async function getAutorizacionesPendientes() {
       const rows = await getPrisma().$queryRawUnsafe(
         'SELECT * FROM "AutorizacionDispositivo" WHERE "estado" = \'PENDIENTE\' ORDER BY "fechaSolicitud" DESC'
       );
-      return { success: true, data: rows };
+      return purify({ success: true, data: rows });
     } catch (sqlError) {
       return { success: false, error: sqlError.message };
     }
@@ -1117,7 +1117,7 @@ export async function getDriverTraces(driverName, dateString) {
       orderBy: { fecha: "asc" },
     });
 
-    return { success: true, data: registros };
+    return purify({ success: true, data: registros });
   } catch (error) {
     console.error("Error in getDriverTraces:", error);
     return { success: false, error: error.message };
@@ -1217,7 +1217,7 @@ export async function getNovedadesPendientes() {
         vehiculoId: r.vehiculoId,
       }));
 
-    return { success: true, data: novedades };
+    return purify({ success: true, data: novedades });
   } catch (error) {
     console.error("Error in getNovedadesPendientes:", error);
     return { success: false, error: error.message };
@@ -1297,14 +1297,14 @@ export async function getRangeReport(startDateStr, endDateStr) {
       conductores: Array.from(v.conductores),
     }));
 
-    return {
+    return purify({
       success: true,
       data: {
         registros,
         stats: { totalKm, uniqueVehicles, totalVisits, branchBreakdown },
         vehicleData,
       },
-    };
+    });
   } catch (error) {
     console.error("Error in getRangeReport:", error);
     return { success: false, error: error.message };
