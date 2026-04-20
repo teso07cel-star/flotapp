@@ -1,8 +1,6 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
-import { updateVehiculoExterno, getVehiculoByPatente, getAllVehiculosRestricted } from "@/lib/appActions";
 import { purify } from "@/lib/utils";
-import FormExterno from "@/components/admin/FormExterno";
 import { getPrisma } from "@/lib/prisma";
 import FormattedDate from "@/components/FormattedDate";
 
