@@ -156,13 +156,13 @@ export default async function MonthlyReport({ searchParams }) {
         <Link href="/admin" className="bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.4em] hover:bg-blue-700 transition-all shadow-[0_20px_60px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95">Volver al Mando</Link>
       </div>
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           .no-print { display: none !important; }
           body { background: white !important; }
           @page { margin: 20mm; }
         }
-      `}</style>
+      `}} />
     </div>
   );
 }
