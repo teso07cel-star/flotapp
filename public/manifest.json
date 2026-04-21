@@ -15,7 +15,7 @@
   ],
   "theme_color": "#020617",
   "background_color": "#020617",
-  "display": "browser",
+  "display": "standalone",
   "scope": "/",
   "start_url": "/",
   "orientation": "portrait"

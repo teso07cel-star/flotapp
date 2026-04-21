@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { getAllVehiculos, getUltimosRegistros, deleteVehiculo, getDailyReport } from "@/lib/appActions";
-import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
 import VehicleIcon from "@/components/VehicleIcon";
 import DeleteLogButton from "@/components/DeleteLogButton";
@@ -13,8 +12,6 @@ async function deleteVehiculoAction(formData) {
   const { redirect } = await import("next/navigation");
   redirect("/admin");
 }
-
-
 
 export default async function AdminDashboard() {
   const [vRes, rRecentRes, rDailyRes] = await Promise.all([
@@ -28,77 +25,96 @@ export default async function AdminDashboard() {
   const dailyStats = rDailyRes.success ? rDailyRes.data.stats : { uniqueVehicles: 0, totalVisits: 0, totalKm: 0, branchBreakdown: {} };
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-screen bg-[#020617] text-white space-y-12 animate-in fade-in duration-1000 relative overflow-hidden">
+      {/* HUD Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-blue-600/10 blur-[150px] pointer-events-none -z-10" />
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none -z-20" />
+
+      {/* Header Premium HUD v2.0 */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/10 pb-12 mb-12">
         <div>
-          <h1 className="text-3xl font-black tracking-widest mb-2 uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Panel General</h1>
-          <p className="text-blue-400 font-bold tracking-[0.2em] uppercase text-xs">v8.3 Protocolo de Enlace Táctico</p>
+          <div className="flex items-center gap-3 mb-6">
+             <div className="h-1 w-16 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400">Orquestador Logístico v3.6</span>
+          </div>
+          <h1 className="text-7xl font-black tracking-tighter mb-4 uppercase italic text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+            Centro de <span className="text-blue-500">Mando</span>
+          </h1>
+          <p className="text-slate-400 font-bold uppercase text-xs tracking-[0.4em] flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+            Protocolo de Visualización Táctica Activo
+          </p>
         </div>
+
         <div className="flex flex-wrap gap-4">
-          <Link href="/api/sync" className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 hover:text-white rounded-2xl font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] text-[10px] uppercase tracking-widest backdrop-blur-md">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-            SINCRONIZAR DATOS
-          </Link>
-          <Link href="/admin/benefits" className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 rounded-2xl font-black transition-all shadow-lg text-[10px] uppercase tracking-widest">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/><path d="m5 7 3 5-3 5"/><path d="m19 7-3 5 3 5"/></svg>
-            Impacto y ROI
-          </Link>
-          <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white rounded-2xl font-bold transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] text-[10px] uppercase tracking-widest backdrop-blur-md">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-            VER RESUMEN MENSUAL
-          </Link>
+           <Link href="/api/sync" className="bg-slate-900/60 backdrop-blur-2xl px-8 py-4 rounded-2xl border border-white/5 hover:border-emerald-500/50 transition-all group flex flex-col items-center justify-center min-w-[140px]">
+              <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1 group-hover:animate-pulse">Sincronizar</span>
+              <span className="text-xs font-bold uppercase italic text-white/70 group-hover:text-white transition-colors">Data Stream</span>
+           </Link>
+           <Link href="/admin/summary" className="bg-blue-600/20 backdrop-blur-2xl px-10 py-5 rounded-3xl border border-blue-500/30 hover:bg-blue-600/40 transition-all flex flex-col items-center justify-center min-w-[200px] shadow-2xl shadow-blue-500/10">
+              <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1">Métrica Mensual</span>
+              <span className="text-xl font-black uppercase italic tracking-widest">El Libro</span>
+           </Link>
         </div>
       </div>
       
       {/* Resumen Táctico Hoy */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-6 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>
-            <p className="text-[10px] font-black uppercase text-blue-400/60 tracking-[0.2em] mb-2">Unidades Hoy</p>
-            <h2 className="text-4xl font-black tracking-tighter text-white">{dailyStats.uniqueVehicles}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-900 rounded-[3rem] p-10 shadow-3xl shadow-blue-500/20 relative group overflow-hidden">
+            <div className="relative z-10">
+              <p className="text-blue-200/60 text-[10px] font-black uppercase tracking-widest mb-4">Recorrido Hoy</p>
+              <h2 className="text-6xl font-black tracking-tighter">{(dailyStats.totalKm || 0).toLocaleString()}</h2>
+              <p className="text-white/80 font-bold text-xs uppercase mt-4">Kilómetros Consolidados</p>
+            </div>
+            <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+            </div>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-6 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
-            <p className="text-[10px] font-black uppercase text-blue-400/60 tracking-[0.2em] mb-2">Logística (Visitas)</p>
-            <h2 className="text-4xl font-black tracking-tighter text-white">{dailyStats.totalVisits}</h2>
+
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-10 shadow-2xl group hover:border-blue-500/50 transition-all duration-500">
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">Operación Local</p>
+            <h2 className="text-6xl font-black tracking-tighter text-white">{dailyStats.totalVisits}</h2>
+            <p className="text-blue-500 font-bold text-xs uppercase mt-4">Visitas Cumplidas</p>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-6 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></div>
-            <p className="text-[10px] font-black uppercase text-blue-400/60 tracking-[0.2em] mb-2">Recorrido Total (KM)</p>
-            <h2 className="text-4xl font-black tracking-tighter text-white">{(dailyStats.totalKm || 0).toLocaleString()}</h2>
+
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-10 shadow-2xl">
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">Disponibilidad</p>
+            <h2 className="text-6xl font-black tracking-tighter text-white">{dailyStats.uniqueVehicles}</h2>
+            <p className="text-emerald-500 font-bold text-xs uppercase mt-4">Unidades en Red</p>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-6 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
-            <p className="text-[10px] font-black uppercase text-blue-400/60 tracking-[0.2em] mb-2">Eficiencia</p>
-            <h2 className="text-4xl font-black tracking-tighter text-white">{dailyStats.totalVisits > 0 ? (dailyStats.totalKm / dailyStats.totalVisits).toFixed(1) : 0} <span className="text-xs text-blue-400">km/v</span></h2>
+
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-10 shadow-2xl">
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">Eficiencia Hoy</p>
+            <h2 className="text-6xl font-black tracking-tighter text-white">{dailyStats.totalVisits > 0 ? (dailyStats.totalKm / dailyStats.totalVisits).toFixed(1) : 0}</h2>
+            <p className="text-amber-500 font-bold text-xs uppercase mt-4">KM por Visita</p>
           </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8">
         {/* Vehículos List */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold uppercase tracking-widest text-slate-200">Flota de Vehículos</h2>
-            <Link href="/admin/vehicles/new" className="text-xs font-bold text-blue-400 bg-blue-500/10 px-4 py-2 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 hover:text-blue-300 transition-colors uppercase tracking-wider">
-              + Agregar Vehículo
+            <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-white italic border-l-4 border-blue-500 pl-6">Estado de Flota</h2>
+            <Link href="/admin/vehicles/new" className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-6 py-3 border border-blue-500/30 rounded-2xl hover:bg-blue-500/20 hover:text-blue-300 transition-all uppercase tracking-widest shadow-xl">
+              + Integrar Unidad
             </Link>
           </div>
 
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[3.5rem] overflow-hidden shadow-3xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-blue-500/10 text-blue-300 text-[10px] tracking-[0.2em] uppercase font-black border-b border-blue-500/20">
-                    <th className="p-5 pl-8">Patente</th>
-                    <th className="p-5">Estado</th>
-                    <th className="p-5 text-right pr-8">Acciones</th>
+                  <tr className="bg-white/5 text-blue-400 text-[10px] tracking-[0.3em] uppercase font-black border-b border-white/5">
+                    <th className="p-8 pl-10">Matrícula Táctica</th>
+                    <th className="p-8">Estatus Operativo</th>
+                    <th className="p-8 text-right pr-10">Auditoría</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-white/5">
                   {vehiculos.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="p-10 text-center text-gray-500 font-medium">
-                        No hay vehículos registrados.
+                      <td colSpan="3" className="p-20 text-center text-slate-500 font-black uppercase tracking-widest text-xs">
+                        Base de datos vacía - Esperando señal...
                       </td>
                     </tr>
                   ) : vehiculos.map((v) => {
@@ -121,49 +137,49 @@ export default async function AdminDashboard() {
                     const isAmber = !isRed && (vtvProxima || seguroProximo || serviceProximo);
 
                     return (
-                      <tr key={v.id} className="hover:bg-blue-500/5 transition-colors group border-b border-blue-500/10 last:border-0">
-                        <td className="p-5 pl-8">
-                          <div className="flex items-center gap-3">
-                             <span className="text-blue-400 opacity-60 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]"><VehicleIcon categoria={v.categoria} className="w-12 h-10"/></span>
-                             <div className="font-mono font-black text-lg tracking-widest text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">{v.patente}</div>
+                      <tr key={v.id} className="hover:bg-white/5 transition-all group border-b border-white/5 last:border-0">
+                        <td className="p-8 pl-10">
+                          <div className="flex items-center gap-6">
+                             <div className="text-blue-500/40 group-hover:text-blue-500 transition-colors drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                               <VehicleIcon categoria={v.categoria} className="w-14 h-12"/>
+                             </div>
+                             <div>
+                                <div className="font-mono font-black text-2xl tracking-widest text-white group-hover:scale-105 transition-transform origin-left drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{v.patente}</div>
+                                {kmActual > 0 && <div className="text-[9px] text-blue-500 font-black uppercase mt-1 tracking-widest opacity-60">{kmActual.toLocaleString()} KM REPORTADOS</div>}
+                             </div>
                           </div>
-                          {kmActual > 0 && <div className="text-[10px] text-blue-300/60 font-bold uppercase mt-1 ml-9">{kmActual.toLocaleString()} KM</div>}
                         </td>
-                        <td className="p-5">
+                        <td className="p-8 text-sm">
                           {isRed ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-500/10 text-red-400 border border-red-500/30 tracking-widest animate-pulse shadow-[0_0_10px_rgba(248,113,113,0.2)]">
-                              Crítico / Vencido
-                            </span>
+                            <div className="flex flex-col gap-2">
+                               <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black uppercase bg-red-500/10 text-red-500 border border-red-500/20 tracking-[0.2em] animate-pulse">
+                                 Fallo Crítico
+                               </span>
+                            </div>
                           ) : isAmber ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30 tracking-widest">
-                              Atención Próxima
+                            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20 tracking-[0.2em]">
+                              Alerta Preventiva
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 tracking-widest pb-[0.2rem]">
-                              Al Día
+                            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 tracking-[0.2em]">
+                              Operativo Nominal
                             </span>
                           )}
-                          <div className="mt-1.5 flex flex-wrap gap-1">
-                             {vtvVencida && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">VTV</span>}
-                             {!vtvVencida && vtvProxima && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">VTV</span>}
-                             {seguroVencido && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">Seguro</span>}
-                             {!seguroVencido && seguroProximo && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">Seguro</span>}
-                             {serviceCritico && <span className="text-[8px] font-bold text-red-400 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase">Service</span>}
-                             {!serviceCritico && serviceProximo && <span className="text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 uppercase">Service</span>}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                             {vtvVencida && <span className="text-[8px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">VTV Vencida</span>}
+                             {seguroVencido && <span className="text-[8px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">Sin Seguro</span>}
+                             {serviceCritico && <span className="text-[8px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">Service Urgente</span>}
                           </div>
                         </td>
-                        <td className="p-5 pr-8 text-right">
-                          <div className="flex items-center justify-end gap-2 text-xs">
-                            <Link href={`/admin/vehicles/${v.id}`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500 hover:text-white shadow-sm uppercase tracking-tighter" title="Ver Expediente">
-                              Ficha
+                        <td className="p-8 pr-10 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <Link href={`/admin/vehicles/${v.id}`} className="px-6 py-2.5 bg-blue-600/10 border border-blue-500/30 text-blue-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-lg active:scale-95">
+                              Expediente
                             </Link>
-                            <Link href={`/admin/vehicles/${v.id}/expenses`} className="inline-flex items-center justify-center h-8 px-3 font-bold transition-all rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 shadow-sm uppercase tracking-tighter" title="Registrar Gastos">
-                              $
-                            </Link>
-                            <form action={deleteVehiculoAction} className="inline">
+                            <form action={deleteVehiculoAction}>
                               <input type="hidden" name="id" value={v.id} />
-                              <button type="submit" className="h-8 w-8 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-transparent hover:border-red-400 border border-red-500/20 bg-red-500/10" title="Borrar Vehículo">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                              <button type="submit" className="p-2.5 text-white/20 hover:text-red-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                               </button>
                             </form>
                           </div>
@@ -177,102 +193,52 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Ultimos Registros */}
-        <div className="space-y-6">
+        {/* Actividad Reciente */}
+        <div className="space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold uppercase tracking-widest text-slate-200">Actividad</h2>
-            <Link href="/admin/logs" className="text-[10px] font-black text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/30 px-4 py-2 rounded-xl transition-colors uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.2)]">
-              Tracker Operativo
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <h2 className="text-xl font-black uppercase tracking-[0.3em] text-white italic">Bitácora Live</h2>
+            <Link href="/admin/logs" className="text-[9px] font-black text-blue-400 hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
+              Historial Completo &rarr;
             </Link>
           </div>
           
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-blue-500/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col gap-6">
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 shadow-3xl space-y-8">
             {registros.length === 0 ? (
-              <p className="text-blue-400/50 text-center py-4 font-bold tracking-widest uppercase text-xs">Sin actividad reciente.</p>
+              <p className="text-slate-600 text-center py-10 font-black uppercase text-[10px] tracking-widest italic">Iniciando recepción de señales...</p>
             ) : registros.map((r) => (
-              <div key={r.id} className="pb-6 border-b border-blue-500/10 last:border-0 last:pb-0 relative group">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                       <span className="text-blue-400/60">
-                          <VehicleIcon categoria={r.vehiculo?.categoria || 'AUTO'} className="w-10 h-8" />
-                       </span>
-                       <span className="font-mono text-sm font-black text-cyan-400 tracking-widest drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
-                         {r.vehiculo?.patente || 'S/D'}
-                       </span>
-                       {r.tipoReporte && (
-                         <span className={`text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
-                           r.tipoReporte === 'INICIO' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' :
-                           r.tipoReporte === 'CIERRE' ? 'bg-pink-500/10 text-pink-400 border-pink-500/30' :
-                           'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                         }`}>
-                           {r.tipoReporte}
-                         </span>
-                       )}
-                       {r.lugarGuarda && (
-                        <a 
-                          href={`https://www.google.com/maps?q=${r.lugarGuarda}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="ml-auto text-[8px] text-emerald-500 hover:text-emerald-400 transition-colors font-black uppercase tracking-widest flex items-center gap-1 opacity-60 hover:opacity-100"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          GPS
-                        </a>
-                      )}
+              <div key={r.id} className="relative pl-6 border-l-2 border-blue-500/30 group">
+                <div className="absolute top-0 -left-[5px] w-2 h-2 bg-blue-500 rounded-full group-hover:scale-150 transition-transform shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                
+                <div className="flex justify-between items-start mb-3">
+                  <div className="space-y-1">
+                    <p className="font-mono font-black text-sm text-white tracking-widest">{r.vehiculo?.patente || "S/D"}</p>
+                    <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest">{r.nombreConductor || "S/D"}</p>
+                  </div>
+                  <div className="text-right">
+                    <FormattedDate date={r.fecha} showDate={false} className="text-[10px] font-black text-slate-400" />
+                    <div className={`text-[7px] font-black px-1.5 py-0.5 mt-1 rounded uppercase tracking-[0.2em] inline-block ${
+                      r.tipoReporte === 'INICIO' ? 'bg-cyan-500 text-black' :
+                      r.tipoReporte === 'CIERRE' ? 'bg-pink-600 text-white' :
+                      'bg-white/10 text-white'
+                    }`}>
+                      {r.tipoReporte}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-end">
-                      <div className="font-bold text-blue-400 text-sm tracking-widest drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">
-                          <FormattedDate date={r.fecha} showDate={false} />
-                      </div>
-                    </div>
-                    <DeleteLogButton id={r.id} />
-                  </div>
                 </div>
-                <div className="text-sm font-bold mb-2 flex items-center gap-1">
-                  {r.kmActual != null ? (
-                    <span className={r.kmModificado ? "text-amber-400 flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" : "flex items-baseline gap-1 text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] tracking-widest"}>
-                      {r.kmActual.toLocaleString()} <span className="text-[10px] text-blue-300/50 font-black uppercase">km</span>
-                      {r.kmModificado && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" title="Editado manualmente"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="text-blue-300/50 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md">Viaje Posterior</span>
-                  )}
-                </div>
-                {r.nombreConductor && (
-                  <div className="text-[10px] text-blue-300 font-bold uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5 opacity-80">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    {r.nombreConductor}
+
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 group-hover:border-blue-500/20 transition-all">
+                  <div className="flex items-center justify-between mb-3 text-xs">
+                     <span className="font-black text-blue-400">{r.kmActual?.toLocaleString()} <span className="text-[8px] opacity-50">KM</span></span>
+                     <DeleteLogButton id={r.id} />
                   </div>
-                )}
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {r.sucursales?.map(s => (
-                    <span key={s.id} className="text-[9px] bg-blue-500/10 border border-blue-500/20 text-cyan-400 px-2 py-1 rounded-md font-black uppercase tracking-[0.2em]">
-                      {s.nombre}
-                    </span>
-                  ))}
-                </div>
-                {r.novedades && (
-                  <div className="mt-3 text-[10px] bg-pink-500/5 text-pink-300 p-3 rounded-xl border border-pink-500/20 leading-relaxed font-bold tracking-wide">
-                    <span className="font-black mr-2 uppercase text-[9px] text-pink-400">INFO TÁCTICA:</span>
-                    {r.novedades}
-                  </div>
-                )}
-                {/* Visual indicator for photos */}
-                {(r.fotoFrente || r.fotoTrasera || r.fotoLateralIzq || r.fotoLateralDer) && (
-                  <div className="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                    {[r.fotoFrente, r.fotoTrasera, r.fotoLateralIzq, r.fotoLateralDer].filter(Boolean).map((foto, idx) => (
-                      <a key={idx} href={foto} target="_blank" rel="noreferrer" className="relative w-16 h-16 rounded-xl overflow-hidden border border-blue-500/30 flex-shrink-0 hover:scale-110 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
-                        <img src={foto} className="w-full h-full object-cover" alt="Inspección" />
-                      </a>
+                  <div className="flex flex-wrap gap-1">
+                    {r.sucursales?.map(s => (
+                      <span key={s.id} className="text-[7px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded border border-blue-500/20 font-black uppercase tracking-tighter">
+                        {s.nombre}
+                      </span>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -281,3 +247,4 @@ export default async function AdminDashboard() {
     </div>
   );
 }
+

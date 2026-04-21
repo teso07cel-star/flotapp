@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createRegistroDiario } from "@/lib/appActions";
+import ConfirmationOverlay from "./ConfirmationOverlay";
+
 
 export default function DriverFormClient({ vehiculo, sucursales, lastLog, identifiedDriver, isFirstLog, operationalStatus, proposedKm }) {
   const [loading, setLoading] = useState(false);
@@ -54,6 +56,9 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     updateMileage();
   }, [selectedSucursales, identifiedDriver, operationalStatus.lastKm, proposedKm, lastLog]);
 
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
+
   const handlePlateChange = () => {
     if (newPatente.trim()) {
       window.location.href = `/driver/form?patente=${newPatente.trim().toUpperCase()}`;
@@ -87,12 +92,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     const res = await createRegistroDiario(payload);
 
     if (res.success) {
+      setConfirmationMessage(type === "CIERRE" ? "Protocolo Finalizado" : "Transmisión Exitosa");
+      setShowConfirmation(true);
+      
+      // La redirección ocurrirá en el onComplete del Overlay
       if (type === "CIERRE") {
         document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        window.location.href = "/";
-      } else {
-        // Nueva redirección al itinerario de navegación (v8.5)
-        window.location.href = `/driver/navigation/${res.data.id}`;
       }
     } else {
       if (res.error === "MILEAGE_AUTH_REQUIRED") {
@@ -105,10 +110,27 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     }
   };
 
+  const handleConfirmationComplete = () => {
+    const isCierre = confirmationMessage === "Protocolo Finalizado";
+    if (isCierre) {
+      window.location.href = "/";
+    } else {
+      // Usar el ID del registro creado (esto requiere que guardemos el ID en un estado si lo necesitamos)
+      // Por ahora redireccionamos a driver para ver el próximo paso o simplemente refrescar
+      window.location.href = "/driver/entry";
+    }
+  };
+
   // --- RENDERS ---
   if (stage === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-1000">
+        <ConfirmationOverlay 
+          show={showConfirmation} 
+          message={confirmationMessage} 
+          onComplete={handleConfirmationComplete} 
+        />
+
          <div className="relative w-32 h-32 mb-12">
             <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping" />
             <div className="absolute inset-2 bg-blue-500/10 rounded-full animate-pulse border border-blue-500/30" />
@@ -156,6 +178,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   if (stage === 1) {
     return (
       <div className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+        <ConfirmationOverlay 
+          show={showConfirmation} 
+          message={confirmationMessage} 
+          onComplete={handleConfirmationComplete} 
+        />
+
          <div className="text-center space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full scale-90">
                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
@@ -235,6 +263,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   if (stage === 2) {
     return (
       <form onSubmit={handleSubmit} className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-700">
+        <ConfirmationOverlay 
+          show={showConfirmation} 
+          message={confirmationMessage} 
+          onComplete={handleConfirmationComplete} 
+        />
+
          <div className="flex items-end justify-between px-4">
             <div className="space-y-1">
                <div className="flex items-center gap-2">
@@ -317,6 +351,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   if (stage === 3) {
     return (
       <form onSubmit={(e) => handleSubmit(e, "CIERRE")} className="space-y-10 animate-in fade-in slide-in-from-bottom-12 duration-1000 text-center">
+        <ConfirmationOverlay 
+          show={showConfirmation} 
+          message={confirmationMessage} 
+          onComplete={handleConfirmationComplete} 
+        />
+
          <div className="relative w-28 h-28 mx-auto mb-10">
             <div className="absolute inset-0 bg-red-600/20 rounded-full animate-ping opacity-30" />
             <div className="absolute inset-0 bg-red-600/10 rounded-full border-2 border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)] flex items-center justify-center">
