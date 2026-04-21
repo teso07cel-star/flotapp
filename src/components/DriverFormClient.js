@@ -91,7 +91,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         window.location.href = "/";
       } else {
-        window.location.href = "/?success=true";
+        // Nueva redirección al itinerario de navegación (v8.5)
+        window.location.href = `/driver/navigation/${res.data.id}`;
       }
     } else {
       if (res.error === "MILEAGE_AUTH_REQUIRED") {
