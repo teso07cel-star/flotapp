@@ -11,6 +11,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   const [authCode, setAuthCode] = useState("");
   const [showAuth, setShowAuth] = useState(false);
   const [gpsLocation, setGpsLocation] = useState("");
+  const [submittedRecordId, setSubmittedRecordId] = useState(null);
   
   // States for the form
   const [currentKm, setCurrentKm] = useState(proposedKm || "");
@@ -92,6 +93,9 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     const res = await createRegistroDiario(payload);
 
     if (res.success) {
+      if (res.data && res.data.id) {
+          setSubmittedRecordId(res.data.id);
+      }
       setConfirmationMessage(type === "CIERRE" ? "Protocolo Finalizado" : "Transmisión Exitosa");
       setShowConfirmation(true);
       
@@ -115,9 +119,11 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     if (isCierre) {
       window.location.href = "/";
     } else {
-      // Usar el ID del registro creado (esto requiere que guardemos el ID en un estado si lo necesitamos)
-      // Por ahora redireccionamos a driver para ver el próximo paso o simplemente refrescar
-      window.location.href = "/driver/entry";
+      if (submittedRecordId) {
+         window.location.href = `/driver/success?id=${submittedRecordId}`;
+      } else {
+         window.location.href = "/driver/entry";
+      }
     }
   };
 
