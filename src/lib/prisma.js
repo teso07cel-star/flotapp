@@ -9,7 +9,7 @@ let prisma;
  * Corregido error de inyección de código y aseguramiento de build estable.
  */
 function createPrismaClient() {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
   
   // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
   if (connectionString.startsWith('prisma://')) {

@@ -1346,16 +1346,17 @@ export async function getConfigLogistica() {
   try {
     const prisma = getPrisma();
     const config = await prisma.configLogistica.findMany();
-    if (!config || config.length === 0) {
-      // FALLBACK DE SEGURIDAD PARA NÚMEROS DE TELÉFONO
-      return purify({ success: true, data: { "whatsapp_notificaciones": "542284683058", "whatsapp_admin": "542284683058" } });
-    }
     const map = {};
     config.forEach(c => { map[c.key] = c.value; });
+    
+    // FALLBACKS SI NO EXISTEN LAS LLAVES EN DB
+    if (!map["PHONE_NORTE"]) map["PHONE_NORTE"] = "542284683058";
+    if (!map["PHONE_SANTELMO"]) map["PHONE_SANTELMO"] = "542284683058";
+    
     return purify({ success: true, data: map });
   } catch (error) {
     console.warn("⚠️ FALLO CARGA CONFIG, USANDO DEFAULT");
-    return purify({ success: true, data: { "whatsapp_notificaciones": "542284683058", "whatsapp_admin": "542284683058" } });
+    return purify({ success: true, data: { "PHONE_NORTE": "542284683058", "PHONE_SANTELMO": "542284683058" } });
   }
 }
 
