@@ -89,26 +89,32 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       patenteManual: vehiculo.id === 0 ? vehiculo.patente : null
     };
 
-    const res = await createRegistroDiario(payload);
+    try {
+      const res = await createRegistroDiario(payload);
 
-    if (res.success) {
-      if (res.data && res.data.id) {
-          setSubmittedRecordId(res.data.id);
-      }
-      setConfirmationMessage(type === "CIERRE" ? "Protocolo Finalizado" : "Transmisión Exitosa");
-      setShowConfirmation(true);
-      setLoading(false);
-      
-      if (type === "CIERRE") {
-        document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      }
-    } else {
-      if (res.error === "MILEAGE_AUTH_REQUIRED") {
-        setShowAuth(true);
-        setError("El kilometraje requiere autorización maestra.");
+      if (res.success) {
+        if (res.data && res.data.id) {
+            setSubmittedRecordId(res.data.id);
+        }
+        setConfirmationMessage(type === "CIERRE" ? "Protocolo Finalizado" : "Transmisión Exitosa");
+        setShowConfirmation(true);
+        setLoading(false);
+        
+        if (type === "CIERRE") {
+          document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
       } else {
-        setError(res.error);
+        if (res.error === "MILEAGE_AUTH_REQUIRED") {
+          setShowAuth(true);
+          setError("El kilometraje requiere autorización maestra.");
+        } else {
+          setError(res.error || "Error desconocido");
+        }
+        setLoading(false);
       }
+    } catch (err) {
+      console.error("Fallo catastrófico en la transmisión:", err);
+      setError("Error de conexión con el servidor Táctico. Reintentando transmisión libre requerida.");
       setLoading(false);
     }
   };
@@ -242,8 +248,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                   className="w-full bg-[#020617] border border-white/10 rounded-[2.5rem] p-8 text-white text-sm focus:border-blue-500 outline-none transition-all h-32"
                />
             </div>
-
             <div className="flex flex-col gap-5 pt-4">
+               {error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
+                     <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{error}</p>
+                  </div>
+               )}
                <button 
                   type="submit" 
                   disabled={loading}
@@ -291,8 +301,12 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                   ))}
                </div>
             </div>
-
             <div className="flex flex-col gap-5">
+               {error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
+                     <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{error}</p>
+                  </div>
+               )}
                <button 
                   type="submit" 
                   disabled={loading}
