@@ -24,7 +24,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   useEffect(() => {
     const timer = setTimeout(() => {
       setStage(1);
-    }, 2200);
+    }, 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -141,15 +141,15 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       />
       
       {stage === 0 && (
-         <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-1000">
-            <div className="relative w-32 h-32 mb-12">
+          <div className="flex flex-col items-center justify-center py-6 animate-in fade-in duration-500">
+            <div className="relative w-24 h-24 mb-6">
                <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping" />
                <div className="absolute inset-2 bg-blue-500/10 rounded-full animate-pulse border border-blue-500/30" />
-               <div className="absolute inset-4 border-2 border-dashed border-blue-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
+               <div className="absolute inset-4 border-2 border-dashed border-blue-500/20 rounded-full animate-[spin_5s_linear_infinite]" />
                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative group">
-                     <img src="/icons/admin_hud.png" className="w-16 h-16 mix-blend-screen opacity-90 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" alt="HUD" />
-                     <div className="absolute -inset-1 bg-blue-500/20 blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                     <img src="/icons/admin_hud.png" className="w-12 h-12 mix-blend-screen opacity-90 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" alt="HUD" />
+                     <div className="absolute -inset-1 bg-blue-500/20 blur opacity-0 transition duration-500"></div>
                   </div>
                </div>
             </div>
@@ -162,8 +162,8 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.5em]">Sincronizando Protocolo...</p>
             </div>
 
-            <div className="mt-12 w-64 h-1.5 bg-slate-900/50 border border-white/5 rounded-full overflow-hidden shadow-inner">
-               <div className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 animate-[loading_2.2s_ease-in-out_forwards] relative" />
+            <div className="mt-8 w-64 h-1.5 bg-slate-900/50 border border-white/5 rounded-full overflow-hidden shadow-inner">
+               <div className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 animate-[loading_0.8s_ease-in-out_forwards] relative" />
             </div>
          </div>
       )}
@@ -219,21 +219,20 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                </div>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-3">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] block pl-2">Ruta / Sucursales</label>
-               <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto pr-3 custom-scrollbar">
+               <div className="grid grid-cols-1 gap-2 overflow-y-auto pr-3 custom-scrollbar">
                   {sucursales.map(s => (
-                     <label key={s.id} className="flex items-center gap-5 p-7 bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-[2.5rem] hover:bg-blue-600/10 transition-all cursor-pointer group">
+                     <label key={s.id} className="flex items-center gap-4 p-5 bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-xl hover:bg-blue-600/10 transition-all cursor-pointer group">
                         <input 
                            type="checkbox" 
                            checked={selectedSucursales.includes(s.id)}
                            onChange={() => toggleSucursal(s.id)}
                            className="peer sr-only" 
                         />
-                        <div className="w-7 h-7 rounded-xl border-2 border-slate-800 bg-black/40 peer-checked:bg-blue-600 transition-all" />
+                        <div className="w-6 h-6 rounded-md border-2 border-slate-800 bg-black/40 peer-checked:bg-blue-600 transition-all" />
                         <div className="flex-1">
                            <p className="text-[14px] font-black text-white uppercase leading-tight">{s.nombre}</p>
-                           <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">{s.direccion}</p>
                         </div>
                      </label>
                   ))}
