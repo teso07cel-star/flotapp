@@ -12,8 +12,13 @@ export default async function SettingsPage() {
      console.error("Local DB fetch failed for ConfigLogistica:", error);
   }
 
-  const phoneNorte = configMap["PHONE_NORTE"] || "5491111111111";
-  const phoneSanTelmo = configMap["PHONE_SANTELMO"] || "5491122222222";
+  const phoneNorte = configMap["PHONE_NORTE"] && !configMap["PHONE_NORTE"].includes("111111111") 
+    ? configMap["PHONE_NORTE"] 
+    : "5491180591342";
+    
+  const phoneSanTelmo = configMap["PHONE_SANTELMO"] && !configMap["PHONE_SANTELMO"].includes("222222222")
+    ? configMap["PHONE_SANTELMO"] 
+    : "5491128620002";
 
   async function saveConfig(formData) {
     "use server";
