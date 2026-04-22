@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
-import InstallOverlay from "@/components/InstallOverlay";
 import ShortcutGuide from "@/components/ShortcutGuide";
 
 
@@ -42,7 +41,6 @@ export default function RootLayout({ children }) {
     <html lang="es" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#020617] text-white selection:bg-blue-500/30`}>
         <ServiceWorkerRegistration />
-        <InstallOverlay />
         <ShortcutGuide />
         <main className="relative z-0">
           {children}
