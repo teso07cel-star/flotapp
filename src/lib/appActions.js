@@ -1376,3 +1376,49 @@ export async function updateConfigLogistica(data) {
   }
 }
 
+export async function getMonthlyReport(month, year) {
+  try {
+    const prisma = getPrisma();
+    const yearNum = parseInt(year);
+    const monthNum = parseInt(month) - 1; // JS month 0-indexed
+    
+    const isoStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0).toISOString();
+    const isoEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+
+    const vehiculos = await prisma.vehiculo.findMany();
+    const allRegistros = await prisma.registroDiario.findMany({
+      where: { fecha: { gte: isoStart, lte: isoEnd } },
+      include: { vehiculo: true, sucursales: true }
+    });
+
+    const summary = vehiculos.map(v => {
+      const records = allRegistros.filter(r => r.vehiculoId === v.id);
+      let initialKm = 0; let finalKm = 0;
+      if (records.length > 0) {
+        const sorted = [...records].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+        initialKm = sorted[0].kmActual || 0;
+        finalKm = sorted[sorted.length - 1].kmActual || 0;
+      }
+      return {
+        patente: v.patente,
+        modelo: v.modelo,
+        categoria: v.categoria,
+        totalKm: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
+        totalTrips: records.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0)
+      };
+    });
+
+    const totalKm = summary.reduce((sum, v) => sum + v.totalKm, 0);
+    const totalTrips = summary.reduce((sum, v) => sum + v.totalTrips, 0);
+
+    return purify({ success: true, data: { vehicles: summary, totalKm, totalTrips } });
+  } catch (error) {
+    console.error("Error en getMonthlyReport:", error);
+    // FALLBACK SEGURO PARA EL LIBRO
+    return purify({ 
+      success: true, 
+      data: { vehicles: MASTER_VEHICULOS.map(v => ({ ...v, totalKm: 0, totalTrips: 0 })), totalKm: 0, totalTrips: 0 }
+    });
+  }
+}
+

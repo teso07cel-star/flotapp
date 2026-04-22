@@ -9,17 +9,17 @@ let prisma;
  * Se eliminan URLs hardcodeadas y se prioriza la conexión directa vía Vercel (DIRECT_URL).
  */
 function createPrismaClient() {
-  // Priorizar DIRECT_URL (Directa a DB) sobre DATABASE_URL (Proxy/Pool)
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+  const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
   
-  if (!connectionString) {
-    console.error("❌ ERROR: No se encontró DATABASE_URL o DIRECT_URL");
-    // Fallback silencioso (retornará errores en consultas, capturados por resiliencia nuclear)
+  if (!directUrl) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn("⚠️ BUILD PHASE: Sin URL detectada. Usando cliente neutro para compilación.");
+    }
     return new PrismaClient();
   }
 
   // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
-  if (connectionString.startsWith('prisma://')) {
+  if (directUrl.startsWith('prisma://')) {
     console.log("🚀 CONEXIÓN VIA ACCELERATE (PRISMA PROXY)");
     return new PrismaClient();
   }
@@ -27,7 +27,7 @@ function createPrismaClient() {
   console.log("🛠️ CONEXIÓN DIRECTA (ADAPTER PG) ACTIVA");
 
   const pool = new pg.Pool({ 
-    connectionString,
+    connectionString: directUrl,
     max: 5,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
