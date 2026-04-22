@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
 import MileageAuth from "@/components/MileageAuth";
 import MantenimientoSection from "@/components/MantenimientoSection";
+import VehicleIcon from "@/components/VehicleIcon";
 
 async function saveAction(formData) {
   "use server";
@@ -39,7 +40,7 @@ export default async function VehicleDetails({ params }) {
       r.sucursales.forEach(s => {
         branchVisits[s.nombre] = (branchVisits[s.nombre] || 0) + 1;
       });
-    } else if (r.sucursal) { // Caso de sucursal única (legacy)
+    } else if (r.sucursal && r.sucursal.nombre) { // Caso de sucursal única (legacy)
       branchVisits[r.sucursal.nombre] = (branchVisits[r.sucursal.nombre] || 0) + 1;
     }
   });
@@ -51,12 +52,18 @@ export default async function VehicleDetails({ params }) {
     <div className="space-y-8 max-w-6xl animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <Link href="/admin" className="p-3 rounded-2xl bg-slate-900/40 bg-[#0f172a] border border-slate-700  hover:bg-slate-800/50 transition-all text-gray-500 shadow-sm">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </Link>
+          
+          <div className="bg-slate-800/40 p-4 rounded-3xl border border-white/5 flex items-center justify-center">
+             <VehicleIcon categoria={vehiculo.categoria} className="w-20 h-14" />
+          </div>
+
           <div>
             <div className="flex items-center gap-4">
-              <h1 className="text-4xl font-black font-mono tracking-tighter uppercase">{vehiculo.patente}</h1>
+              <h1 className="text-5xl font-black font-mono tracking-tighter uppercase leading-none">{vehiculo.patente}</h1>
               {!vehiculo.activo && (
                 <span className="px-3 py-1 text-[10px] font-black uppercase bg-slate-800/50 text-slate-200   rounded-full tracking-widest">Inactivo</span>
               )}

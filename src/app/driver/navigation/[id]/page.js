@@ -4,8 +4,11 @@ import { getConfigLogistica } from "@/lib/appActions";
 import Link from "next/link";
 
 async function getRegistroInfo(id) {
+  const numericId = parseInt(id);
+  if (isNaN(numericId)) return null;
+  
   return await getPrisma().registroDiario.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: numericId },
     include: {
       vehiculo: true,
       sucursales: true

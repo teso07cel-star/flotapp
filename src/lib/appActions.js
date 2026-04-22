@@ -559,8 +559,16 @@ export async function getUltimosRegistros(limit = 10) {
 
 export async function getVehiculoById(id) {
   try {
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) {
+      // Si la ID no es un nmero, es probable que estemos en modo fallback (Ej: "SD")
+      const patente = String(id);
+      const masterV = MASTER_VEHICULOS.find(v => v.patente === patente);
+      if (masterV) return purify({ success: true, data: { ...masterV, id: 0, registros: [] } });
+      return { success: false, error: "ID de vehculo invlida" };
+    }
     const vehiculo = await getPrisma().vehiculo.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: numericId },
       include: {
         registros: { 
           orderBy: { fecha: 'desc' }, 

@@ -1,34 +1,33 @@
 import { PrismaClient } from '@prisma/client';
-
-let prisma;
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 
 /**
- * Inicialización Táctica v9.1 (BLINDAJE DE CONEXIÓN)
- * Conexión nativa de Prisma para evitar fallos de tiempo de espera (congelamiento) en Vercel.
+ * BLINDAJE ESTRUCTURAL v9.5.2 (ADAPTER-READY)
+ * Estabilización final usando el adaptador nativo de PG para evitar fallos de inicialización.
  */
-function createPrismaClient() {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+
+const prismaClientSingleton = () => {
+  const connectionString = process.env.DATABASE_URL;
   
-  // Si no hay URL (común en pasos de build estáticos de Vercel), proporcionamos una dummy
-  if (!connectionString || connectionString.includes('null:5432')) {
-     process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/postgres';
-  } else {
-     // Forzamos la variable de entorno para que Prisma la tome automáticamente sin parámetros
-     process.env.DATABASE_URL = connectionString;
+  if (!connectionString) {
+    console.warn("⚠️ DATABASE_URL no detectada. Operando en Modo Resiliente (Build/Fallback).");
+    return new PrismaClient();
   }
 
-  // Inicialización limpia sin opciones, evitando "Unknown property datasources"
-  return new PrismaClient();
-}
+  const pool = new pg.Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
+};
 
-if (process.env.NODE_ENV === 'production') {
-  prisma = createPrismaClient();
-} else {
-  if (!global.prisma) {
-    global.prisma = createPrismaClient();
-  }
-  prisma = global.prisma;
-}
+const globalForPrisma = globalThis;
+const prisma = globalForPrisma.prisma || prismaClientSingleton();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export const getPrisma = () => prisma;
 export default prisma;

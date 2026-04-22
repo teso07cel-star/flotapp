@@ -26,118 +26,137 @@ async function migrate() {
   // 1. Sucursales
   console.log(`📍 Sincronizando ${data.sucursales.length} sucursales...`);
   for (const s of data.sucursales) {
-    await prisma.sucursal.upsert({
-      where: { id: s.id },
-      update: { nombre: s.nombre, direccion: s.direccion, lat: s.lat, lng: s.lng },
-      create: { id: s.id, nombre: s.nombre, direccion: s.direccion, lat: s.lat, lng: s.lng },
-    });
+    try {
+      await prisma.sucursal.upsert({
+        where: { id: s.id },
+        update: { nombre: s.nombre, direccion: s.direccion, lat: s.lat, lng: s.lng },
+        create: { id: s.id, nombre: s.nombre, direccion: s.direccion, lat: s.lat, lng: s.lng },
+      });
+    } catch (e) {
+      console.warn(`⚠️ Error sucursal ${s.id}: ${e.message}`);
+    }
   }
 
   // 2. Vehículos
   console.log(`🚗 Sincronizando ${data.vehiculos.length} vehículos...`);
   for (const v of data.vehiculos) {
-    await prisma.vehiculo.upsert({
-      where: { id: v.id },
-      update: {
-        patente: v.patente,
-        vtvVencimiento: v.vtvVencimiento ? new Date(v.vtvVencimiento) : null,
-        seguroVencimiento: v.seguroVencimiento ? new Date(v.seguroVencimiento) : null,
-        proximoServiceKm: v.proximoServiceKm,
-        activo: v.activo,
-        categoria: v.categoria,
-        tipo: v.tipo,
-        kmParaCambioCubiertas: v.kmParaCambioCubiertas,
-        ultimoCambioCubiertasKm: v.ultimoCambioCubiertasKm
-      },
-      create: {
-        id: v.id,
-        patente: v.patente,
-        vtvVencimiento: v.vtvVencimiento ? new Date(v.vtvVencimiento) : null,
-        seguroVencimiento: v.seguroVencimiento ? new Date(v.seguroVencimiento) : null,
-        proximoServiceKm: v.proximoServiceKm,
-        activo: v.activo,
-        categoria: v.categoria,
-        tipo: v.tipo,
-        kmParaCambioCubiertas: v.kmParaCambioCubiertas,
-        ultimoCambioCubiertasKm: v.ultimoCambioCubiertasKm
-      },
-    });
+    try {
+      await prisma.vehiculo.upsert({
+        where: { id: v.id },
+        update: {
+          patente: v.patente,
+          vtvVencimiento: v.vtvVencimiento ? new Date(v.vtvVencimiento) : null,
+          seguroVencimiento: v.seguroVencimiento ? new Date(v.seguroVencimiento) : null,
+          proximoServiceKm: v.proximoServiceKm,
+          activo: v.activo,
+          categoria: v.categoria,
+          tipo: v.tipo,
+          kmParaCambioCubiertas: v.kmParaCambioCubiertas,
+          ultimoCambioCubiertasKm: v.ultimoCambioCubiertasKm
+        },
+        create: {
+          id: v.id,
+          patente: v.patente,
+          vtvVencimiento: v.vtvVencimiento ? new Date(v.vtvVencimiento) : null,
+          seguroVencimiento: v.seguroVencimiento ? new Date(v.seguroVencimiento) : null,
+          proximoServiceKm: v.proximoServiceKm,
+          activo: v.activo,
+          categoria: v.categoria,
+          tipo: v.tipo,
+          kmParaCambioCubiertas: v.kmParaCambioCubiertas,
+          ultimoCambioCubiertasKm: v.ultimoCambioCubiertasKm
+        },
+      });
+    } catch (e) {
+      console.warn(`⚠️ Error vehículo ${v.patente}: ${e.message}`);
+    }
   }
 
   // 3. Choferes
   console.log(`👨‍✈️ Sincronizando ${data.choferes.length} conductores...`);
   for (const c of data.choferes) {
-    await prisma.chofer.upsert({
-      where: { id: c.id },
-      update: { 
-        nombre: c.nombre, 
-        activo: c.activo, 
-        passkeyId: c.passkeyId, 
-        passkeyPubKey: c.passkeyPubKey ? Buffer.from(Object.values(c.passkeyPubKey)) : null,
-        patenteAsignada: c.patenteAsignada 
-      },
-      create: { 
-        id: c.id, 
-        nombre: c.nombre, 
-        activo: c.activo, 
-        passkeyId: c.passkeyId, 
-        passkeyPubKey: c.passkeyPubKey ? Buffer.from(Object.values(c.passkeyPubKey)) : null,
-        patenteAsignada: c.patenteAsignada 
-      },
-    });
+    try {
+      await prisma.chofer.upsert({
+        where: { id: c.id },
+        update: { 
+          nombre: c.nombre, 
+          activo: c.activo, 
+          passkeyId: c.passkeyId, 
+          passkeyPubKey: c.passkeyPubKey ? Buffer.from(Object.values(c.passkeyPubKey)) : null,
+          patenteAsignada: c.patenteAsignada 
+        },
+        create: { 
+          id: c.id, 
+          nombre: c.nombre, 
+          activo: c.activo, 
+          passkeyId: c.passkeyId, 
+          passkeyPubKey: c.passkeyPubKey ? Buffer.from(Object.values(c.passkeyPubKey)) : null,
+          patenteAsignada: c.patenteAsignada 
+        },
+      });
+    } catch (e) {
+      console.warn(`⚠️ Error chofer ${c.nombre}: ${e.message}`);
+    }
   }
 
   // 4. Registros Diarios
   console.log(`📝 Sincronizando ${data.registros.length} registros diarios...`);
   for (const r of data.registros) {
-    // Primero el registro base
-    await prisma.registroDiario.upsert({
-      where: { id: r.id },
-      update: {
-        fecha: new Date(r.fecha),
-        kmActual: r.kmActual,
-        novedades: r.novedades,
-        nombreConductor: r.nombreConductor,
-        vehiculoId: r.vehiculoId,
-        sucursales: {
-            set: r.sucursales ? r.sucursales.map(s => ({ id: s.id })) : []
-        }
-      },
-      create: {
-        id: r.id,
-        fecha: new Date(r.fecha),
-        kmActual: r.kmActual,
-        novedades: r.novedades,
-        nombreConductor: r.nombreConductor,
-        vehiculoId: r.vehiculoId,
-        sucursales: {
-            connect: r.sucursales ? r.sucursales.map(s => ({ id: s.id })) : []
-        }
-      },
-    });
+    try {
+      await prisma.registroDiario.upsert({
+        where: { id: r.id },
+        update: {
+          fecha: new Date(r.fecha),
+          kmActual: r.kmActual,
+          novedades: r.novedades,
+          nombreConductor: r.nombreConductor,
+          vehiculoId: r.vehiculoId,
+          sucursales: {
+              set: r.sucursales ? r.sucursales.map(s => ({ id: s.id })) : []
+          }
+        },
+        create: {
+          id: r.id,
+          fecha: new Date(r.fecha),
+          kmActual: r.kmActual,
+          novedades: r.novedades,
+          nombreConductor: r.nombreConductor,
+          vehiculoId: r.vehiculoId,
+          sucursales: {
+              connect: r.sucursales ? r.sucursales.map(s => ({ id: s.id })) : []
+          }
+        },
+      });
+    } catch (e) {
+      // console.warn(`⚠️ Error registro ${r.id}: ${e.message}`);
+    }
   }
 
   // 5. Gastos
   console.log(`💸 Sincronizando ${data.gastos.length} gastos...`);
   for (const g of data.gastos) {
-    await prisma.gasto.upsert({
-      where: { id: g.id },
-      update: {
-        fecha: new Date(g.fecha),
-        monto: g.monto,
-        descripcion: g.descripcion,
-        tipo: g.tipo,
-        vehiculoId: g.vehiculoId
-      },
-      create: {
-        id: g.id,
-        fecha: new Date(g.fecha),
-        monto: g.monto,
-        descripcion: g.descripcion,
-        tipo: g.tipo,
-        vehiculoId: g.vehiculoId
-      },
-    });
+    try {
+      await prisma.gasto.upsert({
+        where: { id: g.id },
+        update: {
+          fecha: new Date(g.fecha),
+          monto: g.monto,
+          descripcion: g.descripcion,
+          tipo: g.tipo,
+          vehiculoId: g.vehiculoId
+        },
+        create: {
+          id: g.id,
+          fecha: new Date(g.fecha),
+          monto: g.monto,
+          descripcion: g.descripcion,
+          tipo: g.tipo,
+          vehiculoId: g.vehiculoId
+        },
+      });
+    } catch (e) {
+        console.warn(`⚠️ Error gasto ${g.id}: ${e.message}`);
+    }
   }
 
   console.log('✅ MIGRACION COMPLETADA EXITOSAMENTE.');
