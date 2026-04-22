@@ -112,7 +112,10 @@ export default async function DriverForm({ searchParams }) {
 
           <div className="relative z-10">
             {(!patente || patente === "NUEVA") ? (
-              <PatenteSelector defaultPatente={null} />
+              <form action={handleDriverEntry} className="space-y-8">
+                <input type="hidden" name="nombreConductor" value={identifiedDriver} />
+                <PatenteSelector defaultPatente={vehiculo.patente !== "NUEVA" ? vehiculo.patente : null} />
+              </form>
             ) : (
               <DriverFormClient 
                 vehiculo={vehiculo} 
