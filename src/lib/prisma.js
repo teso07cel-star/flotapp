@@ -11,19 +11,14 @@ function createPrismaClient() {
   
   // Si no hay URL (común en pasos de build estáticos de Vercel), proporcionamos una dummy
   if (!connectionString || connectionString.includes('null:5432')) {
-     return new PrismaClient({
-       datasources: {
-         db: { url: 'postgresql://postgres:postgres@localhost:5432/postgres' }
-       }
-     });
+     process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/postgres';
+  } else {
+     // Forzamos la variable de entorno para que Prisma la tome automáticamente sin parámetros
+     process.env.DATABASE_URL = connectionString;
   }
 
-  // Permite que Prisma gestione la conexión al Pooler en un entorno Serverless
-  return new PrismaClient({
-    datasources: {
-      db: { url: connectionString }
-    }
-  });
+  // Inicialización limpia sin opciones, evitando "Unknown property datasources"
+  return new PrismaClient();
 }
 
 if (process.env.NODE_ENV === 'production') {
