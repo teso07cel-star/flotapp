@@ -10,15 +10,16 @@ let prisma;
  */
 function createPrismaClient() {
   // FUERZA BRUTA: Usamos la conexión directa de Supabase detectada
-  const connectionString = 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
+  const directUrl = 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
+  const connectionString = process.env.DATABASE_URL || directUrl;
   
-  console.log("🛠️ NUCLEAR BYPASS: Conectando directamente a Supabase...");
+  console.log("🛠️ NUCLEAR BYPASS v2: Conectando directamente a Supabase...");
 
   const pool = new pg.Pool({ 
-    connectionString,
-    max: 10,
+    connectionString: directUrl, // Forzamos la directa pase lo que pase
+    max: 5, // Más ligero para evitar cuellos de botella
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 10000,
   });
 
   const adapter = new PrismaPg(pool);
