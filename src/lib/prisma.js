@@ -9,13 +9,15 @@ let prisma;
  * Removidas URLs hardcodeadas para evitar rechazos por seguridad.
  */
 function createPrismaClient() {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
   
-  if (!connectionString) {
-    if (process.env.NODE_ENV === 'production') {
-      console.warn("⚠️ ALERTA: Sin variables de entorno. Usando cliente vacío.");
-    }
-    return new PrismaClient();
+  if (!connectionString || connectionString.includes('null:5432')) {
+     // Si no hay URL, proporcionamos una dummy para que el constructor no explote en build
+     return new PrismaClient({
+       datasources: {
+         db: { url: 'postgresql://postgres:postgres@localhost:5432/postgres' }
+       }
+     });
   }
 
   if (connectionString.startsWith('prisma://')) {

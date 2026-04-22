@@ -587,13 +587,8 @@ export async function handleDriverEntry(formData) {
     });
   }
 
-  const res = await getVehiculoByPatente(patente);
-  if (res.success && res.data) {
-    const { redirect } = await import("next/navigation");
-    redirect(`/driver/form?patente=${encodeURIComponent(patente)}`);
-  } else {
-    return { success: false, error: res.error || "Vehículo no encontrado" };
-  }
+  const { redirect } = await import("next/navigation");
+  redirect(`/driver/form?patente=${encodeURIComponent(patente)}`);
 }
 
 export async function getDailyReport(dateString) {
@@ -1349,14 +1344,14 @@ export async function getConfigLogistica() {
     const map = {};
     config.forEach(c => { map[c.key] = c.value; });
     
-    // FALLBACKS SI NO EXISTEN LAS LLAVES EN DB
-    if (!map["PHONE_NORTE"]) map["PHONE_NORTE"] = "542284683058";
-    if (!map["PHONE_SANTELMO"]) map["PHONE_SANTELMO"] = "542284683058";
+    // VALORES GRABADOS A FUEGO (Backup Nivel 0 solicitado por usuario)
+    if (!map["PHONE_NORTE"] || map["PHONE_NORTE"] === "5491111111111") map["PHONE_NORTE"] = "5491180591342";
+    if (!map["PHONE_SANTELMO"] || map["PHONE_SANTELMO"] === "5491122222222") map["PHONE_SANTELMO"] = "5491128620002";
     
     return purify({ success: true, data: map });
   } catch (error) {
     console.warn("⚠️ FALLO CARGA CONFIG, USANDO DEFAULT");
-    return purify({ success: true, data: { "PHONE_NORTE": "542284683058", "PHONE_SANTELMO": "542284683058" } });
+    return purify({ success: true, data: { "PHONE_NORTE": "5491180591342", "PHONE_SANTELMO": "5491128620002" } });
   }
 }
 
