@@ -5,22 +5,28 @@ import pg from 'pg';
 let prisma;
 
 /**
- * Inicialización Táctica v8.4.8 (BLINDAJE TOTAL)
- * Corregido error de inyección de código y aseguramiento de build estable.
+ * Inicialización Táctica v8.6 (BLINDAJE LIGERO)
+ * Removidas URLs hardcodeadas para evitar rechazos por seguridad.
  */
 function createPrismaClient() {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
   
-  // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
+  if (!connectionString) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn("⚠️ ALERTA: Sin variables de entorno. Usando cliente vacío.");
+    }
+    return new PrismaClient();
+  }
+
   if (connectionString.startsWith('prisma://')) {
     return new PrismaClient();
   }
 
   const pool = new pg.Pool({ 
     connectionString,
-    max: 5,
+    max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    connectionTimeoutMillis: 5000, // Menos tiempo de espera para reaccionar más rápido
   });
 
   const adapter = new PrismaPg(pool);
