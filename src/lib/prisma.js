@@ -5,20 +5,12 @@ import pg from 'pg';
 let prisma;
 
 /**
- * Inicialización Táctica v8.4.7 (REPARACIÓN DE EMERGENCIA)
- * Se blinda contra fallos de inicialización y se priorizan variables de entorno.
+ * Inicialización Táctica v8.4.8 (BLINDAJE TOTAL)
+ * Corregido error de inyección de código y aseguramiento de build estable.
  */
 function createPrismaClient() {
-  // Priorizar DIRECT_URL (Directa a DB) sobre DATABASE_URL (Proxy/Pool)
-  // Se usa un fallback 'dummy' solo para evitar el error de inicialización de Prisma en el build.
   const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
   
-  if (!connectionString || connectionString.includes('null:5432')) {
-    if (process.env.NODE_ENV === 'production') {
-      console.warn("⚠️ ALERTA: Sin URL válida en producción. Modo degradado activo.");
-    }
-  }
-
   // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
   if (connectionString.startsWith('prisma://')) {
     return new PrismaClient();
