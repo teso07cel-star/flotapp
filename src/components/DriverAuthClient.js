@@ -118,7 +118,7 @@ export default function DriverAuthClient({ choferes }) {
 
       setSelectedChofer(fastLoginDriver);
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.push('/'); // Volver a portada según nuevo flujo TACTICA b4.0
+      router.push('/driver/form'); 
     }
   };
 
@@ -152,7 +152,7 @@ export default function DriverAuthClient({ choferes }) {
         }
 
         // REDIRECCIÓN INMEDIATA PARA EVITAR SENSACIÓN DE BLOQUEO
-        router.push('/');
+        router.push('/driver/form');
         router.refresh();
       } catch (err) {
         console.error("Falla Crítica en Selección:", err);
@@ -187,7 +187,7 @@ export default function DriverAuthClient({ choferes }) {
           lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
       });
 
-      router.push('/');
+      router.push('/driver/form');
     }
   };
 

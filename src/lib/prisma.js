@@ -5,29 +5,27 @@ import pg from 'pg';
 let prisma;
 
 /**
- * Inicialización Táctica v8.4.5 (RESILIENCIA NUCLEAR)
- * Se eliminan URLs hardcodeadas y se prioriza la conexión directa vía Vercel (DIRECT_URL).
+ * Inicialización Táctica v8.4.7 (REPARACIÓN DE EMERGENCIA)
+ * Se blinda contra fallos de inicialización y se priorizan variables de entorno.
  */
 function createPrismaClient() {
-  const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+  // Priorizar DIRECT_URL (Directa a DB) sobre DATABASE_URL (Proxy/Pool)
+  // Se usa un fallback 'dummy' solo para evitar el error de inicialización de Prisma en el build.
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
   
-  if (!directUrl) {
+  if (!connectionString || connectionString.includes('null:5432')) {
     if (process.env.NODE_ENV === 'production') {
-      console.warn("⚠️ BUILD PHASE: Sin URL detectada. Usando cliente neutro para compilación.");
+      console.warn("⚠️ ALERTA: Sin URL válida en producción. Modo degradado activo.");
     }
-    return new PrismaClient();
   }
 
   // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
-  if (directUrl.startsWith('prisma://')) {
-    console.log("🚀 CONEXIÓN VIA ACCELERATE (PRISMA PROXY)");
+  if (connectionString.startsWith('prisma://')) {
     return new PrismaClient();
   }
 
-  console.log("🛠️ CONEXIÓN DIRECTA (ADAPTER PG) ACTIVA");
-
   const pool = new pg.Pool({ 
-    connectionString: directUrl,
+    connectionString,
     max: 5,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
