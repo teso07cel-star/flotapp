@@ -5,24 +5,35 @@ import pg from 'pg';
 let prisma;
 
 /**
- * Inicialización Táctica v8.4.4 (NUCLEAR BYPASS)
- * Optimizado para Prisma 7.5.0 sin URL en el esquema.
+ * Inicialización Táctica v8.4.5 (RESILIENCIA NUCLEAR)
+ * Se eliminan URLs hardcodeadas y se prioriza la conexión directa vía Vercel (DIRECT_URL).
  */
 function createPrismaClient() {
-  const directUrl = 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
+  // Priorizar DIRECT_URL (Directa a DB) sobre DATABASE_URL (Proxy/Pool)
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
   
-  console.log("🛠️ NUCLEAR BYPASS v2.1: Conexión Directa Supabase Activa");
+  if (!connectionString) {
+    console.error("❌ ERROR: No se encontró DATABASE_URL o DIRECT_URL");
+    // Fallback silencioso (retornará errores en consultas, capturados por resiliencia nuclear)
+    return new PrismaClient();
+  }
+
+  // Si la URL es de tipo prisma:// (Accelerate), no usamos adaptador de pg
+  if (connectionString.startsWith('prisma://')) {
+    console.log("🚀 CONEXIÓN VIA ACCELERATE (PRISMA PROXY)");
+    return new PrismaClient();
+  }
+
+  console.log("🛠️ CONEXIÓN DIRECTA (ADAPTER PG) ACTIVA");
 
   const pool = new pg.Pool({ 
-    connectionString: directUrl,
+    connectionString,
     max: 5,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   });
 
   const adapter = new PrismaPg(pool);
-  
-  // En Prisma 7 con adaptador, el cliente se encarga de usar el datasource configurado en el config o el adapter
   return new PrismaClient({ adapter });
 }
 
