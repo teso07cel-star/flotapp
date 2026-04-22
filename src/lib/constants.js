@@ -107,5 +107,5 @@ export const MASTER_SUCURSALES = [
   { id: 46, nombre: "Güemes (MDQ)", direccion: "Güemes 2551" },
   { id: 47, nombre: "VOY Y VUELVO", direccion: "Av. Corrientes 809, CABA" },
   { id: 48, nombre: "Nordelta 2", direccion: "Av. de los Lagos 6855" },
-  { id: 49, nombre: "Nordelta 1", direccion: "Nordelta, Buenos Aires" }
+  { id: 49, nombre: "Nordelta 1", direccion: "Av. de los Lagos 6855" }
 ];

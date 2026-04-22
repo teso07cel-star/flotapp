@@ -16,9 +16,20 @@ export async function getVehiculoByPatente(patente) {
         registros: { orderBy: { fecha: 'desc' }, take: 1 },
       }
     });
+
+    if (!vehiculo) {
+      // INTELIGENCIA TACTICA v8.9: Si no está en DB, buscar en MASTER
+      const masterV = MASTER_VEHICULOS.find(v => v.patente === cleanPatente);
+      if (masterV) {
+        return purify({ success: true, data: { ...masterV, id: 0, registros: [] } });
+      }
+    }
+
     return purify({ success: true, data: vehiculo });
   } catch (error) {
-    return { success: false, error: error.message };
+    // FALLBACK FINAL
+    const masterV = MASTER_VEHICULOS.find(v => v.patente === patente);
+    return purify({ success: true, data: masterV || { patente: patente, categoria: "AUTO", id: 0, registros: [] } });
   }
 }
 
@@ -1344,9 +1355,15 @@ export async function getConfigLogistica() {
     const map = {};
     config.forEach(c => { map[c.key] = c.value; });
     
-    // VALORES GRABADOS A FUEGO (Backup Nivel 0 solicitado por usuario)
-    if (!map["PHONE_NORTE"] || map["PHONE_NORTE"] === "5491111111111") map["PHONE_NORTE"] = "5491180591342";
-    if (!map["PHONE_SANTELMO"] || map["PHONE_SANTELMO"] === "5491122222222") map["PHONE_SANTELMO"] = "5491128620002";
+    // VALORES GRABADOS A FUEGO (Solo si el mapa viene vacío)
+    if (Object.keys(map).length === 0) {
+      return purify({ success: true, data: { "PHONE_NORTE": "5491180591342", "PHONE_SANTELMO": "5491128620002" } });
+    }
+    
+    // Si existen pero son los de prueba, y la DB tiene algo, respetamos la DB.
+    // Solo forzamos si el usuario no ha puesto nada aún.
+    if (!map["PHONE_NORTE"]) map["PHONE_NORTE"] = "5491180591342";
+    if (!map["PHONE_SANTELMO"]) map["PHONE_SANTELMO"] = "5491128620002";
     
     return purify({ success: true, data: map });
   } catch (error) {

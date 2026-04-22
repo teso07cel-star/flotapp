@@ -98,6 +98,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       }
       setConfirmationMessage(type === "CIERRE" ? "Protocolo Finalizado" : "Transmisión Exitosa");
       setShowConfirmation(true);
+      setLoading(false);
       
       // La redirección ocurrirá en el onComplete del Overlay
       if (type === "CIERRE") {
@@ -128,22 +129,6 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
   };
 
   // --- RENDERS ---
-  if (stage === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-1000">
-        <ConfirmationOverlay 
-          show={showConfirmation} 
-          message={confirmationMessage} 
-          onComplete={handleConfirmationComplete} 
-        />
-
-         <div className="relative w-32 h-32 mb-12">
-            <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping" />
-            <div className="absolute inset-2 bg-blue-500/10 rounded-full animate-pulse border border-blue-500/30" />
-            <div className="absolute inset-4 border-2 border-dashed border-blue-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
-            <div className="absolute inset-0 flex items-center justify-center">
-               <div className="relative group">
-                  <img src="/icons/admin_hud.png" className="w-16 h-16 mix-blend-screen opacity-90 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" alt="HUD" />
                   <div className="absolute -inset-1 bg-blue-500/20 blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                </div>
             </div>

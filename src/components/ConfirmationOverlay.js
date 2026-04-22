@@ -7,11 +7,11 @@ export default function ConfirmationOverlay({ show, message = "Transmisión Conf
   useEffect(() => {
     if (show) {
       setStage(1);
-      const t1 = setTimeout(() => setStage(2), 500);
-      const t2 = setTimeout(() => setStage(3), 2500);
+      const t1 = setTimeout(() => setStage(2), 300);
+      const t2 = setTimeout(() => setStage(3), 1200);
       const t3 = setTimeout(() => {
         if (onComplete) onComplete();
-      }, 3500);
+      }, 1800);
       return () => {
         clearTimeout(t1);
         clearTimeout(t2);
