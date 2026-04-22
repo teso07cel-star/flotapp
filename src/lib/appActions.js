@@ -1352,17 +1352,23 @@ export async function getConfigLogistica() {
 
 export async function updateConfigLogistica(data) {
   try {
-    const ops = Object.entries(data).map(([key, value]) => 
-      getPrisma().configLogistica.upsert({
+    console.log("Intentando guardar ajustes de logística:", data);
+    const prisma = getPrisma();
+    
+    // Ejecutar uno por uno para mayor estabilidad si falla el transaction
+    for (const [key, value] of Object.entries(data)) {
+      await prisma.configLogistica.upsert({
         where: { key },
         update: { value: value.toString() },
         create: { key, value: value.toString() }
-      })
-    );
-    await getPrisma().$transaction(ops);
+      });
+    }
+
+    revalidatePath("/admin/settings");
     revalidatePath("/admin/settings/notifications");
     return { success: true };
   } catch (error) {
+    console.error("Error crítico guardando ajustes:", error.message);
     return { success: false, error: error.message };
   }
 }

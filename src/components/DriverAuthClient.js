@@ -124,34 +124,41 @@ export default function DriverAuthClient({ choferes }) {
 
   const handleSelect = async (e) => {
     const val = e.target.value;
+    if (!val) return;
+    
     if (val === "NUEVO") {
       setIsExternal(true);
       setSelectedChofer("");
     } else {
+      setIsRequesting(true);
+      setErrorMessage("");
       const devId = localStorage.getItem("flotapp_device_id");
-      const res = await bindDriverToDevice(val, devId);
-      if (!res.success) {
-        alert(res.error);
-        e.target.value = "";
-        return;
-      }
       
-      setIsExternal(false);
-      setSelectedChofer(val);
-      if (remember && val) {
-        localStorage.setItem("flotapp_driver_name", val);
-        document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
+      try {
+        console.log("Iniciando vinculación para:", val);
+        const res = await bindDriverToDevice(val, devId);
+        if (!res.success) {
+          alert("Error de Vinculación: " + res.error);
+          setIsRequesting(false);
+          e.target.value = "";
+          return;
+        }
+        
+        setIsExternal(false);
+        setSelectedChofer(val);
+        if (remember) {
+          localStorage.setItem("flotapp_driver_name", val);
+          document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
+        }
+
+        // REDIRECCIÓN INMEDIATA PARA EVITAR SENSACIÓN DE BLOQUEO
+        router.push('/');
+        router.refresh();
+      } catch (err) {
+        console.error("Falla Crítica en Selección:", err);
+        alert("Error de Conexión. Reintente en unos segundos.");
+        setIsRequesting(false);
       }
-
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const { createRegistroDiario } = await import("@/lib/appActions");
-      await createRegistroDiario({
-          nombreConductor: val,
-          tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
-      });
-
-      router.push('/');
     }
   };
 
