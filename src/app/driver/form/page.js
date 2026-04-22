@@ -9,48 +9,56 @@ import LogoutButton from "@/components/LogoutButton";
 import PatenteSelector from "@/components/PatenteSelector";
 
 export default async function DriverForm({ searchParams }) {
-  const prisma = getPrisma();
   try {
-    const params = await searchParams;
-    let patente = params?.patente;
-    
-    const cookieStore = await cookies();
-    const rawDriverName = cookieStore.get("driver_name")?.value;
-    const identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
+    const prisma = getPrisma();
+    let redirectTarget = null;
+    try {
+      const params = await searchParams;
+      let patente = params?.patente;
+      
+      const cookieStore = await cookies();
+      const rawDriverName = cookieStore.get("driver_name")?.value;
+      const identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).replace(/\s+/g, ' ').trim() : null;
 
-    if (!patente && identifiedDriver) {
-       try {
-         const lastRec = await prisma.registroDiario.findFirst({
-            where: { nombreConductor: identifiedDriver },
-            orderBy: { fecha: 'desc' },
-            include: { vehiculo: true }
-         });
-         
-         if (lastRec?.vehiculo?.patente) {
-            patente = lastRec.vehiculo.patente;
-            redirect(`/driver/form?patente=${patente}`);
-         } else {
-            let choferDB = await prisma.chofer.findFirst({ 
-              where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
-            });
-            if (choferDB?.patenteAsignada) {
-               patente = choferDB.patenteAsignada;
-               redirect(`/driver/form?patente=${patente}`);
-            } else {
-               patente = "NUEVA";
-            }
+      if (!patente && identifiedDriver) {
+         try {
+           const lastRec = await prisma.registroDiario.findFirst({
+              where: { nombreConductor: identifiedDriver },
+              orderBy: { fecha: 'desc' },
+              include: { vehiculo: true }
+           });
+           
+           if (lastRec?.vehiculo?.patente) {
+              patente = lastRec.vehiculo.patente;
+              redirectTarget = `/driver/form?patente=${patente}`;
+           } else {
+              let choferDB = await prisma.chofer.findFirst({ 
+                where: { nombre: { equals: identifiedDriver, mode: 'insensitive' } } 
+              });
+              if (choferDB?.patenteAsignada) {
+                 patente = choferDB.patenteAsignada;
+                 redirectTarget = `/driver/form?patente=${patente}`;
+              } else {
+                 patente = "NUEVA";
+              }
+           }
+         } catch (dbErr) {
+           console.error("Error buscando patente del conductor:", dbErr);
+           patente = "NUEVA"; 
          }
-       } catch (dbErr) {
-         // redirect() throws NEXT_REDIRECT - let it propagate
-         if (dbErr?.digest?.startsWith?.('NEXT_REDIRECT')) throw dbErr;
-         console.error("Error buscando patente del conductor:", dbErr);
-         patente = "NUEVA"; // Fallback: pedir patente manualmente
-       }
+      }
+
+      if (!patente && !identifiedDriver) {
+        redirectTarget = "/driver/entry";
+      }
+    } catch (e) {
+      console.error("Error parsing params:", e);
     }
 
-    if (!patente && !identifiedDriver) {
-      redirect("/driver/entry");
+    if (redirectTarget) {
+      redirect(redirectTarget);
     }
+
 
     let vehiculoRes = { success: false };
     let sucursalesRes = { success: false };

@@ -7,7 +7,7 @@ export default function VehicleIcon({ categoria, className = "w-10 h-8" }) {
   if (cat.includes("MOTO")) {
     return (
       <div className={`relative ${className} overflow-visible`}>
-        <img src="/icons/moto.png" alt="Moto" className="w-full h-full object-contain brightness-110 contrast-125" />
+        <img src="/icons/moto_tactic.png" alt="Moto" className="w-full h-full object-contain brightness-110 saturate-[2.5] contrast-[1.25] transition-all" />
       </div>
     );
   }
@@ -15,15 +15,15 @@ export default function VehicleIcon({ categoria, className = "w-10 h-8" }) {
   if (cat.includes("PICKUP") || cat.includes("CAMIONETA")) {
     return (
       <div className={`relative ${className} overflow-visible`}>
-        <img src="/icons/pickup.png" alt="Pickup" className="w-full h-full object-contain grayscale brightness-75 contrast-125" />
+        <img src="/icons/pickup_tactic.png" alt="Pickup" className="w-full h-full object-contain brightness-110 transition-all" />
       </div>
     );
   }
   
-  // Default: Auto
+  // Default: Auto (Toyota Etios)
   return (
     <div className={`relative ${className} overflow-visible`}>
-      <img src="/icons/auto.png" alt="Auto" className="w-full h-full object-contain brightness-125 contrast-125" />
+      <img src="/icons/etios_tactic_v2.png" alt="Auto" className="w-full h-full object-contain brightness-125 transition-all" />
     </div>
   );
 }

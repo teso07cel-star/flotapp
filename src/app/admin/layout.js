@@ -16,8 +16,7 @@ export default async function AdminLayout({ children }) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex flex-col md:flex-row font-sans text-gray-100 selection:bg-blue-500/30">
         {/* Sidebar */}
-        {isAuth && (
-          <aside className="w-full md:w-64 bg-[#0f172a]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-blue-500/20 flex-shrink-0 z-20">
+        <aside className="w-full md:w-64 bg-[#0f172a]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-blue-500/20 flex-shrink-0 z-20">
             <div className="h-full flex flex-col">
               <div className="p-6 border-b border-blue-500/20 flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-transparent">
                  <div className="relative w-11 h-11 flex items-center justify-center bg-slate-900 border border-slate-700 group overflow-hidden grayscale opacity-90 transition-all hover:grayscale-0 hover:opacity-100 rounded-sm">
@@ -34,31 +33,28 @@ export default async function AdminLayout({ children }) {
                  <div className="flex flex-col relative">
                      <span className="text-sm font-black tracking-[0.1em] text-white leading-tight uppercase">Dashboard</span>
                      <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase opacity-90">Administrativo</span>
-                     <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)]">v3.0 GLOBAL</div>
+                      <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)]">v8.4 GLOBAL NUCLEAR</div>
                   </div>
               </div>
               
-              {/* Mobile Navigation Toggle */}
+              {/* Mobile Navigation (Persistent) */}
               <div className="md:hidden w-full p-4 border-b border-blue-500/20 bg-slate-900/50">
-                  <details className="group">
-                      <summary className="font-black uppercase text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center p-2 bg-blue-900/10 rounded-xl border border-blue-500/30">
-                         <span>Explorar Tácticas Administrativas</span>
-                         <span className="group-open:rotate-180 transition-transform">▼</span>
-                      </summary>
-                      <nav className="mt-4 flex flex-col space-y-1">
-                          <Link href="/admin" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all text-xs font-bold uppercase">Vehículos & Registros</Link>
-                          <Link href="/admin/branches" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all text-xs font-bold uppercase">Sucursales</Link>
-                          <Link href="/admin/choferes" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all text-xs font-bold uppercase">Choferes</Link>
-                          <Link href="/admin/reports/daily" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all text-xs font-bold uppercase">Reporte Automotor</Link>
-                          <Link href="/admin/summary" className="flex items-center gap-3 px-3 py-3 rounded-xl text-cyan-400 bg-cyan-900/20 border border-cyan-500/30 transition-all text-xs font-bold uppercase">Reporte Mensual</Link>
-                          <Link href="/admin/mantenimiento" className="flex items-center gap-3 px-3 py-3 rounded-xl text-emerald-400 bg-emerald-900/20 border border-emerald-500/30 transition-all text-xs font-bold uppercase">Control y Mantenimiento</Link>
-                          <Link href="/admin/settings" className="flex items-center gap-3 px-3 py-3 rounded-xl text-amber-500 bg-amber-900/20 border border-amber-500/30 transition-all text-xs font-bold uppercase">Configuración</Link>
-                      </nav>
-                  </details>
+                  <h4 className="font-black uppercase text-[10px] text-blue-400 mb-4 tracking-[0.3em] px-2 opacity-70">Navegación Admin</h4>
+                  <nav className="flex flex-wrap gap-2">
+                      <Link href="/admin" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Vehículos</Link>
+                      <Link href="/admin/branches" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Sucursales</Link>
+                      <Link href="/admin/choferes" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Choferes</Link>
+                      <Link href="/admin/reports/daily" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Reportes</Link>
+                      <Link href="/admin/summary" className="px-4 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/20 border border-cyan-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Mensual</Link>
+                      <Link href="/admin/mantenimiento" className="px-4 py-2.5 rounded-xl text-emerald-400 bg-emerald-900/20 border border-emerald-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Control</Link>
+                      <Link href="/admin/settings" className="px-4 py-2.5 rounded-xl text-amber-500 bg-amber-900/20 border border-amber-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Ajustes</Link>
+                  </nav>
               </div>
+
 
               {/* Desktop Navigation */}
               <nav className="hidden md:flex flex-1 p-4 space-y-1 overflow-y-auto flex-col">
+
                 <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/30 border border-transparent transition-all cursor-pointer shadow-sm">
                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                    Vehículos & Registros
@@ -102,7 +98,8 @@ export default async function AdminLayout({ children }) {
               </div>
             </div>
           </aside>
-        )}
+    
+
         
         {/* Main content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#0f172a] relative">

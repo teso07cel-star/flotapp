@@ -233,22 +233,33 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
          </div>
 
          {!changingVehicle ? (
-            <button onClick={() => setChangingVehicle(true)} className="w-full py-4 text-[9px] text-slate-600 hover:text-white uppercase font-black tracking-[0.5em] transition-all opacity-50 hover:opacity-100 italic">¿Unidad Incorrecta?</button>
+            <button 
+                onClick={() => setChangingVehicle(true)} 
+                className="w-full py-6 border-2 border-dashed border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/5 rounded-3xl text-[9px] text-blue-400/60 hover:text-blue-400 uppercase font-black tracking-[0.4em] transition-all italic mt-4"
+            >
+                ¿Unidad Incorrecta? • Cambiar Patente
+            </button>
          ) : (
-            <div className="p-8 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-[2.5rem] space-y-6 animate-in slide-in-from-top-6 duration-500 shadow-2xl">
+            <div className="p-10 bg-slate-900 border-2 border-blue-500/30 rounded-[3rem] space-y-8 animate-in zoom-in-95 duration-500 shadow-3xl relative overflow-hidden">
+               <div className="absolute top-0 inset-x-0 h-1 bg-blue-500/50"></div>
+               <div className="text-center">
+                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.5em] mb-2">Reasignación de Unidad</p>
+                  <h4 className="text-white text-xs font-bold uppercase opacity-60">Ingresa la nueva matrícula táctica</h4>
+               </div>
                <input 
                   type="text" 
                   value={newPatente}
                   onChange={(e) => setNewPatente(e.target.value.toUpperCase())}
-                  placeholder="NUEVA PATENTE"
-                  className="w-full bg-black/60 border-2 border-slate-800 rounded-xl p-6 text-center font-black text-3xl text-white outline-none focus:border-blue-500 transition-all"
+                  placeholder="ABC-123"
+                  className="w-full bg-[#020617] border-2 border-slate-800 rounded-2xl p-8 text-center font-black text-4xl text-white outline-none focus:border-blue-500 transition-all shadow-inner tracking-widest placeholder:text-slate-900"
                />
                <div className="flex gap-4">
-                  <button onClick={() => setChangingVehicle(false)} className="flex-1 py-4 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancelar</button>
-                  <button onClick={handlePlateChange} className="flex-1 py-4 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl text-white font-black uppercase text-[10px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all">Confirmar Unidad</button>
+                  <button onClick={() => setChangingVehicle(false)} className="flex-1 py-5 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors">Abortar</button>
+                  <button onClick={handlePlateChange} className="flex-1 py-5 bg-blue-600 rounded-2xl text-white font-black uppercase text-[10px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">Sincronizar KM</button>
                </div>
             </div>
          )}
+
 
          <button 
             onClick={() => setStage(2)} 

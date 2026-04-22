@@ -1,11 +1,11 @@
 {
   "name": "flota-app",
-  "version": "8.4.1.1",
+  "version": "8.4.1.2-NUCLEAR-RECOVERY",
   "comment": "SEÑOR_X_STEEL_LEGACY_v8.3.1.5_RESCUE",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma@7.5.0 generate && next build",
+    "build": "DATABASE_URL=\"postgres://abc:def@null:5432/null\" npx prisma generate && next build",
     "start": "next start",
     "lint": "eslint"
   },

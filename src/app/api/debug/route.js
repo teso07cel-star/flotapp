@@ -36,7 +36,7 @@ export async function GET() {
     
     // Test 2: Can we query?
     try {
-      const count = await prismaModule.default.chofer.count();
+      const count = await prismaModule.getPrisma().chofer.count();
       diagnostics.tests.choferCount = count;
       diagnostics.tests.dbConnection = "OK";
     } catch (dbErr) {
