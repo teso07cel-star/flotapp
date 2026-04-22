@@ -5,25 +5,24 @@ import pg from 'pg';
 let prisma;
 
 /**
- * Inicialización Táctica v8.4.1 (NUCLEAR BYPASS)
- * Prioriza la conexión directa a Supabase para saltar límites de Prisma Accelerate.
+ * Inicialización Táctica v8.4.4 (NUCLEAR BYPASS)
+ * Optimizado para Prisma 7.5.0 sin URL en el esquema.
  */
 function createPrismaClient() {
-  // FUERZA BRUTA: Usamos la conexión directa de Supabase detectada
   const directUrl = 'postgresql://postgres.siqxydghsjmvmjgkmvps:admin123@db.siqxydghsjmvmjgkmvps.supabase.co:5432/postgres';
-  const connectionString = process.env.DATABASE_URL || directUrl;
   
-  console.log("🛠️ NUCLEAR BYPASS v2: Conectando directamente a Supabase...");
+  console.log("🛠️ NUCLEAR BYPASS v2.1: Conexión Directa Supabase Activa");
 
   const pool = new pg.Pool({ 
-    connectionString: directUrl, // Forzamos la directa pase lo que pase
-    max: 5, // Más ligero para evitar cuellos de botella
+    connectionString: directUrl,
+    max: 5,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   });
 
   const adapter = new PrismaPg(pool);
   
+  // En Prisma 7 con adaptador, el cliente se encarga de usar el datasource configurado en el config o el adapter
   return new PrismaClient({ adapter });
 }
 
