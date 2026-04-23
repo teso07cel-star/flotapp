@@ -20,14 +20,17 @@ export const MASTER_CHOFERES = [
 ];
 
 export const DRIVER_BASES = {
+  "Ivan Santillan": "NORTE",
   "Ivan Santillán": "NORTE",
   "Juan Cruz Hidalgo": "NORTE",
+  "Gally Nelson": "NORTE",
   "Nelson Gally": "NORTE",
-  "Tomas Casco": "NORTE"
+  "Tomas Casco": "NORTE",
+  "Tomás Casco": "NORTE"
 };
 
 export const BASE_ADDRESSES = {
-  NORTE: "San Bernardo de Irigoyen 1525, Florida Oeste, Provincia de Buenos Aires",
+  NORTE: "Bernardo de Irigoyen 1525, Florida Oeste, Provincia de Buenos Aires",
   SANTELMO: "México 836, CABA"
 };
 
