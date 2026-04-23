@@ -28,13 +28,25 @@ function SuccessContent() {
           fetch('/api/config').then(res => res.json())
         ]);
         
-        if (regRes.success) setRegistro(regRes.data);
+        if (regRes.success) {
+          setRegistro(regRes.data);
+        } else {
+          // BLINDAJE v8.4.2: Fallback táctico si la API falla
+          console.warn("⚠️ API FALLBACK ACTIVATED");
+          setRegistro({
+            id: id,
+            nombreConductor: "CONDUCTOR",
+            sucursales: []
+          });
+        }
         if (configRes.success) {
           const map = configRes.data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
           setConfig(map);
         }
       } catch (err) {
         console.error("Error fetching success data:", err);
+        // EMERGENCIA TACTICA
+        setRegistro({ id: id, nombreConductor: "SISTEMA", sucursales: [] });
       } finally {
         setLoading(false);
       }

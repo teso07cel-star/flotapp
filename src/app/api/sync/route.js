@@ -31,18 +31,36 @@ export async function GET() {
       { patente: "AD380TS", lastKm: 714444 }, { patente: "A239WDL", lastKm: 11200 },
       { patente: "ONR078", lastKm: 417491 }, { patente: "AF601QS", lastKm: 28453 },
       { patente: "PGX769", lastKm: 515893 }, { patente: "AD724VP", lastKm: 449756 },
-      { patente: "AF668JV", lastKm: 417795 }, { patente: "AF668JR", lastKm: 29147 },
+      { patente: "AF668JV", lastKm: 417795 }, { patente: "AF668JR", lastKm: 292147 },
       { patente: "A239WDM", lastKm: 7100 }, { patente: "AD848LH", lastKm: 462100 },
       { patente: "AD724VQ", lastKm: 532100 }, { patente: "AD848KR", lastKm: 529084 },
       { patente: "AH279KZ", lastKm: 70114 }, { patente: "AH336BA", lastKm: 84411 }
     ];
 
     for (const v of criticalVehicles) {
-      await getPrisma().vehiculo.upsert({
+      const vehiculo = await getPrisma().vehiculo.upsert({
         where: { patente: v.patente },
         update: { activo: true },
         create: { patente: v.patente, activo: true },
       });
+
+      // BLINDAJE v8.4.2: Asegurar punto de partida de kilometraje
+      const lastLog = await getPrisma().registroDiario.findFirst({
+        where: { vehiculoId: vehiculo.id },
+        orderBy: { fecha: 'desc' }
+      });
+
+      if (!lastLog) {
+        await getPrisma().registroDiario.create({
+          data: {
+            vehiculoId: vehiculo.id,
+            kmActual: v.lastKm,
+            tipoReporte: "SINCRO",
+            nombreConductor: "SISTEMA",
+            novedades: "INICIALIZACION TACTICA DE KILOMETRAJE"
+          }
+        });
+      }
     }
 
     // 3. Sucursales de Red (v8.3 Sincronización)
