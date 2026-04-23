@@ -1,0 +1,434 @@
+[
+  {
+    "id": 5,
+    "nombre": "Esteban diaz",
+    "activo": true,
+    "passkeyId": "b584ff51-fd3d-45a3-a005-a8bcf0e60af3",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 53
+    },
+    "patenteAsignada": "A239WDM"
+  },
+  {
+    "id": 52,
+    "nombre": "GONZALO",
+    "activo": true,
+    "passkeyId": "158d42dd-50a3-48e4-8696-ef58e48ac4fd",
+    "passkeyPubKey": null,
+    "patenteAsignada": "AF668JR"
+  },
+  {
+    "id": 1428,
+    "nombre": "Gally Nelson",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 3,
+    "nombre": "Gerardo v",
+    "activo": true,
+    "passkeyId": "eb984324-86f6-45cf-8a9e-9b083b2f1836",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 51
+    },
+    "patenteAsignada": "AE982AS"
+  },
+  {
+    "id": 11,
+    "nombre": "Iván Santillán",
+    "activo": true,
+    "passkeyId": "67a05a7e-815b-45d5-8d61-865b498e7656",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 49,
+      "14": 49
+    },
+    "patenteAsignada": "AD848LH"
+  },
+  {
+    "id": 6,
+    "nombre": "Jonathan v",
+    "activo": true,
+    "passkeyId": "9ffe388e-b1be-4aec-80c9-7f9fd23f68cf",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 54
+    },
+    "patenteAsignada": "AF668JV"
+  },
+  {
+    "id": 13,
+    "nombre": "Juan Cruz Hidalgo",
+    "activo": true,
+    "passkeyId": "a88c0279-57e9-495b-8083-f0c5ca8da100",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 49,
+      "14": 51
+    },
+    "patenteAsignada": "AD380TS"
+  },
+  {
+    "id": 1,
+    "nombre": "Lucio Bello",
+    "activo": true,
+    "passkeyId": "9a6d77fb-cbb0-4782-a305-7414b3c7536c",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 49
+    },
+    "patenteAsignada": "A122WRA"
+  },
+  {
+    "id": 30,
+    "nombre": "MARIANO",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 14,
+    "nombre": "Matías Chaile",
+    "activo": true,
+    "passkeyId": "fake_passkey_id_14",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 49,
+      "14": 52
+    },
+    "patenteAsignada": "AF601QS"
+  },
+  {
+    "id": 142,
+    "nombre": "Miguel c",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 1437,
+    "nombre": "Tomas C",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 111,
+    "nombre": "Tomás Casco",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": "A122WQZ"
+  },
+  {
+    "id": 15,
+    "nombre": "Vega Jorge Daniel",
+    "activo": true,
+    "passkeyId": "394a0d79-795d-450b-b598-debec81f7efd",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 49,
+      "14": 53
+    },
+    "patenteAsignada": "PGX770"
+  },
+  {
+    "id": 26,
+    "nombre": "VideoTest",
+    "activo": true,
+    "passkeyId": "dbe14121-4043-4848-bc8c-f5efa963c552",
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 9,
+    "nombre": "David Francisconi",
+    "activo": true,
+    "passkeyId": "06ea4cc8-9843-4477-b9b5-3355df043fb3",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 57
+    },
+    "patenteAsignada": "AD848KQ"
+  },
+  {
+    "id": 8,
+    "nombre": "Miguel c ",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": "AH336BA"
+  },
+  {
+    "id": 7,
+    "nombre": "gonzalo M",
+    "activo": false,
+    "passkeyId": "fake_passkey_id_7",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 55
+    },
+    "patenteAsignada": null
+  },
+  {
+    "id": 2,
+    "nombre": "Brian Lopez ",
+    "activo": true,
+    "passkeyId": "80bdb393-3c8a-4d8e-b730-d44b43c42ac5",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 50
+    },
+    "patenteAsignada": "AD848KR"
+  },
+  {
+    "id": 16,
+    "nombre": "Christian González",
+    "activo": true,
+    "passkeyId": "4ce48b0e-37f8-49a7-a09a-f5248cff0cbd",
+    "passkeyPubKey": null,
+    "patenteAsignada": "AH279KZ"
+  },
+  {
+    "id": 1423,
+    "nombre": "David f",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 4,
+    "nombre": "Diego r",
+    "activo": true,
+    "passkeyId": "358ccd2c-f1d8-4da8-a6b3-f57806144666",
+    "passkeyPubKey": {
+      "0": 102,
+      "1": 97,
+      "2": 107,
+      "3": 101,
+      "4": 95,
+      "5": 112,
+      "6": 117,
+      "7": 98,
+      "8": 95,
+      "9": 107,
+      "10": 101,
+      "11": 121,
+      "12": 95,
+      "13": 52
+    },
+    "patenteAsignada": "AD724VP"
+  },
+  {
+    "id": 66,
+    "nombre": "Diego Retamar",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 68,
+    "nombre": "Gonzalo Martinez",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 70,
+    "nombre": "Gerardo Visconti",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 71,
+    "nombre": "Ivan Santillan",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 72,
+    "nombre": "Jonathan Vondrack",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 75,
+    "nombre": "Mariano",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 77,
+    "nombre": "Miguel Cejas",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 78,
+    "nombre": "Tomas Casco",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  },
+  {
+    "id": 113,
+    "nombre": "Gali Nelson",
+    "activo": true,
+    "passkeyId": null,
+    "passkeyPubKey": null,
+    "patenteAsignada": null
+  }
+]
