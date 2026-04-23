@@ -18,7 +18,7 @@ export default async function MonthlyReport({ searchParams }) {
 
   const { summary, totalFleetVisits, mapBranches } = res.data;
   const totalKm = summary.reduce((acc, v) => acc + v.kmRecorridos, 0);
-  const totalSpent = summary.reduce((acc, v) => acc + v.totalSpent, 0);
+  const totalSpent = summary.reduce((acc, v) => acc + (v.totalGastos || 0), 0);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 p-8 sm:p-20 font-serif selection:bg-blue-100 print:p-0 print:m-0">
