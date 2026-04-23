@@ -51,7 +51,6 @@ export default async function VehicleDetails({ params }) {
   return (
     <div className="space-y-8 max-w-6xl animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
         <div className="flex items-center gap-6">
           <Link href="/admin" className="p-3 rounded-2xl bg-slate-900/40 bg-[#0f172a] border border-slate-700  hover:bg-slate-800/50 transition-all text-gray-500 shadow-sm">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
