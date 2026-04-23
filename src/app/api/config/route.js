@@ -13,8 +13,8 @@ export async function GET() {
     return NextResponse.json({ 
       success: true, 
       data: [
-        { key: "PHONE_NORTE", value: "542284683058" },
-        { key: "PHONE_SANTELMO", value: "542284683058" }
+        { key: "PHONE_NORTE", value: "5491180591342" },
+        { key: "PHONE_SANTELMO", value: "5491128620002" }
       ] 
     });
   }
