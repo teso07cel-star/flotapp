@@ -76,8 +76,16 @@ function SuccessContent() {
     );
   }
 
-  const driverName = registro.nombreConductor || "";
-  const driverBase = DRIVER_BASES[driverName] || "SANTELMO";
+  const rawName = registro.nombreConductor || "";
+  
+  // Normalización táctica: Sin acentos y en mayúsculas para el mapeo
+  const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+  
+  const normalizedDriverName = normalize(rawName);
+  
+  // Buscar en DRIVER_BASES normalizando también las keys
+  const driverBaseEntry = Object.entries(DRIVER_BASES).find(([name]) => normalize(name) === normalizedDriverName);
+  const driverBase = driverBaseEntry ? driverBaseEntry[1] : "SANTELMO";
   const baseAddress = BASE_ADDRESSES[driverBase];
   const phoneNorte = config["PHONE_NORTE"] || "5491180591342";
   const phoneSanTelmo = config["PHONE_SANTELMO"] || "5491128620002"; 
@@ -92,7 +100,7 @@ function SuccessContent() {
   };
 
   const getWaLink = (phone, sucursalNombre) => {
-    const msg = `FlotApp: El conductor ${driverName} finalizó el viaje a la sucursal ${sucursalNombre || 'Base'}.`;
+    const msg = `FlotApp: El conductor ${rawName} finalizó el viaje a la sucursal ${sucursalNombre || 'Base'}.`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   };
 
