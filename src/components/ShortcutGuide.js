@@ -21,9 +21,9 @@ export default function ShortcutGuide() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
              </div>
              <div>
-                <h4 className="text-[9px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Instalación Recomendada</h4>
+                <h4 className="text-[9px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Acceso Directo Táctico</h4>
                 <p className="text-[10px] text-slate-300 font-bold leading-tight">
-                   Agrega **FlotApp** a tu inicio para experiencia táctica.
+                   Crea un **Acceso Directo** en tu inicio (No es una App instalada).
                 </p>
              </div>
           </div>
@@ -42,11 +42,11 @@ export default function ShortcutGuide() {
          <div className="max-w-xl mx-auto mt-3 pt-3 border-t border-blue-500/10 grid grid-cols-2 gap-4 animate-in zoom-in-95 duration-300">
             <div className="bg-black/20 p-2 rounded-xl">
                <p className="text-[8px] text-blue-500 font-black uppercase mb-1">iPhone (Safari):</p>
-               <p className="text-[9px] text-slate-400 font-medium">Compartir [ ] → "Agregar a inicio"</p>
+               <p className="text-[9px] text-slate-400 font-medium">Compartir [↑] → "Agregar a Inicio"</p>
             </div>
             <div className="bg-black/20 p-2 rounded-xl">
                <p className="text-[8px] text-emerald-500 font-black uppercase mb-1">Android (Chrome):</p>
-               <p className="text-[9px] text-slate-400 font-medium">Menú (⋮) → "Instalar aplicación"</p>
+               <p className="text-[9px] text-slate-400 font-medium">Menú (⋮) → "Agregar a la pantalla de inicio"</p>
             </div>
          </div>
        )}
