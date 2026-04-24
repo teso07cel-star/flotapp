@@ -3,6 +3,23 @@ import Link from "next/link";
 import DynamicMap from "@/components/DynamicMap";
 import PrintButton from "@/components/PrintButton";
 
+export default async function MonthlyReport({ searchParams }) {
+  const params = await searchParams;
+  const now = new Date();
+  const month = params.month ? parseInt(params.month) : now.getMonth();
+  const year = params.year ? parseInt(params.year) : now.getFullYear();
+
+  const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+  const res = await getMonthlySummary(month, year);
+  
+  if (!res.success) {
+    return <div className="p-10 text-red-500 font-black uppercase tracking-widest text-xs bg-slate-100 border-2 border-dashed border-red-500/20 text-center rounded-[3rem]">Error en Protocolo de Carga: {res.error}</div>;
+  }
+
+  const { summary, totalFleetVisits, mapBranches } = res.data;
+  const totalKm = summary.reduce((acc, v) => acc + v.kmRecorridos, 0);
+  const totalSpent = summary.reduce((acc, v) => acc + (v.totalGastos || 0), 0);
+
   return (
     <div className="min-h-screen bg-white text-slate-900 px-6 py-12 sm:p-24 font-serif selection:bg-blue-100 print:p-0 print:m-0">
       {/* SELLO DE AUTENTICIDAD - MARCA DE AGUA VISUAL */}
@@ -186,7 +203,5 @@ import PrintButton from "@/components/PrintButton";
         }
       `}} />
     </div>
-    </div>
   );
 }
-
