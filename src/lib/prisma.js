@@ -1,28 +1,28 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
- * ESTABILIZACIÓN NUCLEAR v10.0
- * Retornando al cliente estándar de Prisma para máxima compatibilidad con Vercel Integrations.
+ * MOTOR DE CONEXIÓN ULTRA-RESILIENTE v11.0
+ * Protocolo de Emergencia: Bypass total de Vercel Integrations.
  */
 
 const globalForPrisma = globalThis;
-
 let prisma = globalForPrisma.prisma;
 
 export const getPrisma = () => {
   if (!prisma) {
-    const databaseUrl = process.env.NUEVA_URL || process.env.DATABASE_URL;
-    const directUrl = process.env.NUEVA_URL_NON_POOLING || process.env.DIRECT_URL;
+    // CLAVE TÁCTICA DE EMERGENCIA (Bypass absoluto)
+    const TACTICAL_URL = "postgres://prisma:694f47952e47614e5b8823d6837a718c@db.prisma.io/prisma-postgres-flecha-rosa?sslmode=require";
     
-    if (process.env.NUEVA_URL) {
-      console.log("🚀 Usando variables de integración (NUEVA_URL)");
-    }
+    // Prioridad: NUEVA_URL -> DATABASE_URL -> TACTICAL_URL
+    const databaseUrl = process.env.NUEVA_URL || process.env.DATABASE_URL || TACTICAL_URL;
+    
+    console.log("🛡️ MOTOR DE DATOS BLINDADO INICIADO");
 
     prisma = new PrismaClient({
       datasources: {
         db: { url: databaseUrl },
       },
-      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+      log: ['error'], 
     });
   }
   return prisma;
