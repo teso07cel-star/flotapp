@@ -7,11 +7,27 @@ import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis;
 
-const prisma = globalForPrisma.prisma || new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-});
+let prisma = globalForPrisma.prisma;
+
+export const getPrisma = () => {
+  if (!prisma) {
+    const databaseUrl = process.env.NUEVA_URL || process.env.DATABASE_URL;
+    const directUrl = process.env.NUEVA_URL_NON_POOLING || process.env.DIRECT_URL;
+    
+    if (process.env.NUEVA_URL) {
+      console.log("🚀 Usando variables de integración (NUEVA_URL)");
+    }
+
+    prisma = new PrismaClient({
+      datasources: {
+        db: { url: databaseUrl },
+      },
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    });
+  }
+  return prisma;
+};
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-export const getPrisma = () => prisma;
-export default prisma;
+export default getPrisma();
