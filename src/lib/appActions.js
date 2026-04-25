@@ -214,6 +214,10 @@ export async function createRegistroDiario(data) {
       data: registroData
     });
 
+    // PROTOCOLO DE DOBLE CLICK / DUPLICADOS
+    // Si es un reporte estándar, prevenimos duplicados exactos en los siguientes 5 minutos
+    // (Lógica implementada en el cliente con localStorage + validación de km aquí si fuera necesario)
+
     revalidatePath("/admin");
     return purify({ success: true, data: registro });
   } catch (error) {
@@ -382,31 +386,21 @@ export async function deleteRegistroDiario(id) {
 }
 
 export async function getMonthlySummary(month, year) {
-  // BUILD GUARD FLEXIBILIZADO: Intentar siempre en runtime
   if (process.env.NEXT_PHASE === 'phase-production-build' && !process.env.DATABASE_URL) {
-    return { success: true, data: { summary: [], totalFleetVisits: 0, mapBranches: [] } };
+    return { success: true, data: { summary: [], totalFleetVisits: 0, mapBranches: [], driverStats: [] } };
   }
 
   try {
     let monthNum = parseInt(month);
     let yearNum = parseInt(year);
-    
-    // BLINDAJE SEÑOR X: Validar tipos antes de operar
     if (isNaN(monthNum) || monthNum < 0 || monthNum > 11) monthNum = new Date().getMonth();
     if (isNaN(yearNum) || yearNum < 2000) yearNum = new Date().getFullYear();
     
-    // Rango robusto para el mes completo
     const dStart = new Date(yearNum, monthNum, 1, 0, 0, 0, 0);
     const dEnd = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999);
     
-    if (isNaN(dStart.getTime()) || isNaN(dEnd.getTime())) {
-       throw new Error("Fechas de resumen inválidas");
-    }
-
     const isoStart = dStart.toISOString();
     const isoEnd = dEnd.toISOString();
-
-    console.log(`📊 GENERANDO RESUMEN SEÑOR X: ${monthNum}/${yearNum} (${isoStart} a ${isoEnd})`);
 
     const [vehiculos, allRegistros, allGastos] = await Promise.all([
       getPrisma().vehiculo.findMany(),
@@ -425,7 +419,6 @@ export async function getMonthlySummary(month, year) {
         const records = allRegistros
           .filter(r => r.vehiculoId === v.id)
           .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
         const expenses = allGastos.filter(g => g.vehiculoId === v.id);
 
         let kmRecorridos = 0;
@@ -433,9 +426,6 @@ export async function getMonthlySummary(month, year) {
           const initialKm = records[0].kmActual || 0;
           const finalKm = records[records.length - 1].kmActual || initialKm;
           kmRecorridos = Math.max(0, finalKm - initialKm);
-        } else if (records.length === 1) {
-          // Si solo hay un registro, asumimos 0 recorrido o usamos el kmActual
-          kmRecorridos = 0; 
         }
 
         summary.push({
@@ -451,86 +441,54 @@ export async function getMonthlySummary(month, year) {
       }
     }
 
-    const orphanRecords = allRegistros.filter(r => {
-      if (!r.fecha) return false;
-      const d = new Date(r.fecha);
-      return !r.vehiculoId && d.getMonth() === monthNum && d.getFullYear() === yearNum;
-    });
+    const totalFleetVisits = allRegistros.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0);
 
-    if (orphanRecords.length > 0) {
-      const orphanInitialKm = [...orphanRecords].sort((a,b) => new Date(a.fecha) - new Date(b.fecha))[0].kmActual || 0;
-      const orphanFinalKm = [...orphanRecords].sort((a,b) => new Date(a.fecha) - new Date(b.fecha))[orphanRecords.length-1].kmActual || 0;
-
-      summary.push({
-        id: "SD",
-        patente: "UNIDAD S/D",
-        kmRecorridos: (orphanFinalKm - orphanInitialKm) > 0 ? (orphanFinalKm - orphanInitialKm) : 0,
-        totalGastos: 0,
-        cantidadRegistros: orphanRecords.length,
-        visitasSucursales: orphanRecords.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
-        novedades: orphanRecords.filter(r => r.novedades).map(r => r.novedades),
-        ultimoConductor: orphanRecords[orphanRecords.length - 1]?.nombreConductor || "S/D"
-      });
-    }
-
-    const currentMonthVisits = allRegistros.filter(r => {
-      if (!r.fecha) return false;
-      const d = new Date(r.fecha);
-      return d.getMonth() === monthNum && d.getFullYear() === yearNum;
-    });
-    
-    const totalFleetVisits = currentMonthVisits.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0);
-
+    const driverBreakdownMap = new Map();
     const mapBranchesMap = new Map();
-    if (Array.isArray(currentMonthVisits)) {
-      currentMonthVisits.forEach(r => {
-        if (Array.isArray(r.sucursales)) {
-          r.sucursales.forEach(s => {
-            if (!mapBranchesMap.has(s.id)) {
-              mapBranchesMap.set(s.id, { 
-                id: s.id, 
-                nombre: s.nombre, 
-                lat: Number(s.lat || 0), 
-                lng: Number(s.lng || 0), 
-                visitas: 1 
-              });
-            } else {
-              const b = mapBranchesMap.get(s.id);
-              b.visitas++;
-            }
-          });
-        }
-      });
-    }
-    
-    const mapBranches = Array.from(mapBranchesMap.values());
-    
-    // SERIALIZACIÓN ATÓMICA v2.0 (Protección absoluta contra Error 500)
-    const finalData = { 
-       summary: summary.map(v => ({
-         id: String(v.id),
-         patente: String(v.patente),
-         kmRecorridos: Number(v.kmRecorridos) || 0,
-         totalGastos: Number(v.totalGastos) || 0,
-         cantidadRegistros: Number(v.cantidadRegistros) || 0,
-         visitasSucursales: Number(v.visitasSucursales) || 0,
-         novedades: Array.isArray(v.novedades) ? v.novedades : [],
-         ultimoConductor: String(v.ultimoConductor || "S/D")
-       })), 
-       totalFleetVisits: Number(totalFleetVisits) || 0, 
-       mapBranches: mapBranches.map(b => ({
-         id: String(b.id),
-         nombre: String(b.nombre),
-         lat: Number(b.lat) || 0,
-         lng: Number(b.lng) || 0,
-         visitas: Number(b.visitas) || 0
-       }))
+
+    allRegistros.forEach(r => {
+      const driverName = r.nombreConductor || "S/D";
+      if (!driverBreakdownMap.has(driverName)) {
+        driverBreakdownMap.set(driverName, { nombre: driverName, totalVisitas: 0, paradas: new Map() });
+      }
+      const dStats = driverBreakdownMap.get(driverName);
+      if (Array.isArray(r.sucursales)) {
+        r.sucursales.forEach(s => {
+          dStats.totalVisitas++;
+          if (!dStats.paradas.has(s.id)) {
+            dStats.paradas.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), count: 1 });
+          } else {
+            dStats.paradas.get(s.id).count++;
+          }
+          if (!mapBranchesMap.has(s.id)) {
+            mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+          } else {
+            mapBranchesMap.get(s.id).visitas++;
+          }
+        });
+      }
+    });
+
+    const finalData = {
+      summary: summary.map(v => ({
+        id: String(v.id),
+        patente: String(v.patente),
+        kmRecorridos: Number(v.kmRecorridos) || 0,
+        totalGastos: Number(v.totalGastos) || 0,
+        cantidadRegistros: Number(v.cantidadRegistros) || 0,
+        visitasSucursales: Number(v.visitasSucursales) || 0,
+        ultimoConductor: String(v.ultimoConductor)
+      })),
+      totalFleetVisits,
+      mapBranches: Array.from(mapBranchesMap.values()),
+      driverStats: Array.from(driverBreakdownMap.values()).map(d => ({
+        nombre: d.nombre,
+        totalVisitas: d.totalVisitas,
+        paradas: Array.from(d.paradas.values())
+      }))
     };
 
-     return { 
-      success: true, 
-      data: JSON.parse(JSON.stringify(finalData)) 
-    };
+    return { success: true, data: JSON.parse(JSON.stringify(finalData)) };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
     return { 
@@ -1443,6 +1401,23 @@ export async function getMonthlyReport(month, year) {
       success: true, 
       data: { vehicles: MASTER_VEHICULOS.map(v => ({ ...v, totalKm: 0, totalTrips: 0 })), totalKm: 0, totalTrips: 0 }
     });
+  }
+}
+
+export async function finalizeDriverLog(id) {
+  try {
+    const rid = parseInt(id);
+    if (!rid || isNaN(rid)) return { success: false, error: "ID inválido" };
+    
+    await getPrisma().registroDiario.update({
+      where: { id: rid },
+      data: { tipoReporte: "CIERRE" }
+    });
+    
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
   }
 }
 

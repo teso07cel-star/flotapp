@@ -76,6 +76,14 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
     setLoading(true);
     setError(null);
 
+    // PROTOCOLO ANTI-DUPLICADOS (Escudo B8.4)
+    const lastSubmitTime = localStorage.getItem("flotapp_last_submit");
+    if (lastSubmitTime && (Date.now() - parseInt(lastSubmitTime) < 300000)) { // 5 minutos
+       setError("PROTOCOLO BLOQUEADO: Ya se envió una bitácora recientemente. Espere 5 min o verifique su conexión.");
+       setLoading(false);
+       return;
+    }
+
     const payload = {
       vehiculoId: vehiculo.id,
       nombreConductor: identifiedDriver,
@@ -93,6 +101,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       const res = await createRegistroDiario(payload);
 
       if (res.success) {
+        localStorage.setItem("flotapp_last_submit", Date.now().toString());
         if (res.data && res.data.id) {
             setSubmittedRecordId(res.data.id);
         }
@@ -101,7 +110,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
         setLoading(false);
         
         if (type === "CIERRE") {
-          document.cookie = "driver_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          // Mantener sesión activa del chofer
         }
       } else {
         if (res.error === "MILEAGE_AUTH_REQUIRED") {
@@ -149,7 +158,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative group">
                      <img src="/icons/admin_hud.png" className="w-12 h-12 mix-blend-screen opacity-90 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" alt="HUD" />
-                     <div className="absolute -inset-1 bg-blue-500/20 blur opacity-0 transition duration-500"></div>
+                     <div className="text-blue-500 hover:bg-blue-500/10 p-2 rounded-lg transition-all"></div>
                   </div>
                </div>
             </div>

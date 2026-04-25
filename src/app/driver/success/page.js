@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { StrategicGearIcon } from "@/components/FuturisticIcons";
 import { DRIVER_BASES, BASE_ADDRESSES } from "@/lib/constants";
+import { finalizeDriverLog } from "@/lib/appActions";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -90,13 +91,16 @@ function SuccessContent() {
   const phoneNorte = config["PHONE_NORTE"] || "5491180591342";
   const phoneSanTelmo = config["PHONE_SANTELMO"] || "5491128620002"; 
 
-  const handleReturnToBase = () => {
+  const handleReturnToBase = async () => {
+    if (id) await finalizeDriverLog(id);
     const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(baseAddress)}&navigate=yes`;
     window.open(wazeUrl, '_blank');
-    // Redirigir al inicio después de que el conductor inicie el retorno
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
+    router.push("/");
+  };
+
+  const handleMenuExit = async () => {
+    if (id) await finalizeDriverLog(id);
+    router.push("/");
   };
 
   const getWaLink = (phone, sucursalNombre) => {
@@ -206,7 +210,7 @@ function SuccessContent() {
                          <p className="text-[10px] text-blue-300/60 font-black uppercase tracking-tight">{baseAddress}</p>
                       </div>
                       
-                      <button onClick={() => router.push("/")} className="text-[9px] text-slate-600 uppercase font-black tracking-widest hover:text-white transition-colors relative z-10">
+                      <button onClick={handleMenuExit} className="text-[9px] text-slate-600 uppercase font-black tracking-widest hover:text-white transition-colors relative z-10">
                         Omitir y Volver al Menú
                       </button>
                   </div>

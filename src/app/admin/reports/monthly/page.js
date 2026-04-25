@@ -2,6 +2,7 @@ import { getMonthlySummary } from "@/lib/appActions";
 import Link from "next/link";
 import DynamicMap from "@/components/DynamicMap";
 import PrintButton from "@/components/PrintButton";
+import DriverAnalyticsClient from "@/components/DriverAnalyticsClient";
 
 export default async function MonthlyReport({ searchParams }) {
   const params = await searchParams;
@@ -114,8 +115,8 @@ export default async function MonthlyReport({ searchParams }) {
                         <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em]">ID / Patente</th>
                         <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em]">Último Operador</th>
                         <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em] text-right">Recorrido</th>
-                        <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em] text-right">Métrica Logística</th>
-                        <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em] text-right">Presupuesto</th>
+                        <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em] text-right">Registros</th>
+                        <th className="p-8 font-black uppercase text-[10px] tracking-[0.3em] text-right">Sucursales</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y-2 divide-slate-950">
@@ -133,11 +134,11 @@ export default async function MonthlyReport({ searchParams }) {
                              <div className="font-black text-3xl italic tracking-tighter">{v.kmRecorridos.toLocaleString()} <span className="text-[10px] not-italic opacity-30">KM</span></div>
                           </td>
                           <td className="p-8 text-right">
-                             <div className="font-black text-2xl text-blue-800 italic leading-none">{v.visitasSucursales}</div>
-                             <div className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Puntos de Control</div>
+                             <div className="font-black text-2xl italic tracking-tighter">{v.cantidadRegistros}</div>
                           </td>
                           <td className="p-8 text-right">
-                             <div className="font-black text-2xl italic tracking-tighter">$ {v.totalGastos.toLocaleString()}</div>
+                             <div className="font-black text-2xl text-blue-800 italic leading-none">{v.visitasSucursales}</div>
+                             <div className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Puntos Visitados</div>
                           </td>
                        </tr>
                      ))}
@@ -146,7 +147,46 @@ export default async function MonthlyReport({ searchParams }) {
             </div>
           </section>
 
-          {/* SECCIÓN IV: CIERRE Y VALIDACIÓN */}
+          {/* SECCIÓN IV: RANKING DE NODOS (SUCURSALES MÁS VISITADAS) */}
+          <section className="space-y-10 no-print">
+            <div className="flex items-center gap-6">
+               <h3 className="text-3xl font-black uppercase tracking-tighter italic">IV. Ranking de Operaciones</h3>
+               <div className="h-[1px] flex-1 bg-slate-200" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+               <div className="border-[1px] border-slate-950">
+                  <table className="w-full text-left border-collapse font-sans">
+                     <thead>
+                        <tr className="bg-slate-50 text-slate-950 border-b-2 border-slate-950">
+                           <th className="p-6 font-black uppercase text-[9px] tracking-widest">Posición</th>
+                           <th className="p-6 font-black uppercase text-[9px] tracking-widest">Sucursal</th>
+                           <th className="p-6 font-black uppercase text-[9px] tracking-widest text-right">Visitas</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                        {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
+                          <tr key={i} className="hover:bg-slate-50 transition-colors">
+                             <td className="p-6 font-black italic text-slate-400">#0{i+1}</td>
+                             <td className="p-6 font-bold uppercase tracking-tighter text-slate-900">{s.nombre}</td>
+                             <td className="p-6 text-right">
+                                <span className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full font-black text-xs">{s.visitas}</span>
+                             </td>
+                          </tr>
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
+               <div className="bg-slate-50 p-10 flex flex-col justify-center border-l-[6px] border-blue-600">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-4 italic">Observación Logística</p>
+                  <p className="text-sm text-slate-600 leading-relaxed italic">
+                     El ranking superior identifica los nodos críticos con mayor frecuencia de despacho. 
+                     Estas sucursales representan el núcleo operativo del mes de {monthNames[month]} {year}.
+                  </p>
+               </div>
+            </div>
+          </section>
+
+          {/* SECCIÓN V: CIERRE Y VALIDACIÓN */}
           <footer className="pt-40 pb-20 mt-40 border-t-2 border-slate-100">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
                 <div className="space-y-10">

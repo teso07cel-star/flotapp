@@ -134,7 +134,7 @@ model AutorizacionDispositivo {
   id                Int      @id @default(autoincrement())
   nombreSolicitante String
   deviceId          String   @unique
-  estado            String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  estado            String   @default("PENDIENTE")
   fechaSolicitud    DateTime @default(now())
 }
 
