@@ -87,7 +87,7 @@ export default async function AdminLayout({ children }) {
               
               <div className="p-4 border-t border-blue-500/20 space-y-1">
                  <div className="px-3 py-2 text-[6px] font-medium uppercase tracking-[0.2em] text-slate-400 mb-2 select-none opacity-50">
-                    Operador: Señor X
+                    Operador: Brian Ezequiel Lopez
                  </div>
                  <form action={logoutAdmin}>
                    <button type="submit" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer text-sm font-medium border border-transparent hover:border-amber-500/30">
@@ -110,7 +110,7 @@ export default async function AdminLayout({ children }) {
               </div>
               <footer className="mt-16 pt-8 border-t border-blue-500/20 flex items-center justify-between text-[6px] font-medium uppercase tracking-[0.2em] text-slate-500 opacity-30">
                  <div>&copy; {new Date().getFullYear()} - FLOTAPP - TACTICAL ADMIN SYSTEM</div>
-                 <div className="uppercase">Auditoría: Señor X (v3.0)</div>
+                 <div className="uppercase">Auditoría: Brian Ezequiel Lopez (v3.0)</div>
               </footer>
             </div>
         </main>
@@ -125,7 +125,7 @@ export default async function AdminLayout({ children }) {
               <StrategicGearIcon className="w-12 h-12 animate-spin-slow" />
            </div>
            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">PANEL BLOQUEADO</h2>
-           <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-10">Señor X, hemos detectado una excepción en el núcleo del Layout</p>
+           <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-10">Brian Ezequiel Lopez, hemos detectado una excepción en el núcleo del Layout</p>
            
            <div className="bg-black/40 p-8 rounded-3xl text-left border border-white/5 mb-10">
               <p className="text-[10px] text-slate-500 font-black uppercase mb-3">Reporte de Error Táctico:</p>

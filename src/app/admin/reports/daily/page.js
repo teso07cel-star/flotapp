@@ -41,7 +41,7 @@ export default async function DailyReport({ searchParams }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Jornada <span className="text-slate-400">TÁCTICA v2.0</span></h1>
-            <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest">Auditoría Operativa para Señor X</p>
+            <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest text-center md:text-left">Auditoría Operativa para Brian Ezequiel Lopez</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -226,7 +226,7 @@ export default async function DailyReport({ searchParams }) {
       <div className="min-h-[60vh] flex items-center justify-center p-8">
         <div className="bg-slate-950 border-2 border-dashed border-blue-500/50 rounded-[3rem] p-16 max-w-2xl w-full text-center shadow-2xl">
            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">REPORTE BLOQUEADO</h2>
-           <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-8">Señor X, fallo detectado en la capa de auditoría</p>
+           <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-8">Brian Ezequiel Lopez, fallo detectado en la capa de auditoría</p>
            <div className="bg-black/50 p-6 rounded-2xl text-left border border-white/5 mb-8">
               <p className="text-[10px] text-slate-500 font-black uppercase mb-2">Error de Auditoría:</p>
               <code className="text-blue-300 font-mono text-xs break-all">{error.message || "Excepción crítica de servidor"}</code>

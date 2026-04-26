@@ -300,10 +300,14 @@ export async function deleteVehiculo(id) {
 
 export async function deleteSucursal(id) {
   try {
-    await getPrisma().sucursal.delete({ where: { id: parseInt(id) } });
+    const prisma = getPrisma();
+    // Protocolo de Desvinculación B8.7: Limpiamos relaciones antes de borrar
+    await prisma.$executeRaw`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${id}`;
+    await prisma.sucursal.delete({ where: { id } });
     revalidatePath("/admin/branches");
     return { success: true };
   } catch (error) {
+    console.error("Fallo en borrado táctico:", error);
     return { success: false, error: error.message };
   }
 }
@@ -449,17 +453,29 @@ export async function getMonthlySummary(month, year) {
     allRegistros.forEach(r => {
       const driverName = r.nombreConductor || "S/D";
       if (!driverBreakdownMap.has(driverName)) {
-        driverBreakdownMap.set(driverName, { nombre: driverName, totalVisitas: 0, paradas: new Map() });
+        driverBreakdownMap.set(driverName, { 
+          nombre: driverName, 
+          totalVisitas: 0, 
+          totalKm: 0,
+          vehicles: new Set(),
+          branchesVisited: new Set(),
+          branchDetails: new Map() 
+        });
       }
       const dStats = driverBreakdownMap.get(driverName);
+      dStats.vehicles.add(r.vehiculo?.patente || "S/D");
+      
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
           dStats.totalVisitas++;
-          if (!dStats.paradas.has(s.id)) {
-            dStats.paradas.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), count: 1 });
+          dStats.branchesVisited.add(s.nombre);
+          
+          if (!dStats.branchDetails.has(s.id)) {
+            dStats.branchDetails.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
           } else {
-            dStats.paradas.get(s.id).count++;
+            dStats.branchDetails.get(s.id).visitas++;
           }
+
           if (!mapBranchesMap.has(s.id)) {
             mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
           } else {
@@ -467,6 +483,14 @@ export async function getMonthlySummary(month, year) {
           }
         });
       }
+    });
+
+    // Calcular KM por chofer (Aproximación por registros)
+    driverBreakdownMap.forEach((stats, name) => {
+       const driverLogs = allRegistros.filter(r => (r.nombreConductor || "S/D") === name).sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+       if (driverLogs.length > 1) {
+          stats.totalKm = Math.max(0, (driverLogs[driverLogs.length - 1].kmActual || 0) - (driverLogs[0].kmActual || 0));
+       }
     });
 
     const finalData = {
@@ -483,8 +507,11 @@ export async function getMonthlySummary(month, year) {
       mapBranches: Array.from(mapBranchesMap.values()),
       driverStats: Array.from(driverBreakdownMap.values()).map(d => ({
         nombre: d.nombre,
-        totalVisitas: d.totalVisitas,
-        paradas: Array.from(d.paradas.values())
+        totalTrips: d.totalVisitas,
+        totalKm: d.totalKm,
+        vehicles: Array.from(d.vehicles),
+        branchesVisited: Array.from(d.branchesVisited),
+        branchDetails: Array.from(d.branchDetails.values())
       }))
     };
 

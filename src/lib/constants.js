@@ -63,7 +63,7 @@ export const MASTER_VEHICULOS = [
 
 export const MASTER_SUCURSALES = [
   { id: 1, nombre: "San Martin", direccion: "Bartolomé Mitre 3586" },
-  { id: 2, nombre: "Moron", direccion: "Ntra Sra del Buen Viaje 713" },
+  { id: 2, nombre: "Moron", direccion: "Ntra Sra del Buen Viaje 713", lat: -34.6517, lng: -58.6225 },
   { id: 3, nombre: "San Justo", direccion: "Almafuerte 3118" },
   { id: 4, nombre: "Ramos", direccion: "Av. de Mayo 338" },
   { id: 5, nombre: "San Miguel", direccion: "Av. Pte. J. D. Perón 1091" },

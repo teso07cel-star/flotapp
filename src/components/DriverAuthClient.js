@@ -36,10 +36,21 @@ export default function DriverAuthClient({ choferes }) {
     }
     console.log("Tactical Device ID:", devId);
 
-    // BYPASS TÁCTICO B5: Autorización automática inmediata
-    const savedDriver = localStorage.getItem("flotapp_driver_name");
-    localStorage.setItem("device_authorized_v1", "true");
-    setIsDeviceAuthorized(true);
+    // 3. PROTOCOLO DE AUTORIZACIÓN REAL DE BRIAN EZEQUIEL LOPEZ
+    const checkAuthStatus = async () => {
+      const devId = localStorage.getItem("flotapp_device_id");
+      const res = await checkEstadoAutorizacion(devId);
+      
+      if (res.success && res.estado === "APROBADO") {
+        localStorage.setItem("device_authorized_v2", "true");
+        setIsDeviceAuthorized(true);
+      } else {
+        localStorage.removeItem("device_authorized_v2");
+        setIsDeviceAuthorized(false);
+      }
+    };
+
+    checkAuthStatus();
     
     if (savedDriver) {
       setTimeout(() => setFastLoginDriver(savedDriver), 0);
