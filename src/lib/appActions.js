@@ -501,19 +501,44 @@ export async function getMonthlySummary(month, year) {
           let sLat = s.lat;
           let sLng = s.lng;
 
-          if (!sName || sName === "" || sName === "Otros") {
-             sName = "Otros";
-             // Referencia táctica en el Obelisco para "Otros" (Pedido de Brian)
-             sLat = -34.6037;
-             sLng = -58.3816;
+          // DICCIONARIO TÁCTICO DE COORDENADAS (PRESTIGE v8.9.7)
+          const TACTICAL_COORDS = {
+            "Gualeguaychú": { lat: -33.0094, lng: -58.5172 },
+            "Cabildo": { lat: -34.5613, lng: -58.4556 },
+            "Plaza Italia": { lat: -34.5815, lng: -58.4210 },
+            "Barrio Norte": { lat: -34.5916, lng: -58.3976 },
+            "Once": { lat: -34.6097, lng: -58.4061 },
+            "Belgrano": { lat: -34.5623, lng: -58.4554 },
+            "San Miguel": { lat: -34.5434, lng: -58.7126 },
+            "San Fernando": { lat: -34.4449, lng: -58.5484 },
+            "Olivos": { lat: -34.5097, lng: -58.4841 },
+            "Nordelta": { lat: -34.4011, lng: -58.6471 },
+            "Martinez": { lat: -34.4925, lng: -58.5146 },
+            "Vicente Lopez": { lat: -34.5342, lng: -58.4759 },
+            "Pacheco": { lat: -34.4533, lng: -58.6253 },
+            "Teso San Telmo": { lat: -34.6206, lng: -58.3732 },
+            "Campana": { lat: -34.1627, lng: -58.9592 },
+            "San Martin": { lat: -34.5779, lng: -58.5385 },
+            "Ramos": { lat: -34.6465, lng: -58.5638 },
+            "San Justo": { lat: -34.6800, lng: -58.5600 },
+            "La Plata": { lat: -34.9214, lng: -57.9545 },
+            "Voy y Vuelvo": { lat: -33.0050, lng: -58.5100 }, // Gualeguaychu interior
+            "Otros": { lat: -34.6037, lng: -58.3816 } // Solo para Otros reales
+          };
+
+          const matched = Object.keys(TACTICAL_COORDS).find(k => sName?.toUpperCase().includes(k.toUpperCase()));
+          if (matched && (!sLat || Math.abs(sLat) < 1)) {
+              sLat = TACTICAL_COORDS[matched].lat;
+              sLng = TACTICAL_COORDS[matched].lng;
           }
+
+          if (!sName || sName === "") sName = "Otros";
           
           dStats.totalVisitas++;
           
           const currentVisits = dStats.branchesVisited.get(sName) || 0;
           dStats.branchesVisited.set(sName, currentVisits + 1);
           
-          // Consideramos válido si tiene coordenadas o si es el fallback del Obelisco
           const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
 
           if (!dStats.branchDetails.has(s.id || sName)) {
