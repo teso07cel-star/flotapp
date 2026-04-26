@@ -100,16 +100,16 @@ export default async function MonthlyReport({ searchParams }) {
                   {summary.map((v, i) => (
                     <tr key={i} className="hover:bg-slate-50 transition-colors">
                       <td className="p-8 border-r border-slate-900 text-center">
-                         <div className="text-4xl font-black italic tracking-tighter leading-none mb-1">{v.patente}</div>
-                         <div className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Protocolo #V-{v.id}</div>
+                         <div className="text-4xl font-black italic tracking-tighter leading-none mb-1 text-slate-950">{v.patente}</div>
+                         <div className="text-[9px] font-bold uppercase text-slate-600 tracking-widest">Protocolo #V-{v.id}</div>
                       </td>
                       <td className="p-8 border-r border-slate-900 text-center">
-                         <div className="text-5xl font-black italic tracking-tighter">{v.visitasSucursales}</div>
-                         <div className="text-[10px] font-black text-slate-300 uppercase mt-1">Check-ins</div>
+                         <div className="text-5xl font-black italic tracking-tighter text-slate-950">{v.visitasSucursales}</div>
+                         <div className="text-[10px] font-black text-slate-500 uppercase mt-1">Check-ins</div>
                       </td>
                       <td className="p-8 border-r border-slate-900 text-center">
-                         <div className="text-5xl font-black italic tracking-tighter">{v.kmRecorridos.toLocaleString()}</div>
-                         <div className="text-[10px] font-black text-slate-300 uppercase mt-1">Kilómetros</div>
+                         <div className="text-5xl font-black italic tracking-tighter text-slate-950">{v.kmRecorridos.toLocaleString()}</div>
+                         <div className="text-[10px] font-black text-slate-500 uppercase mt-1">Kilómetros</div>
                       </td>
                       <td className="p-8 text-center">
                          <div className="flex flex-col items-center">
