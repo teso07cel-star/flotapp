@@ -472,7 +472,7 @@ export async function getMonthlySummary(month, year) {
 
     allRegistros.forEach(r => {
       const driverName = nameConsolidator(r.nombreConductor);
-      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; // Omitir según pedido de Brian
+      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; 
 
       if (!driverBreakdownMap.has(driverName)) {
         driverBreakdownMap.set(driverName, { 
@@ -480,7 +480,7 @@ export async function getMonthlySummary(month, year) {
           totalVisitas: 0, 
           totalKm: 0,
           vehicles: new Set(),
-          branchesVisited: new Set(),
+          branchesVisited: new Map(), // Cambio a Map para guardar nombre -> visitas
           branchDetails: new Map() 
         });
       }
@@ -489,22 +489,25 @@ export async function getMonthlySummary(month, year) {
       
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
-          const sName = s.nombre?.trim() || "Otros";
-          dStats.totalVisitas++;
-          dStats.branchesVisited.add(sName);
+          const sName = s.nombre?.trim() || "Sin Nombre";
+          if (sName === "Otros" || sName === "") return; // Excluir "Otros" del mapa y conteo si así se desea, o renombrar. 
           
-          if (sName !== "Otros") {
-            if (!dStats.branchDetails.has(s.id)) {
-                dStats.branchDetails.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
-            } else {
-                dStats.branchDetails.get(s.id).visitas++;
-            }
+          dStats.totalVisitas++;
+          
+          // Conteo para la lista al lado del mapa
+          const currentVisits = dStats.branchesVisited.get(sName) || 0;
+          dStats.branchesVisited.set(sName, currentVisits + 1);
+          
+          if (!dStats.branchDetails.has(s.id)) {
+              dStats.branchDetails.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+          } else {
+              dStats.branchDetails.get(s.id).visitas++;
+          }
 
-            if (!mapBranchesMap.has(s.id)) {
-                mapBranchesMap.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
-            } else {
-                mapBranchesMap.get(s.id).visitas++;
-            }
+          if (!mapBranchesMap.has(s.id)) {
+              mapBranchesMap.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+          } else {
+              mapBranchesMap.get(s.id).visitas++;
           }
         });
       }
@@ -535,7 +538,7 @@ export async function getMonthlySummary(month, year) {
         totalTrips: d.totalVisitas,
         totalKm: d.totalKm,
         vehicles: Array.from(d.vehicles),
-        branchesVisited: Array.from(d.branchesVisited),
+        branchesVisited: Array.from(d.branchesVisited.entries()).map(([nombre, visitas]) => ({ nombre, visitas })),
         branchDetails: Array.from(d.branchDetails.values())
       }))
     };

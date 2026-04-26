@@ -22,7 +22,37 @@ export default async function MonthlyReport({ searchParams }) {
   const totalSpent = summary.reduce((acc, v) => acc + (v.totalGastos || 0), 0);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 px-6 py-12 sm:p-24 font-serif selection:bg-blue-100 print:p-0 print:m-0">
+    <div className="relative min-h-screen pb-20">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+          body {
+            background: white !important;
+            color: black !important;
+          }
+          nav, .no-print, button, .sidebar, aside, form {
+            display: none !important;
+          }
+          .print-break {
+            page-break-after: always;
+            break-after: page;
+          }
+          .max-w-5xl {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          section {
+            margin-bottom: 2rem !important;
+            padding-top: 2rem !important;
+          }
+        }
+      `}} />
+
       {/* SELLO DE AUTENTICIDAD - MARCA DE AGUA VISUAL */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.02] pointer-events-none select-none z-0">
          <h1 className="text-[30vw] font-black italic tracking-tighter uppercase whitespace-nowrap rotate-12">FLOTAPP</h1>
