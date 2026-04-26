@@ -68,8 +68,11 @@ export default function DriverAnalyticsClient({ driverStats }) {
                    </div>
 
                    {/* Mapa Táctico Individual */}
-                   <div className="h-[350px] border-2 border-slate-950 shadow-xl grayscale-0">
+                   <div className="h-[350px] border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm relative">
                       <DynamicMap branchesData={d.branchDetails} />
+                      <div className="absolute top-4 right-4 bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest z-[1000] shadow-xl">
+                         Auditoría: {d.branchDetails.length} Puntos
+                      </div>
                    </div>
                 </div>
               </div>

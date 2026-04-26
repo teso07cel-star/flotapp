@@ -59,33 +59,17 @@ export default async function MonthlyReport({ searchParams }) {
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* PORTADA EJECUTIVA TIPO 'LOGBOOK' */}
-        <header className="border-[15px] border-slate-950 p-12 sm:p-20 mb-32 text-center relative bg-white shadow-2xl print:shadow-none print:border-[8pt] print:mb-0 print:break-after-page">
-           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-10">
-              <img src="/icons/admin_hud.png" alt="Logo" className="w-24 h-24 grayscale brightness-0" />
-           </div>
-           
-           <div className="space-y-16">
-              <div className="space-y-4">
-                <p className="text-[10px] font-sans font-black uppercase tracking-[1em] text-slate-400 mb-8">Intelligence & Logistics Orchestrator</p>
-                <h1 className="text-7xl sm:text-9xl font-black italic tracking-tighter uppercase leading-none text-slate-900 drop-shadow-lg">Libro de Ruta</h1>
-                <div className="flex items-center justify-center gap-10">
-                   <div className="h-[3px] flex-1 bg-slate-950" />
-                   <h2 className="text-4xl sm:text-5xl font-bold text-blue-800 uppercase tracking-[0.2em] font-sans italic">{monthNames[month]} {year}</h2>
-                   <div className="h-[3px] flex-1 bg-slate-950" />
-                </div>
+        {/* CABECERA MINIMALISTA DE ÉLITE */}
+        <header className="p-12 mb-20 text-center relative bg-white border-b-4 border-slate-900 print:mb-10 print:break-after-page">
+           <div className="space-y-6">
+              <p className="text-[11px] font-sans font-black uppercase tracking-[0.6em] text-slate-400">Sistema de Inteligencia Logística</p>
+              <h1 className="text-6xl sm:text-8xl font-black italic tracking-tighter uppercase leading-none text-slate-900">Libro de Ruta</h1>
+              <div className="flex items-center justify-center gap-6">
+                 <div className="h-[2px] w-20 bg-blue-600" />
+                 <h2 className="text-3xl font-bold text-slate-900 uppercase tracking-widest italic">{monthNames[month]} {year}</h2>
+                 <div className="h-[2px] w-20 bg-blue-600" />
               </div>
-
-              <div className="grid grid-cols-2 gap-10 text-left max-w-2xl mx-auto border-t border-slate-200 pt-16">
-                 <div className="space-y-1">
-                    <p className="text-[8px] font-sans font-black uppercase tracking-widest text-slate-400">Estado del Documento</p>
-                    <p className="text-sm font-black uppercase italic text-slate-900 tracking-tighter">Certificado Operacional</p>
-                 </div>
-                 <div className="space-y-1 text-right">
-                    <p className="text-[8px] font-sans font-black uppercase tracking-widest text-slate-400">ID de Auditoría</p>
-                    <p className="text-sm font-black font-mono text-slate-600 tracking-tighter">#LX-{year}-{month+1}-FINAL</p>
-                 </div>
-              </div>
+              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mt-8">Auditoría Operativa por Brian Ezequiel López</p>
            </div>
         </header>
 
@@ -93,7 +77,11 @@ export default async function MonthlyReport({ searchParams }) {
         <div className="space-y-32">
           
           {/* SECCIÓN I: RESUMEN DE FLOTA */}
-          <section className="space-y-12 print:break-after-page print:pt-10">
+          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+             <div className="flex items-center gap-4 mb-10">
+                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 01</span>
+                <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Desempeño Global de Unidades</h2>
+             </div>
             <div className="flex items-center gap-6">
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">I. Resumen Operativo de Flota</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />
@@ -139,86 +127,75 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN II: INTELIGENCIA POR CONDUCTOR (INTERACTIVO) */}
-          <section className="space-y-12 print:hidden">
-            <div className="flex items-center gap-6">
-               <h3 className="text-3xl font-black uppercase tracking-tighter italic">II. Inteligencia por Conductor</h3>
-               <div className="h-[1px] flex-1 bg-slate-200" />
+          <section className="space-y-12 print:hidden mb-24">
+            <div className="flex items-center gap-4 mb-10">
+               <span className="bg-blue-600 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 02</span>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Inteligencia Individual por Oficial</h2>
             </div>
             
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-4 bg-slate-100 p-4 inline-block rounded-xl">
-               Seleccione un oficial para desplegar el mapa táctico y auditoría personal:
-            </p>
-            
-            <div className="bg-slate-50 p-2 rounded-[3.5rem] border-4 border-slate-950 shadow-3xl overflow-hidden">
+            <div className="bg-white border-2 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl">
                <DriverAnalyticsClient driverStats={res.data.driverStats} />
             </div>
           </section>
 
           {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA */}
-          <section className="space-y-12 py-10 print:break-after-page print:pt-10">
-            <div className="flex items-center gap-6">
-               <h3 className="text-3xl font-black uppercase tracking-tighter italic">III. Análisis de Inversión</h3>
-               <div className="h-[1px] flex-1 bg-slate-200" />
+          <section className="space-y-12 py-10 print:break-after-page print:pt-10 mb-24">
+            <div className="flex items-center gap-4 mb-10">
+               <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 03</span>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Análisis de Inversión Tecnológica</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-               <div className="bg-white border-4 border-slate-950 p-12 shadow-[20px_20px_0_rgba(0,0,0,0.06)] group hover:-translate-y-2 transition-all">
-                  <p className="text-[11px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Costo de Operación (KM)</p>
-                  <p className="text-6xl font-black italic tracking-tighter group-hover:text-blue-600 transition-colors">$ 1.450</p>
-                  <div className="mt-8 text-[9px] font-medium text-slate-400 uppercase tracking-widest">Base de cálculo: Mantenimiento + Combustible</div>
+               <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Consumo Operativo</p>
+                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 1.450 / km</p>
                </div>
-               <div className="bg-white border-4 border-slate-950 p-12 shadow-[20px_20px_0_rgba(0,0,0,0.06)] group hover:-translate-y-2 transition-all">
-                  <p className="text-[11px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Inversión Estimada Mes</p>
-                  <p className="text-6xl font-black italic tracking-tighter group-hover:text-blue-600 transition-colors">$ 512.400</p>
-                  <div className="mt-8 text-[9px] font-medium text-slate-400 uppercase tracking-widest italic text-blue-600">Ahorro proyectado: 12% vs {monthNames[month-1]}</div>
+               <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Inversión Logística</p>
+                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 512.4K</p>
                </div>
-               <div className="bg-slate-950 text-white p-12 shadow-[20px_20px_0_rgba(0,0,0,0.3)] relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                     <svg className="w-32 h-32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  </div>
-                  <p className="text-[11px] font-black uppercase opacity-60 mb-4 tracking-[0.2em] italic">Eficiencia de Recolección</p>
-                  <p className="text-6xl font-black italic tracking-tighter text-blue-400">99.1%</p>
-                  <div className="mt-8 text-[9px] font-black text-amber-500 uppercase tracking-widest">Estado: Máxima Rentabilidad</div>
+               <div className="bg-slate-950 text-white p-10 shadow-xl relative overflow-hidden group rounded-[2rem]">
+                  <p className="text-[10px] font-black uppercase opacity-60 mb-4 tracking-[0.2em] italic">Disponibilidad</p>
+                  <p className="text-5xl font-black italic tracking-tighter text-blue-400">99.1%</p>
                </div>
             </div>
           </section>
 
           {/* SECCIÓN IV: RANKING DE NODOS (CRÍTICOS) */}
-          <section className="space-y-12 print:break-after-page print:pt-10">
-            <div className="flex items-center gap-6">
-               <h3 className="text-3xl font-black uppercase tracking-tighter italic">IV. Ranking de Operaciones</h3>
-               <div className="h-[1px] flex-1 bg-slate-200" />
+          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+            <div className="flex items-center gap-4 mb-10">
+               <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Nodos Críticos</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-               <div>
-                  <table className="w-full text-left border-collapse font-sans border-2 border-slate-950 overflow-hidden">
-                     <thead>
-                        <tr className="bg-slate-100 text-slate-950 border-b-2 border-slate-950">
-                           <th className="p-8 font-black uppercase text-[10px] tracking-widest">Posición</th>
-                           <th className="p-8 font-black uppercase text-[10px] tracking-widest">Sucursal</th>
-                           <th className="p-8 font-black uppercase text-[10px] tracking-widest text-right">Hitrate</th>
+               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                  <table className="w-full text-left font-sans">
+                     <thead className="bg-slate-50 border-b-2 border-slate-900">
+                        <tr className="text-slate-950">
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Posición</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Hitrate</th>
                         </tr>
                      </thead>
-                     <tbody className="divide-y divide-slate-200">
+                     <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
                         {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
-                          <tr key={i} className="hover:bg-slate-50 transition-colors italic">
-                             <td className="p-8 font-black text-slate-400 text-xl tracking-tighter">#0{i+1}</td>
-                             <td className="p-8 font-black uppercase tracking-tighter text-slate-900 text-lg">{s.nombre}</td>
-                             <td className="p-8 text-right pr-12">
-                                <span className="bg-slate-950 text-white px-6 py-2 rounded-full font-black text-xs italic">{s.visitas}</span>
+                          <tr key={i} className="hover:bg-slate-50 transition-colors">
+                             <td className="p-6 pl-10 font-black text-slate-300">#0{i+1}</td>
+                             <td className="p-6 font-black uppercase tracking-tighter text-slate-900">{s.nombre}</td>
+                             <td className="p-6 text-right pr-10">
+                                <span className="bg-blue-600 text-white px-4 py-1 rounded-full font-black text-[10px]">{s.visitas}</span>
                              </td>
                           </tr>
                         ))}
                      </tbody>
                   </table>
                </div>
-               <div className="bg-slate-50 p-16 flex flex-col justify-center border-l-[10px] border-blue-600 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 text-[10vw] font-black opacity-[0.03] rotate-12 -translate-y-1/2 translate-x-1/2">DATA</div>
-                  <p className="text-[12px] font-black uppercase tracking-widest text-blue-600 mb-8 italic flex items-center gap-3">
+               <div className="bg-slate-50 p-12 flex flex-col justify-center border-l-8 border-blue-600 rounded-r-[2rem] shadow-sm italic">
+                  <p className="text-[12px] font-black uppercase tracking-widest text-blue-600 mb-6 flex items-center gap-3">
                      <span className="w-10 h-[2px] bg-blue-600"></span>
                      Observación Logística
                   </p>
-                  <p className="text-xl text-slate-800 leading-relaxed italic font-serif">
+                  <p className="text-lg text-slate-800 leading-relaxed font-sans">
                      El ranking superior identifica los nodos críticos con mayor frecuencia de despacho. 
                      Estas sucursales representan el núcleo operativo del mes de {monthNames[month]} {year} y requieren monitoreo especial de stock.
                   </p>

@@ -304,21 +304,31 @@ export async function deleteSucursal(id) {
     const sid = parseInt(id);
     if (isNaN(sid)) return { success: false, error: "ID inválido" };
 
-    // Protocolo de Desvinculación TOTAL
+    // PROTOCOLO DE DESVINCULACIÓN NUCLEAR (TACTICA 2026)
+    // Limpiamos TODAS las tablas que puedan tener referencias antes de borrar la sucursal
     await prisma.$transaction([
-      // 1. Limpiar relación implícita
+      // 1. Limpiar relación implícita (Tabla generada por Prisma automáticamente)
       prisma.$executeRaw`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${sid}`,
-      // 2. Limpiar relación explícita
+      // 2. Limpiar relación explícita (Nuestra tabla de conteo de visitas)
       prisma.registroSucursal.deleteMany({ where: { sucursalId: sid } }),
-      // 3. Borrar sucursal
+      // 3. Limpiar cualquier referencia en registros diarios (si hubiera)
+      prisma.$executeRaw`UPDATE "RegistroDiario" SET "lugarGuarda" = NULL WHERE "lugarGuarda" = ${sid.toString()}`,
+      // 4. ELIMINACIÓN FINAL
       prisma.sucursal.delete({ where: { id: sid } })
     ]);
 
     revalidatePath("/admin/branches");
     return { success: true };
   } catch (error) {
-    console.error("Fallo en borrado táctico TOTAL:", error);
-    return { success: false, error: error.message };
+    console.error("Fallo en borrado táctico NUCLEAR:", error);
+    // Si falla el Cascade automático, intentamos un último borrado directo
+    try {
+        await getPrisma().$executeRaw`DELETE FROM "Sucursal" WHERE "id" = ${sid}`;
+        revalidatePath("/admin/branches");
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: error.message };
+    }
   }
 }
 
