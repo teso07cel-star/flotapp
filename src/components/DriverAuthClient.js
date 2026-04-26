@@ -37,6 +37,8 @@ export default function DriverAuthClient({ choferes }) {
     console.log("Tactical Device ID:", devId);
 
     // 3. PROTOCOLO DE AUTORIZACIÓN REAL DE BRIAN EZEQUIEL LOPEZ
+    const savedDriver = localStorage.getItem("flotapp_driver_name");
+    
     const checkAuthStatus = async () => {
       const devId = localStorage.getItem("flotapp_device_id");
       const res = await checkEstadoAutorizacion(devId);
