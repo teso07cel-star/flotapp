@@ -34,7 +34,14 @@ export default function MapComponent({ branchesData = [] }) {
   const defaultCenter = [-38.416097, -63.616672];
   const defaultZoom = 4;
   
-  const validBranches = branchesData.filter(b => b.lat != null && b.lng != null && b.nombre !== "Otros");
+  const validBranches = branchesData.filter(b => 
+    b.lat != null && 
+    b.lng != null && 
+    Math.abs(b.lat) > 1 && 
+    Math.abs(b.lng) > 1 &&
+    b.lat < -20 && b.lat > -56 && // Límites aproximados de Argentina
+    b.lng < -50 && b.lng > -75
+  );
   
   // Si hay sucursales, usamos el centro de la primera para el inicio, 
   // pero el MapContainer usará un efecto para encuadrarlas todas si es necesario.

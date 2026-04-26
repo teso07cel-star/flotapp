@@ -489,8 +489,8 @@ export async function getMonthlySummary(month, year) {
       
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
-          const sName = s.nombre?.trim() || "Sin Nombre";
-          if (sName === "Otros" || sName === "") return; // Excluir "Otros" del mapa y conteo si así se desea, o renombrar. 
+          let sName = s.nombre?.trim();
+          if (!sName || sName === "") sName = "Otros";
           
           dStats.totalVisitas++;
           
@@ -498,14 +498,29 @@ export async function getMonthlySummary(month, year) {
           const currentVisits = dStats.branchesVisited.get(sName) || 0;
           dStats.branchesVisited.set(sName, currentVisits + 1);
           
+          // Solo mandamos al mapa si tiene coordenadas reales (evitamos el 0,0 de África)
+          const hasValidGps = s.lat != null && s.lng != null && Math.abs(s.lat) > 1 && Math.abs(s.lng) > 1;
+
           if (!dStats.branchDetails.has(s.id)) {
-              dStats.branchDetails.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+              dStats.branchDetails.set(s.id, { 
+                id: s.id, 
+                nombre: sName, 
+                lat: hasValidGps ? Number(s.lat) : null, 
+                lng: hasValidGps ? Number(s.lng) : null, 
+                visitas: 1 
+              });
           } else {
               dStats.branchDetails.get(s.id).visitas++;
           }
 
           if (!mapBranchesMap.has(s.id)) {
-              mapBranchesMap.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+              mapBranchesMap.set(s.id, { 
+                id: s.id, 
+                nombre: sName, 
+                lat: hasValidGps ? Number(s.lat) : null, 
+                lng: hasValidGps ? Number(s.lng) : null, 
+                visitas: 1 
+              });
           } else {
               mapBranchesMap.get(s.id).visitas++;
           }
