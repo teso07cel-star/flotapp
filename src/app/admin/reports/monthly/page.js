@@ -30,7 +30,7 @@ export default async function MonthlyReport({ searchParams }) {
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* PORTADA EJECUTIVA TIPO 'LOGBOOK' */}
-        <header className="border-[15px] border-slate-950 p-12 sm:p-20 mb-32 text-center relative bg-white shadow-2xl print:shadow-none print:border-[8pt]">
+        <header className="border-[15px] border-slate-950 p-12 sm:p-20 mb-32 text-center relative bg-white shadow-2xl print:shadow-none print:border-[8pt] print:mb-0 print:break-after-page">
            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-10">
               <img src="/icons/admin_hud.png" alt="Logo" className="w-24 h-24 grayscale brightness-0" />
            </div>
@@ -63,7 +63,7 @@ export default async function MonthlyReport({ searchParams }) {
         <div className="space-y-32">
           
           {/* SECCIÓN I: RESUMEN DE FLOTA */}
-          <section className="space-y-12">
+          <section className="space-y-12 print:break-after-page print:pt-10">
             <div className="flex items-center gap-6">
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">I. Resumen Operativo de Flota</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />
@@ -109,7 +109,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN II: INTELIGENCIA POR CONDUCTOR (INTERACTIVO) */}
-          <section className="space-y-12 no-print">
+          <section className="space-y-12 print:hidden">
             <div className="flex items-center gap-6">
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">II. Inteligencia por Conductor</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />
@@ -125,7 +125,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA */}
-          <section className="space-y-12 py-10">
+          <section className="space-y-12 py-10 print:break-after-page print:pt-10">
             <div className="flex items-center gap-6">
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">III. Análisis de Inversión</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />
@@ -154,7 +154,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN IV: RANKING DE NODOS (CRÍTICOS) */}
-          <section className="space-y-12">
+          <section className="space-y-12 print:break-after-page print:pt-10">
             <div className="flex items-center gap-6">
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">IV. Ranking de Operaciones</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />

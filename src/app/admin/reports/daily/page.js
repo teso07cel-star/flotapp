@@ -41,7 +41,7 @@ export default async function DailyReport({ searchParams }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Jornada <span className="text-slate-400">TÁCTICA v2.0</span></h1>
-            <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest text-center md:text-left">Auditoría Operativa para Brian Ezequiel Lopez</p>
+            <p className="text-gray-500  font-bold uppercase text-[10px] tracking-widest text-center md:text-left">Auditoría Operativa por Brian Ezequiel Lopez</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">

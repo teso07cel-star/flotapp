@@ -46,6 +46,15 @@ export default async function ControlMantenimientoPage() {
     }
 
     const odometro = v.registros?.[0]?.kmActual || 0;
+    
+    // Calcular Estado de Cubiertas Táctico
+    const ultimoCambio = v.Mantenimiento?.find(m => m.tipoServicio === "Cambio de cubiertas");
+    let cubiertasEstado = "Sin Datos";
+    if (ultimoCambio && ultimoCambio.kilometraje) {
+       const kmRecorridos = odometro - ultimoCambio.kilometraje;
+       const restante = Math.max(0, 50000 - kmRecorridos);
+       cubiertasEstado = `Faltan ${restante.toLocaleString()} KM`;
+    }
 
     return {
       id: v.id,
@@ -55,7 +64,7 @@ export default async function ControlMantenimientoPage() {
       odometro,
       vtvDias,
       seguroDias,
-      cubiertasEstado: 'Sin Datos' 
+      cubiertasEstado
     };
   });
 

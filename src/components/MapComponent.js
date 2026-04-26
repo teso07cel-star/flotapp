@@ -30,20 +30,23 @@ const getMarkerIcon = (visitas) => {
 };
 
 export default function MapComponent({ branchesData = [] }) {
-  // Center by default on Buenos Aires or first valid location
-  const defaultCenter = [-34.603722, -58.381592];
+  // Center by default on Argentina
+  const defaultCenter = [-38.416097, -63.616672];
+  const defaultZoom = 4;
   
-  const validBranches = branchesData.filter(b => b.lat != null && b.lng != null);
+  const validBranches = branchesData.filter(b => b.lat != null && b.lng != null && b.nombre !== "Otros");
   
+  // Si hay sucursales, usamos el centro de la primera para el inicio, 
+  // pero el MapContainer usará un efecto para encuadrarlas todas si es necesario.
   const center = validBranches.length > 0 
     ? [validBranches[0].lat, validBranches[0].lng] 
     : defaultCenter;
 
   return (
-    <div className="w-full h-[400px] rounded-3xl overflow-hidden border-2 border-slate-700/50 relative z-0 shadow-2xl shadow-black/50">
+    <div className="w-full h-[500px] rounded-[2.5rem] overflow-hidden border-2 border-slate-700/50 relative z-0 shadow-2xl shadow-black/50">
       <MapContainer 
         center={center} 
-        zoom={validBranches.length > 0 ? 11 : 9} 
+        zoom={validBranches.length > 0 ? 12 : defaultZoom} 
         scrollWheelZoom={false} 
         style={{ height: '100%', width: '100%', background: '#0f172a' }}
       >

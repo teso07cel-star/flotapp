@@ -301,13 +301,23 @@ export async function deleteVehiculo(id) {
 export async function deleteSucursal(id) {
   try {
     const prisma = getPrisma();
-    // Protocolo de Desvinculación B8.7: Limpiamos relaciones antes de borrar
-    await prisma.$executeRaw`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${id}`;
-    await prisma.sucursal.delete({ where: { id } });
+    const sid = parseInt(id);
+    if (isNaN(sid)) return { success: false, error: "ID inválido" };
+
+    // Protocolo de Desvinculación TOTAL
+    await prisma.$transaction([
+      // 1. Limpiar relación implícita
+      prisma.$executeRaw`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${sid}`,
+      // 2. Limpiar relación explícita
+      prisma.registroSucursal.deleteMany({ where: { sucursalId: sid } }),
+      // 3. Borrar sucursal
+      prisma.sucursal.delete({ where: { id: sid } })
+    ]);
+
     revalidatePath("/admin/branches");
     return { success: true };
   } catch (error) {
-    console.error("Fallo en borrado táctico:", error);
+    console.error("Fallo en borrado táctico TOTAL:", error);
     return { success: false, error: error.message };
   }
 }
@@ -438,7 +448,7 @@ export async function getMonthlySummary(month, year) {
           kmRecorridos,
           totalGastos: expenses.reduce((sum, g) => sum + (g.monto || 0), 0),
           cantidadRegistros: records.length,
-          visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
+           visitasSucursales: records.reduce((sum, r) => sum + (Array.isArray(r.sucursales) ? r.sucursales.length : 0), 0),
           novedades: records.filter(r => r.novedades).map(r => r.novedades),
           ultimoConductor: records[records.length - 1]?.nombreConductor || "S/D"
         });
@@ -450,8 +460,20 @@ export async function getMonthlySummary(month, year) {
     const driverBreakdownMap = new Map();
     const mapBranchesMap = new Map();
 
+    const nameConsolidator = (n) => {
+        if (!n) return "S/D";
+        const clean = n.toString().trim().toUpperCase();
+        if (clean.includes("DIEGO RETAMAR") || clean === "DIEGO R") return "DIEGO RETAMAR";
+        if (clean.includes("GERARDO VISCONTI") || clean === "GERARDO V") return "GERARDO VISCONTI";
+        if (clean.includes("GONZALO") || clean === "GONZALO M" || clean === "GONZALO MARTINEZ") return "GONZALO MARTINEZ";
+        if (clean === "VIDEOTES") return "VIDEOTES"; // Mantener por ahora si es prueba de Brian
+        return n.toString().trim();
+    };
+
     allRegistros.forEach(r => {
-      const driverName = r.nombreConductor || "S/D";
+      const driverName = nameConsolidator(r.nombreConductor);
+      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; // Omitir según pedido de Brian
+
       if (!driverBreakdownMap.has(driverName)) {
         driverBreakdownMap.set(driverName, { 
           nombre: driverName, 
@@ -467,19 +489,22 @@ export async function getMonthlySummary(month, year) {
       
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
+          const sName = s.nombre?.trim() || "Otros";
           dStats.totalVisitas++;
-          dStats.branchesVisited.add(s.nombre);
+          dStats.branchesVisited.add(sName);
           
-          if (!dStats.branchDetails.has(s.id)) {
-            dStats.branchDetails.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
-          } else {
-            dStats.branchDetails.get(s.id).visitas++;
-          }
+          if (sName !== "Otros") {
+            if (!dStats.branchDetails.has(s.id)) {
+                dStats.branchDetails.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+            } else {
+                dStats.branchDetails.get(s.id).visitas++;
+            }
 
-          if (!mapBranchesMap.has(s.id)) {
-            mapBranchesMap.set(s.id, { id: s.id, nombre: s.nombre, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
-          } else {
-            mapBranchesMap.get(s.id).visitas++;
+            if (!mapBranchesMap.has(s.id)) {
+                mapBranchesMap.set(s.id, { id: s.id, nombre: sName, lat: Number(s.lat || 0), lng: Number(s.lng || 0), visitas: 1 });
+            } else {
+                mapBranchesMap.get(s.id).visitas++;
+            }
           }
         });
       }
