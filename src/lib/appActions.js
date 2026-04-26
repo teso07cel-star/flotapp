@@ -305,30 +305,27 @@ export async function deleteSucursal(id) {
     const sid = parseInt(id);
     if (isNaN(sid)) return { success: false, error: "ID inválido" };
 
-    // PROTOCOLO DE DESVINCULACIÓN NUCLEAR (TACTICA 2026)
-    // Limpiamos TODAS las tablas que puedan tener referencias antes de borrar la sucursal
+    console.log(`PROCESANDO BORRADO TÁCTICO DE SUCURSAL ID: ${sid}`);
+
+    // LIMPIEZA SQL PURA Y DURA (BYPASS DE RESTRICCIONES)
     await prisma.$transaction([
-      // 1. Limpiar relación implícita (Tabla generada por Prisma automáticamente)
-      prisma.$executeRaw`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${sid}`,
-      // 2. Limpiar relación explícita (Nuestra tabla de conteo de visitas)
-      prisma.registroSucursal.deleteMany({ where: { sucursalId: sid } }),
-      // 3. Limpiar cualquier referencia en registros diarios (si hubiera)
-      prisma.$executeRaw`UPDATE "RegistroDiario" SET "lugarGuarda" = NULL WHERE "lugarGuarda" = ${sid.toString()}`,
-      // 4. ELIMINACIÓN FINAL
-      prisma.sucursal.delete({ where: { id: sid } })
+      prisma.$executeRawUnsafe(`DELETE FROM "_RegistroDiarioToSucursal" WHERE "B" = ${sid}`),
+      prisma.$executeRawUnsafe(`DELETE FROM "RegistroSucursal" WHERE "sucursalId" = ${sid}`),
+      prisma.$executeRawUnsafe(`UPDATE "RegistroDiario" SET "lugarGuarda" = NULL WHERE "lugarGuarda" = '${sid}'`),
+      prisma.$executeRawUnsafe(`DELETE FROM "Sucursal" WHERE "id" = ${sid}`)
     ]);
 
     revalidatePath("/admin/branches");
     return { success: true };
   } catch (error) {
-    console.error("Fallo en borrado táctico NUCLEAR:", error);
-    // Si falla el Cascade automático, intentamos un último borrado directo
+    console.error("FALLO CRÍTICO EN BORRADO SQL:", error);
+    // ÚLTIMO RECURSO: Borrado directo por ID (si el Cascade no funcionó)
     try {
-        await getPrisma().$executeRaw`DELETE FROM "Sucursal" WHERE "id" = ${sid}`;
+        await getPrisma().$executeRawUnsafe(`DELETE FROM "Sucursal" WHERE "id" = ${parseInt(id)}`);
         revalidatePath("/admin/branches");
         return { success: true };
     } catch (e) {
-        return { success: false, error: error.message };
+        return { success: false, error: "Error sistémico: La sucursal está protegida por registros históricos." };
     }
   }
 }
