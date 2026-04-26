@@ -61,7 +61,8 @@ export async function getAllVehiculos() {
     const vehiculos = await getPrisma().vehiculo.findMany({
       orderBy: { id: 'asc' },
       include: {
-        registros: { orderBy: { fecha: 'desc' }, take: 1 }
+        registros: { orderBy: { fecha: 'desc' }, take: 1 },
+        Mantenimiento: { orderBy: { fecha: 'desc' } }
       }
     });
     // SI LA DB ESTA VACIA O RESTRINGIDA, USAR MASTER
@@ -500,39 +501,46 @@ export async function getMonthlySummary(month, year) {
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
           let sName = s.nombre?.trim();
-          if (!sName || sName === "") sName = "Otros";
+          let sLat = s.lat;
+          let sLng = s.lng;
+
+          if (!sName || sName === "" || sName === "Otros") {
+             sName = "Otros";
+             // Referencia táctica en el Obelisco para "Otros" (Pedido de Brian)
+             sLat = -34.6037;
+             sLng = -58.3816;
+          }
           
           dStats.totalVisitas++;
           
-          // Conteo para la lista al lado del mapa
           const currentVisits = dStats.branchesVisited.get(sName) || 0;
           dStats.branchesVisited.set(sName, currentVisits + 1);
           
-          // Solo mandamos al mapa si tiene coordenadas reales (evitamos el 0,0 de África)
-          const hasValidGps = s.lat != null && s.lng != null && Math.abs(s.lat) > 1 && Math.abs(s.lng) > 1;
+          // Consideramos válido si tiene coordenadas o si es el fallback del Obelisco
+          const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
 
-          if (!dStats.branchDetails.has(s.id)) {
-              dStats.branchDetails.set(s.id, { 
-                id: s.id, 
+          if (!dStats.branchDetails.has(s.id || sName)) {
+              dStats.branchDetails.set(s.id || sName, { 
+                id: s.id || sName, 
                 nombre: sName, 
-                lat: hasValidGps ? Number(s.lat) : null, 
-                lng: hasValidGps ? Number(s.lng) : null, 
+                lat: hasValidGps ? Number(sLat) : null, 
+                lng: hasValidGps ? Number(sLng) : null, 
                 visitas: 1 
               });
           } else {
-              dStats.branchDetails.get(s.id).visitas++;
+              dStats.branchDetails.get(s.id || sName).visitas++;
           }
 
-          if (!mapBranchesMap.has(s.id)) {
-              mapBranchesMap.set(s.id, { 
-                id: s.id, 
+          if (!mapBranchesMap.has(s.id || sName)) {
+              mapBranchesMap.set(s.id || sName, { 
+                id: s.id || sName, 
                 nombre: sName, 
-                lat: hasValidGps ? Number(s.lat) : null, 
-                lng: hasValidGps ? Number(s.lng) : null, 
+                lat: hasValidGps ? Number(sLat) : null, 
+                lng: hasValidGps ? Number(sLng) : null, 
                 visitas: 1 
               });
           } else {
-              mapBranchesMap.get(s.id).visitas++;
+              mapBranchesMap.get(s.id || sName).visitas++;
           }
         });
       }

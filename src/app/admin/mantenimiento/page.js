@@ -47,12 +47,17 @@ export default async function ControlMantenimientoPage() {
 
     const odometro = v.registros?.[0]?.kmActual || 0;
     
-    // Calcular Estado de Cubiertas Táctico
-    const ultimoCambio = v.Mantenimiento?.find(m => m.tipoServicio === "Cambio de cubiertas");
+    // Calcular Estado de Cubiertas Táctico (Búsqueda inteligente)
+    const ultimoCambio = v.Mantenimiento?.find(m => 
+      m.tipoServicio?.toLowerCase().includes("cubierta") || 
+      m.tipoServicio?.toLowerCase().includes("neumático")
+    );
+
     let cubiertasEstado = "Sin Datos";
     if (ultimoCambio && ultimoCambio.kilometraje) {
        const kmRecorridos = odometro - ultimoCambio.kilometraje;
-       const restante = Math.max(0, 50000 - kmRecorridos);
+       const limite = v.kmParaCambioCubiertas || 60000;
+       const restante = Math.max(0, limite - kmRecorridos);
        cubiertasEstado = `Faltan ${restante.toLocaleString()} KM`;
     }
 

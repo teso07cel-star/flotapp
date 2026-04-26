@@ -181,9 +181,9 @@ export default async function MonthlyReport({ searchParams }) {
                         {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
                           <tr key={i} className="hover:bg-slate-50 transition-colors">
                              <td className="p-6 pl-10 font-black text-slate-300">#0{i+1}</td>
-                             <td className="p-6 font-black uppercase tracking-tighter text-slate-900">{s.nombre}</td>
+                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950">{s.nombre}</td>
                              <td className="p-6 text-right pr-10">
-                                <span className="bg-blue-600 text-white px-4 py-1 rounded-full font-black text-[10px]">{s.visitas}</span>
+                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px]">{s.visitas}</span>
                              </td>
                           </tr>
                         ))}
