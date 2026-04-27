@@ -1,7 +1,7 @@
 {
   "name": "flota-app",
-  "version": "8.4.1.2-NUCLEAR-RECOVERY",
-  "comment": "SEÑOR_X_STEEL_LEGACY_v8.3.1.5_RESCUE",
+  "version": "9.0.2-PRESTIGE",
+  "comment": "BRIAN_EZEQUIEL_LOPEZ_ELITE_v9.0.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
