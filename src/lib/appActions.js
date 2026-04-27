@@ -478,10 +478,6 @@ export async function getMonthlySummary(month, year) {
         return n.toString().trim();
     };
 
-    allRegistros.forEach(r => {
-      const driverName = nameConsolidator(r.nombreConductor);
-      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; 
-
     // CONSOLIDACIÓN TÁCTICA POR CHOFER (ABRIL 2026)
     const consolidatedMap = new Map();
     const mapBranchesMap = new Map();
