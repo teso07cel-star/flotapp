@@ -1477,7 +1477,19 @@ export async function getMonthlyReport(month, year) {
       where: { fecha: { gte: isoStart, lte: isoEnd } },
       include: { vehiculo: true, sucursales: true }
     });
-
+    const summary = vehiculos.map(v => {
+      const records = allRegistros.filter(r => r.vehiculoId === v.id);
+      let initialKm = 0; let finalKm = 0;
+      if (records.length > 0) {
+        const sorted = [...records].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+        initialKm = sorted[0].kmActual || 0;
+        finalKm = sorted[sorted.length - 1].kmActual || initialKm;
+      }
+      return {
+        patente: v.patente,
+        modelo: v.modelo,
+        categoria: v.categoria,
+        totalKm: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
         totalTrips: records.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0)
       };
     });
