@@ -482,28 +482,43 @@ export async function getMonthlySummary(month, year) {
       const driverName = nameConsolidator(r.nombreConductor);
       if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; 
 
-      if (!driverBreakdownMap.has(driverName)) {
-        driverBreakdownMap.set(driverName, { 
-          nombre: driverName, 
-          totalVisitas: 0, 
-          totalKm: 0,
-          vehicles: new Set(),
-          branchesVisited: new Map(), // Cambio a Map para guardar nombre -> visitas
+    // CONSOLIDACIÓN TÁCTICA POR CHOFER (ABRIL 2026)
+    const consolidatedMap = new Map();
+    const mapBranchesMap = new Map();
+
+    allRegistros.forEach(r => {
+      const driverName = nameConsolidator(r.nombreConductor);
+      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; 
+
+      if (!consolidatedMap.has(driverName)) {
+        consolidatedMap.set(driverName, { 
+          conductor: driverName, 
+          kmRecorridos: 0,
+          visitasSucursales: 0,
+          totalGastos: 0,
+          vehiculos: new Set(),
           branchDetails: new Map() 
         });
       }
-      const dStats = driverBreakdownMap.get(driverName);
-      dStats.vehicles.add(r.vehiculo?.patente || "S/D");
+      const c = consolidatedMap.get(driverName);
+      c.kmRecorridos += (r.kmTeoricos || 0);
+      c.visitasSucursales += (r.sucursales?.length || 0);
+      c.totalGastos += (r.montoCombustible || 0);
+      if (r.vehiculo?.patente) c.vehiculos.add(r.vehiculo.patente);
       
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
           let sName = s.nombre?.trim();
-          let sLat = s.lat;
-          let sLng = s.lng;
+          let sLat = s.lat; let sLng = s.lng;
 
-          // DICCIONARIO TÁCTICO DE COORDENADAS (PRESTIGE v8.9.7)
           const TACTICAL_COORDS = {
+            "Mar del Plata": { lat: -38.0055, lng: -57.5426 },
+            "Tandil": { lat: -37.3217, lng: -59.1331 },
+            "Olavarría": { lat: -36.8927, lng: -60.3225 },
             "Gualeguaychú": { lat: -33.0094, lng: -58.5172 },
+            "Puerto Madero": { lat: -34.6111, lng: -58.3619 },
+            "Nordelta 1": { lat: -34.4000, lng: -58.6400 },
+            "Nordelta 2": { lat: -34.4100, lng: -58.6500 },
             "Cabildo": { lat: -34.5613, lng: -58.4556 },
             "Plaza Italia": { lat: -34.5815, lng: -58.4210 },
             "Barrio Norte": { lat: -34.5916, lng: -58.3976 },
@@ -512,7 +527,6 @@ export async function getMonthlySummary(month, year) {
             "San Miguel": { lat: -34.5434, lng: -58.7126 },
             "San Fernando": { lat: -34.4449, lng: -58.5484 },
             "Olivos": { lat: -34.5097, lng: -58.4841 },
-            "Nordelta": { lat: -34.4011, lng: -58.6471 },
             "Martinez": { lat: -34.4925, lng: -58.5146 },
             "Vicente Lopez": { lat: -34.5342, lng: -58.4759 },
             "Pacheco": { lat: -34.4533, lng: -58.6253 },
@@ -522,8 +536,8 @@ export async function getMonthlySummary(month, year) {
             "Ramos": { lat: -34.6465, lng: -58.5638 },
             "San Justo": { lat: -34.6800, lng: -58.5600 },
             "La Plata": { lat: -34.9214, lng: -57.9545 },
-            "Voy y Vuelvo": { lat: -33.0050, lng: -58.5100 }, // Gualeguaychu interior
-            "Otros": { lat: -34.6037, lng: -58.3816 } // Solo para Otros reales
+            "Voy y Vuelvo": { lat: -33.0050, lng: -58.5100 },
+            "Otros": { lat: -34.6037, lng: -58.3816 }
           };
 
           const matched = Object.keys(TACTICAL_COORDS).find(k => sName?.toUpperCase().includes(k.toUpperCase()));
@@ -533,30 +547,22 @@ export async function getMonthlySummary(month, year) {
           }
 
           if (!sName || sName === "") sName = "Otros";
-          
-          dStats.totalVisitas++;
-          
-          const currentVisits = dStats.branchesVisited.get(sName) || 0;
-          dStats.branchesVisited.set(sName, currentVisits + 1);
-          
           const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
 
-          if (!dStats.branchDetails.has(s.id || sName)) {
-              dStats.branchDetails.set(s.id || sName, { 
-                id: s.id || sName, 
-                nombre: sName, 
+          if (!c.branchDetails.has(s.id || sName)) {
+              c.branchDetails.set(s.id || sName, { 
+                id: s.id || sName, nombre: sName, 
                 lat: hasValidGps ? Number(sLat) : null, 
                 lng: hasValidGps ? Number(sLng) : null, 
                 visitas: 1 
               });
           } else {
-              dStats.branchDetails.get(s.id || sName).visitas++;
+              c.branchDetails.get(s.id || sName).visitas++;
           }
 
           if (!mapBranchesMap.has(s.id || sName)) {
               mapBranchesMap.set(s.id || sName, { 
-                id: s.id || sName, 
-                nombre: sName, 
+                id: s.id || sName, nombre: sName, 
                 lat: hasValidGps ? Number(sLat) : null, 
                 lng: hasValidGps ? Number(sLng) : null, 
                 visitas: 1 
@@ -568,33 +574,26 @@ export async function getMonthlySummary(month, year) {
       }
     });
 
-    // Calcular KM por chofer (Aproximación por registros)
-    driverBreakdownMap.forEach((stats, name) => {
-       const driverLogs = allRegistros.filter(r => (r.nombreConductor || "S/D") === name).sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-       if (driverLogs.length > 1) {
-          stats.totalKm = Math.max(0, (driverLogs[driverLogs.length - 1].kmActual || 0) - (driverLogs[0].kmActual || 0));
-       }
-    });
+    const finalSummary = Array.from(consolidatedMap.values()).map(d => ({
+        id: d.conductor,
+        patente: Array.from(d.vehiculos).join("/") || "S/D",
+        conductor: d.conductor,
+        kmRecorridos: d.kmRecorridos,
+        visitasSucursales: d.visitasSucursales,
+        totalGastos: d.totalGastos,
+        branchDetails: Array.from(d.branchDetails.values())
+    })).sort((a,b) => b.kmRecorridos - a.kmRecorridos);
 
     const finalData = {
-      summary: summary.map(v => ({
-        id: String(v.id),
-        patente: String(v.patente),
-        kmRecorridos: Number(v.kmRecorridos) || 0,
-        totalGastos: Number(v.totalGastos) || 0,
-        cantidadRegistros: Number(v.cantidadRegistros) || 0,
-        visitasSucursales: Number(v.visitasSucursales) || 0,
-        ultimoConductor: String(v.ultimoConductor)
-      })),
-      totalFleetVisits,
+      summary: finalSummary,
+      totalFleetVisits: Array.from(mapBranchesMap.values()).reduce((sum, b) => sum + b.visitas, 0),
       mapBranches: Array.from(mapBranchesMap.values()),
-      driverStats: Array.from(driverBreakdownMap.values()).map(d => ({
-        nombre: d.nombre,
-        totalTrips: d.totalVisitas,
-        totalKm: d.totalKm,
-        vehicles: Array.from(d.vehicles),
-        branchesVisited: Array.from(d.branchesVisited.entries()).map(([nombre, visitas]) => ({ nombre, visitas })),
-        branchDetails: Array.from(d.branchDetails.values())
+      driverStats: finalSummary.map(d => ({
+        nombre: d.conductor,
+        totalTrips: d.visitasSucursales,
+        totalKm: d.kmRecorridos,
+        vehicles: d.patente.split("/"),
+        branchDetails: d.branchDetails
       }))
     };
 
@@ -1483,19 +1482,6 @@ export async function getMonthlyReport(month, year) {
       include: { vehiculo: true, sucursales: true }
     });
 
-    const summary = vehiculos.map(v => {
-      const records = allRegistros.filter(r => r.vehiculoId === v.id);
-      let initialKm = 0; let finalKm = 0;
-      if (records.length > 0) {
-        const sorted = [...records].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-        initialKm = sorted[0].kmActual || 0;
-        finalKm = sorted[sorted.length - 1].kmActual || 0;
-      }
-      return {
-        patente: v.patente,
-        modelo: v.modelo,
-        categoria: v.categoria,
-        totalKm: (finalKm - initialKm) > 0 ? (finalKm - initialKm) : 0,
         totalTrips: records.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0)
       };
     });

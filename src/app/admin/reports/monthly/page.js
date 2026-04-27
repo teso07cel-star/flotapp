@@ -190,16 +190,35 @@ export default async function MonthlyReport({ searchParams }) {
                      </tbody>
                   </table>
                </div>
-               <div className="bg-slate-50 p-12 flex flex-col justify-center border-l-8 border-blue-600 rounded-r-[2rem] shadow-sm italic">
-                  <p className="text-[12px] font-black uppercase tracking-widest text-blue-600 mb-6 flex items-center gap-3">
-                     <span className="w-10 h-[2px] bg-blue-600"></span>
-                     Observación Logística
-                  </p>
-                  <p className="text-lg text-slate-800 leading-relaxed font-sans">
-                     El ranking superior identifica los nodos críticos con mayor frecuencia de despacho. 
-                     Estas sucursales representan el núcleo operativo del mes de {monthNames[month]} {year} y requieren monitoreo especial de stock.
-                  </p>
-               </div>
+                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                   <table className="w-full text-left font-sans">
+                      <thead className="bg-slate-50 border-b-2 border-slate-900">
+                         <tr className="text-slate-950">
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Oficial de Flota</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Vehículos</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Desempeño</th>
+                         </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
+                         {driverStats.sort((a,b) => b.totalKm - a.totalKm).slice(0, 10).map((d, i) => (
+                           <tr key={i} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-6 pl-10">
+                                 <div className="font-black uppercase tracking-tighter text-slate-950">{d.nombre}</div>
+                                 <div className="text-[9px] text-slate-400 font-bold uppercase">{d.totalTrips} Sucursales</div>
+                              </td>
+                              <td className="p-6 font-bold uppercase text-[10px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                                 {d.vehicles.join(" / ")}
+                              </td>
+                              <td className="p-6 text-right pr-10">
+                                 <span className="bg-emerald-600 text-white px-4 py-1 rounded-full font-black text-[11px] whitespace-nowrap">
+                                    {Math.round(d.totalKm).toLocaleString()} km
+                                 </span>
+                              </td>
+                           </tr>
+                         ))}
+                      </tbody>
+                   </table>
+                </div>
             </div>
           </section>
 
