@@ -47,10 +47,16 @@ export default async function ControlMantenimientoPage() {
 
     const odometro = v.registros?.[0]?.kmActual || 0;
     
-    // Calcular Estado de Cubiertas Táctico (Búsqueda inteligente)
-    const ultimoCambio = v.Mantenimiento?.find(m => 
-      m.tipoServicio?.toLowerCase().includes("cubierta") || 
-      m.tipoServicio?.toLowerCase().includes("neumático")
+    // CONSOLIDACIÓN DE HISTORIAL (Mantenimientos + Gastos de tipo Service)
+    const historialCompleto = [
+      ...(v.Mantenimiento || []),
+      ...(v.gastos || []).map(g => ({ ...g, tipoServicio: g.tipo, kilometraje: g.kilometraje || null }))
+    ];
+
+    // Calcular Estado de Cubiertas Táctico (Búsqueda en todo el historial)
+    const ultimoCambio = historialCompleto.find(m => 
+      (m.tipoServicio || m.descripcion)?.toLowerCase().includes("cubierta") || 
+      (m.tipoServicio || m.descripcion)?.toLowerCase().includes("neumático")
     );
 
     let cubiertasEstado = "Sin Datos";
