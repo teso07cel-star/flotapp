@@ -36,13 +36,13 @@ function HomePageContent() {
           <div className="inline-flex items-center justify-center space-x-4 mb-10">
              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
              <h1 className="text-6xl font-black tracking-[-0.05em] text-white flex items-center gap-4">
-                 FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-green-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.5)]">v8.4 FINAL EDITION</span>
+                 FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-blue-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_20px_rgba(37,99,235,0.6)] uppercase">v8.9.9 PRESTIGE</span>
               </h1>
               <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
            </div>
            <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
            <div className="mt-4 inline-block bg-blue-600/10 border border-blue-500/20 px-4 py-1 rounded-full">
-             <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Protocolo de Restauración v8.4 Activo</span>
+             <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">SISTEMA INTEGRAL v8.9.9 - OPERATIVO</span>
            </div>
         </div>
 
@@ -166,7 +166,7 @@ function HomePageContent() {
           </div>
           
           <p className="text-[7px] font-medium uppercase tracking-[0.5em] text-slate-200/[0.02] select-none pointer-events-none">
-             Desarrollado por Brian Lopez - Todos los derechos reservados
+             ADMINISTRACIÓN SUPERIOR: BRIAN EZEQUIEL LÓPEZ - v8.9.9 PRESTIGE
           </p>
         </div>
       </div>

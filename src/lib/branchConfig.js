@@ -1,4 +1,4 @@
-// Configuración Maestra de Sucursales B8.2
+// Configuración Maestra de Sucursales v8.9.9 PRESTIGE
 // Incluye coordenadas aproximadas para cálculo táctico de rutas
 
 export const START_POINTS = {
