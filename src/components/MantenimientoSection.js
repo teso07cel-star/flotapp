@@ -1,8 +1,10 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addMantenimiento } from "@/lib/appActions";
 
 export default function MantenimientoSection({ vehiculoId, mantenimientos = [] }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [openForm, setOpenForm] = useState(false);
 
@@ -17,6 +19,7 @@ export default function MantenimientoSection({ vehiculoId, mantenimientos = [] }
     if (res.success) {
       setOpenForm(false);
       e.target.reset();
+      router.refresh(); // FORZAR SINCRONIZACIÓN TÁCTICA
     } else {
       alert("Error: " + res.error);
     }
