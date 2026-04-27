@@ -17,7 +17,7 @@ export default async function MonthlyReport({ searchParams }) {
     return <div className="p-10 text-red-500 font-black uppercase tracking-widest text-xs bg-slate-100 border-2 border-dashed border-red-500/20 text-center rounded-[3rem]">Error en Protocolo de Carga: {res.error}</div>;
   }
 
-  const { summary, totalFleetVisits, mapBranches } = res.data;
+  const { summary, totalFleetVisits, mapBranches, driverStats } = res.data;
   const totalKm = summary.reduce((acc, v) => acc + v.kmRecorridos, 0);
   const totalSpent = summary.reduce((acc, v) => acc + (v.totalGastos || 0), 0);
 

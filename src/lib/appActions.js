@@ -484,29 +484,30 @@ export async function getMonthlySummary(month, year) {
 
     allRegistros.forEach(r => {
       const driverName = nameConsolidator(r.nombreConductor);
-      if (driverName === "VIDEOTES" || driverName === "SISTEMA") return; 
+      const isTestDriver = driverName === "VIDEOTES" || driverName === "SISTEMA";
 
-      if (!consolidatedMap.has(driverName)) {
-        consolidatedMap.set(driverName, { 
-          conductor: driverName, 
-          kmRecorridos: 0,
-          visitasSucursales: 0,
-          totalGastos: 0,
-          vehiculos: new Set(),
-          branchDetails: new Map() 
-        });
+      if (!isTestDriver) {
+        if (!consolidatedMap.has(driverName)) {
+          consolidatedMap.set(driverName, { 
+            conductor: driverName, 
+            kmRecorridos: 0,
+            visitasSucursales: 0,
+            totalGastos: 0,
+            vehiculos: new Set(),
+            branchDetails: new Map() 
+          });
+        }
+        const c = consolidatedMap.get(driverName);
+        c.kmRecorridos += (r.kmTeoricos || 0);
+        c.visitasSucursales += (r.sucursales?.length || 0);
+        c.totalGastos += (r.montoCombustible || 0);
+        if (r.vehiculo?.patente) c.vehiculos.add(r.vehiculo.patente);
       }
-      const c = consolidatedMap.get(driverName);
-      c.kmRecorridos += (r.kmTeoricos || 0);
-      c.visitasSucursales += (r.sucursales?.length || 0);
-      c.totalGastos += (r.montoCombustible || 0);
-      if (r.vehiculo?.patente) c.vehiculos.add(r.vehiculo.patente);
       
       if (Array.isArray(r.sucursales)) {
         r.sucursales.forEach(s => {
           let sName = s.nombre?.trim();
           let sLat = s.lat; let sLng = s.lng;
-
           const TACTICAL_COORDS = {
             "Mar del Plata": { lat: -38.0055, lng: -57.5426 },
             "Tandil": { lat: -37.3217, lng: -59.1331 },
@@ -545,15 +546,20 @@ export async function getMonthlySummary(month, year) {
           if (!sName || sName === "") sName = "Otros";
           const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
 
-          if (!c.branchDetails.has(s.id || sName)) {
-              c.branchDetails.set(s.id || sName, { 
-                id: s.id || sName, nombre: sName, 
-                lat: hasValidGps ? Number(sLat) : null, 
-                lng: hasValidGps ? Number(sLng) : null, 
-                visitas: 1 
-              });
-          } else {
-              c.branchDetails.get(s.id || sName).visitas++;
+          if (!isTestDriver) {
+            const dr = consolidatedMap.get(driverName);
+            if (dr) {
+              if (!dr.branchDetails.has(s.id || sName)) {
+                  dr.branchDetails.set(s.id || sName, { 
+                    id: s.id || sName, nombre: sName, 
+                    lat: hasValidGps ? Number(sLat) : null, 
+                    lng: hasValidGps ? Number(sLng) : null, 
+                    visitas: 1 
+                  });
+              } else {
+                  dr.branchDetails.get(s.id || sName).visitas++;
+              }
+            }
           }
 
           if (!mapBranchesMap.has(s.id || sName)) {

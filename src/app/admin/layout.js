@@ -103,11 +103,11 @@ export default async function AdminLayout({ children }) {
         
         {/* Main content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#0f172a] relative">
-           {/* SEÑAL TACTICA v8.9.9 */}
-           <div className="w-full bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-[0.5em] py-3 text-center border-b border-blue-400/30 z-50 animate-in fade-in slide-in-from-top duration-700 no-print flex items-center justify-center gap-4">
-              <StrategicGearIcon className="w-3 h-3 animate-spin-slow" />
-              <span>SISTEMA v8.9.9 PRESTIGE - ACTUALIZACIÓN OPERATIVA ACTIVA</span>
-              <StrategicGearIcon className="w-3 h-3 animate-spin-slow" />
+           {/* SEÑAL TACTICA v9.0.0 */}
+           <div className="w-full bg-slate-950 text-white text-[9px] font-black uppercase tracking-[0.6em] py-3 text-center border-b border-blue-500/40 z-50 animate-in fade-in slide-in-from-top duration-700 no-print flex items-center justify-center gap-4">
+              <StrategicGearIcon className="w-4 h-4 text-blue-500 animate-spin-slow" />
+              <span>SISTEMA v9.0.0 PRESTIGE - CONTROL LOGÍSTICO TOTAL</span>
+              <StrategicGearIcon className="w-4 h-4 text-blue-500 animate-spin-slow" />
            </div>
 
            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0f172a] to-[#0f172a] pointer-events-none" />
