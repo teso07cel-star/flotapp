@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }) {
                  <div className="flex flex-col relative">
                      <span className="text-sm font-black tracking-[0.1em] text-white leading-tight uppercase">Dashboard</span>
                      <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase opacity-90">Administrativo</span>
-                      <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)] uppercase">v8.9.5 PRESTIGE</div>
+                      <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)] uppercase whitespace-nowrap">v8.9.9 PRESTIGE</div>
                   </div>
               </div>
               
@@ -103,6 +103,13 @@ export default async function AdminLayout({ children }) {
         
         {/* Main content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#0f172a] relative">
+           {/* SEÑAL TACTICA v8.9.9 */}
+           <div className="w-full bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-[0.5em] py-3 text-center border-b border-blue-400/30 z-50 animate-in fade-in slide-in-from-top duration-700 no-print flex items-center justify-center gap-4">
+              <StrategicGearIcon className="w-3 h-3 animate-spin-slow" />
+              <span>SISTEMA v8.9.9 PRESTIGE - ACTUALIZACIÓN OPERATIVA ACTIVA</span>
+              <StrategicGearIcon className="w-3 h-3 animate-spin-slow" />
+           </div>
+
            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0f172a] to-[#0f172a] pointer-events-none" />
             <div className="p-4 md:p-8 xl:p-12 max-w-7xl mx-auto relative z-10 flex flex-col min-h-full">
               <div className="flex-1">
@@ -110,7 +117,7 @@ export default async function AdminLayout({ children }) {
               </div>
               <footer className="mt-16 pt-8 border-t border-blue-500/20 flex items-center justify-between text-[6px] font-medium uppercase tracking-[0.2em] text-slate-500 opacity-30">
                  <div>&copy; {new Date().getFullYear()} - FLOTAPP - TACTICAL ADMIN SYSTEM</div>
-                 <div className="uppercase">Auditoría: Brian Ezequiel Lopez (v3.0)</div>
+                 <div className="uppercase">Auditoría: Brian Ezequiel Lopez (v4.0 ELITE)</div>
               </footer>
             </div>
         </main>
