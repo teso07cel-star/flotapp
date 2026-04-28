@@ -192,11 +192,11 @@ export default async function MonthlyReport({ searchParams }) {
                   <div className="bg-slate-950/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 w-full md:w-auto">
                      <div className="mb-6">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] opacity-80 mb-1">Costo Operativo Actual (Mensual)</p>
-                        <p className="text-3xl font-black italic tracking-tighter">$ 0</p>
+                        <p className="text-3xl font-black italic tracking-tighter">U$D 0</p>
                      </div>
                      <div className="mb-6">
-                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Costo Proyectado Futuro (Nuevas Funciones)</p>
-                        <p className="text-3xl font-black italic tracking-tighter text-blue-400">$ 69.700</p>
+                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Costo Proyectado Futuro (Mensual)</p>
+                        <p className="text-3xl font-black italic tracking-tighter text-blue-400">U$D 69.700</p>
                      </div>
                      <div className="pt-6 border-t border-white/10">
                         <p className="text-[10px] font-black uppercase text-emerald-400 tracking-[0.2em] mb-1">Ahorro Mensual vs Auditoría Presencial</p>
