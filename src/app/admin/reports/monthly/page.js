@@ -179,10 +179,15 @@ export default async function MonthlyReport({ searchParams }) {
             <div className="bg-blue-900 text-white rounded-[2rem] p-10 shadow-[0_20px_50px_rgba(37,99,235,0.2)] overflow-hidden relative border border-blue-400/30">
                <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-blue-500/20 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-                  <div className="space-y-4 max-w-lg">
+                  <div className="space-y-4 max-w-lg shadow-[0_0_15px_rgba(0,0,0,0.5)] p-6 bg-slate-950/60 rounded-3xl border border-blue-500/10">
                      <h3 className="text-sm font-black uppercase tracking-[0.3em] text-blue-200">Presupuesto Tecnológico</h3>
-                     <h4 className="text-4xl font-black italic tracking-tighter leading-none mb-2">Inversión y Costos de Escalamiento</h4>
-                     <p className="text-blue-200/80 text-xs leading-relaxed max-w-md font-medium">Actualmente, la plataforma opera bajo un modelo de rentabilidad con un costo de mantenimiento mensual de <strong>$ 0</strong>. Sin embargo, en el marco de la futura expansión tecnológica planteada por el administrador (módulo avanzado de despachos, logística y seguridad, más control satelital integral y nuevos desafíos operativos), se emite esta proyección mensual para asegurar latencia cero a nivel gerencial.</p>
+                     <h4 className="text-3xl font-black italic tracking-tighter leading-none mb-2">Inversión y Escalamiento</h4>
+                     <p className="text-blue-200/80 text-[10px] leading-relaxed max-w-md font-medium text-justify">Actualmente, la plataforma opera bajo un modelo de rentabilidad con un costo de mantenimiento mensual de <strong>$ 0</strong>. Sin embargo, en el marco de la futura expansión tecnológica planteada por el administrador (módulo avanzado de despachos, logística y seguridad, más control satelital integral y nuevos desafíos operativos), se emite esta proyección mensual para asegurar latencia cero a nivel gerencial.</p>
+                     
+                     <div className="bg-blue-500/10 border border-blue-400/20 rounded-xl p-4 mt-4">
+                        <p className="text-[9px] font-black uppercase text-blue-300 tracking-widest mb-1 shadow-sm">🌐 Expansión Estratégica Autorizada</p>
+                        <p className="text-blue-100/70 text-[9px] text-justify font-medium">El Ecosistema FlotApp ya se encuentra programado y capacitado con infraestructura de Inteligencia Artificial para integrar de forma unificada no solo a los conductores estratégicos, sino también a todos los choferes y vehículos de <strong>movilidad empresarial general</strong> de la corporación, listos para sumarse al mapa termográfico y los rankings logísticos en cualquier momento.</p>
+                     </div>
                   </div>
                   <div className="bg-slate-950/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 w-full md:w-auto">
                      <div className="mb-6">

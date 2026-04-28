@@ -428,7 +428,7 @@ export async function getMonthlySummary(month, year) {
       getPrisma().vehiculo.findMany(),
       getPrisma().registroDiario.findMany({
         where: { fecha: { gte: isoStart, lte: isoEnd } },
-        include: { sucursales: true }
+        include: { sucursales: true, vehiculo: true }
       }),
       getPrisma().gasto.findMany({
         where: { fecha: { gte: isoStart, lte: isoEnd } }
