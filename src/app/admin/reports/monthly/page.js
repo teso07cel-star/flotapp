@@ -178,21 +178,21 @@ export default async function MonthlyReport({ searchParams }) {
                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                   <div className="space-y-4 max-w-lg">
                      <h3 className="text-sm font-black uppercase tracking-[0.3em] text-blue-200">Presupuesto Tecnológico</h3>
-                     <h4 className="text-4xl font-black italic tracking-tighter leading-none mb-2">Costos Proyectados del Sistema Core</h4>
-                     <p className="text-blue-200/80 text-xs leading-relaxed max-w-md font-medium">Esta infraestructura cloud reemplaza la operatoria convencional de auditoría manual presencial. Los costos aquí representan la rentabilidad neta de licencias y mantenimiento serverless por 30 días de latencia cero.</p>
+                     <h4 className="text-4xl font-black italic tracking-tighter leading-none mb-2">Inversión y Costos de Escalamiento</h4>
+                     <p className="text-blue-200/80 text-xs leading-relaxed max-w-md font-medium">Actualmente, la plataforma opera bajo un modelo de rentabilidad máxima con un costo de mantenimiento de infraestructura de <strong>$ 0</strong>. Sin embargo, con base en los proyectos que tiene el administrador para la futura expansión operativa (módulo avanzado de despachos, tracking en vivo y expansión a nuevas 50 sucursales), se proyecta este estimado gerencial para mantener latencia cero.</p>
                   </div>
                   <div className="bg-slate-950/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 w-full md:w-auto">
                      <div className="mb-6">
-                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Mantenimiento de Servidores (Vercel Edge)</p>
-                        <p className="text-3xl font-black italic tracking-tighter">$ 28.500</p>
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] opacity-80 mb-1">Costo Operativo Actual (Mensual)</p>
+                        <p className="text-3xl font-black italic tracking-tighter">$ 0</p>
                      </div>
                      <div className="mb-6">
-                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Motor de Base de Datos P. (Prisma / Supabase)</p>
-                        <p className="text-3xl font-black italic tracking-tighter">$ 41.200</p>
+                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Costo Proyectado Futuro (Nuevas Funciones)</p>
+                        <p className="text-3xl font-black italic tracking-tighter text-blue-400">$ 69.700</p>
                      </div>
                      <div className="pt-6 border-t border-white/10">
-                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-[0.2em] mb-1">Total Impacto Mensual TCO</p>
-                        <p className="text-5xl font-black italic tracking-tighter text-white">$ 69.700</p>
+                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-[0.2em] mb-1">Ahorro Mensual vs Auditoría Presencial</p>
+                        <p className="text-5xl font-black italic tracking-tighter text-white">+ 250%</p>
                      </div>
                   </div>
                </div>
