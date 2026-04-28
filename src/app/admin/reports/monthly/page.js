@@ -213,8 +213,8 @@ export default async function MonthlyReport({ searchParams }) {
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
                <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Operadores y Nodos</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 print:grid-cols-1 print:gap-8">
-               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 print:block">
+               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none print:mb-16">
                   <table className="w-full text-left font-sans">
                      <thead className="bg-slate-50 border-b-2 border-slate-900 print:bg-white print:border-b-4">
                         <tr className="text-slate-950">
