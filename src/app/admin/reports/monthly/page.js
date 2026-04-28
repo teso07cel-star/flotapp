@@ -208,57 +208,62 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN IV: RANKING DE NODOS (CRÍTICOS) */}
-          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+          <section className="space-y-12 print:break-after-page print:pt-10 mb-24 print:overflow-visible">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
-               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Nodos Críticos</h2>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Operadores y Nodos</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 print:grid-cols-1 print:gap-8">
+               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none">
                   <table className="w-full text-left font-sans">
-                     <thead className="bg-slate-50 border-b-2 border-slate-900">
+                     <thead className="bg-slate-50 border-b-2 border-slate-900 print:bg-white print:border-b-4">
                         <tr className="text-slate-950">
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Posición</th>
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal</th>
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Hitrate</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10 print:pl-0">Posición</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal / Nodo</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10 hover:bg-slate-50 transition-colors">Hitrate</th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
-                        {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
-                          <tr key={i} className="hover:bg-slate-50 transition-colors">
-                             <td className="p-6 pl-10 font-black text-slate-300">#0{i+1}</td>
-                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950">{s.nombre}</td>
-                             <td className="p-6 text-right pr-10">
-                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px]">{s.visitas}</span>
+                        {mapBranches.sort((a,b) => b.visitas - a.visitas).map((s, i) => (
+                          <tr key={i} className="hover:bg-slate-50 transition-colors print:break-inside-avoid">
+                             <td className="p-6 pl-10 font-black text-slate-300 print:pl-0 text-xs"># {i+1}</td>
+                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950 text-xs">{s.nombre}</td>
+                             <td className="p-6 text-right pr-10 text-xs">
+                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px] print:text-blue-900 print:bg-transparent print:px-0">{s.visitas}</span>
                              </td>
                           </tr>
                         ))}
                      </tbody>
                   </table>
                </div>
-                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none print:mt-10">
                    <table className="w-full text-left font-sans">
-                      <thead className="bg-slate-50 border-b-2 border-slate-900">
+                      <thead className="bg-slate-50 border-b-2 border-slate-900 print:bg-white print:border-b-4">
                          <tr className="text-slate-950">
-                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Oficial de Flota</th>
-                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Vehículos</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10 print:pl-0">Oficial de Flota</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Unidad</th>
                             <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Desempeño</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
-                         {driverStats.sort((a,b) => b.totalKm - a.totalKm).slice(0, 10).map((d, i) => (
-                           <tr key={i} className="hover:bg-slate-50 transition-colors">
-                              <td className="p-6 pl-10">
-                                 <div className="font-black uppercase tracking-tighter text-slate-950">{d.nombre}</div>
-                                 <div className="text-[9px] text-slate-400 font-bold uppercase">{d.totalTrips} Sucursales</div>
+                         {driverStats.sort((a,b) => b.totalTrips - a.totalTrips).map((d, i) => (
+                           <tr key={i} className="hover:bg-slate-50 transition-colors print:break-inside-avoid">
+                              <td className="p-6 pl-10 print:pl-0">
+                                 <div className="flex flex-col">
+                                    <span className="font-black uppercase tracking-tighter text-slate-950 text-xs">{d.nombre}</span>
+                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1"># {i+1} RANKING</span>
+                                 </div>
                               </td>
-                              <td className="p-6 font-bold uppercase text-[10px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
-                                 {d.vehicles[0]} {d.vehicles.length > 1 ? `(+${d.vehicles.length - 1})` : ''}
+                              <td className="p-6 font-bold uppercase text-[9px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                                 {d.vehicles[0] || "N/A"} {d.vehicles.length > 1 ? `(+${d.vehicles.length - 1})` : ''}
                               </td>
                               <td className="p-6 text-right pr-10">
-                                 <span className="bg-emerald-600 text-white px-4 py-1 rounded-full font-black text-[11px] whitespace-nowrap">
-                                    {Math.round(d.totalKm).toLocaleString()} km
-                                 </span>
+                                 <div className="flex flex-col items-end gap-1">
+                                    <div className="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-[12px] whitespace-nowrap shadow-sm print:bg-transparent print:text-emerald-800 print:p-0">
+                                       {d.totalTrips} CHECK-INS
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{Math.round(d.totalKm).toLocaleString()} km Tot.</div>
+                                 </div>
                               </td>
                            </tr>
                          ))}
