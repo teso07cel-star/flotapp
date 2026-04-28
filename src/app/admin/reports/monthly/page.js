@@ -138,25 +138,42 @@ export default async function MonthlyReport({ searchParams }) {
             </div>
           </section>
 
-          {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA */}
+          {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA & ESTADO DE UNIDADES */}
           <section className="space-y-12 py-10 print:break-after-page print:pt-10 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 03</span>
-               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Análisis de Inversión Tecnológica</h2>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Mantenimiento y Control de Flota</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
                <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
-                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Consumo Operativo</p>
-                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 1.450 / km</p>
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Gasto Mensual Total</p>
+                  <p className="text-5xl font-black italic tracking-tighter text-slate-900">$ {totalSpent.toLocaleString()}</p>
                </div>
                <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
-                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Inversión Logística</p>
-                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 512.4K</p>
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Consumo Promedio</p>
+                  <p className="text-5xl font-black italic tracking-tighter text-slate-900">
+                     $ {totalKm > 0 ? Math.round(totalSpent / totalKm) : 0} / km
+                  </p>
                </div>
                <div className="bg-slate-950 text-white p-10 shadow-xl relative overflow-hidden group rounded-[2rem]">
                   <p className="text-[10px] font-black uppercase opacity-60 mb-4 tracking-[0.2em] italic">Disponibilidad</p>
-                  <p className="text-5xl font-black italic tracking-tighter text-blue-400">99.1%</p>
+                  <p className="text-5xl font-black italic tracking-tighter text-emerald-400">100%</p>
+                  <div className="absolute -bottom-4 -right-4 opacity-10">
+                     <svg className="w-40 h-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+               </div>
+            </div>
+
+            <div className="bg-white border-2 border-slate-900 rounded-[2rem] p-10 shadow-sm">
+               <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-8 border-b-2 border-slate-100 pb-4">Visor Biométrico de Mantenimiento Integral</h3>
+               
+               <div className="text-center py-10 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                  <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 grayscale">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-widest text-slate-400 mb-2">Base de Datos de Mantenimiento No Inicializada</h4>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Ejecución Pendiente: Siembra de registros históricos (Cubiertas, Alineación, Fluidos).</p>
                </div>
             </div>
           </section>

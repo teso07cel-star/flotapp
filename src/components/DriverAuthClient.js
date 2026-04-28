@@ -131,7 +131,7 @@ export default function DriverAuthClient({ choferes }) {
 
       setSelectedChofer(fastLoginDriver);
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.push('/driver/form'); 
+      router.push('/?success=true'); 
     }
   };
 
@@ -165,7 +165,7 @@ export default function DriverAuthClient({ choferes }) {
         }
 
         // REDIRECCIÓN INMEDIATA PARA EVITAR SENSACIÓN DE BLOQUEO
-        router.push('/driver/form');
+        router.push('/?success=true');
         router.refresh();
       } catch (err) {
         console.error("Falla Crítica en Selección:", err);
@@ -200,7 +200,7 @@ export default function DriverAuthClient({ choferes }) {
           lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
       });
 
-      router.push('/driver/form');
+      router.push('/?success=true');
     }
   };
 

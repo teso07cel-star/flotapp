@@ -57,7 +57,7 @@ export default function DriverAnalyticsClient({ driverStats }) {
                       <div className="space-y-4">
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nodos Impactados (Frecuencia):</p>
                          <div className="flex flex-wrap gap-2">
-                            {d.branchesVisited.map((b, idx) => (
+                            {d.branchDetails.map((b, idx) => (
                               <span key={idx} className="bg-slate-950 text-white text-[9px] font-black uppercase px-4 py-2 rounded-lg italic tracking-[0.1em] flex items-center gap-2">
                                  <span>{b.nombre}</span>
                                  <span className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-[7px] not-italic">{b.visitas}</span>
