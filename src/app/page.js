@@ -197,7 +197,7 @@ function HomePageContent() {
           </div>
           
           <p className="text-[7px] font-medium uppercase tracking-[0.5em] text-slate-200/[0.02] select-none pointer-events-none">
-             ADMINISTRACIÓN SUPERIOR: BRIAN EZEQUIEL LÓPEZ - v8.9.9 PRESTIGE
+             ADMINISTRACIÓN SUPERIOR: BRIAN EZEQUIEL LÓPEZ - v9.1.0 PRESTIGE
           </p>
         </div>
       </div>
