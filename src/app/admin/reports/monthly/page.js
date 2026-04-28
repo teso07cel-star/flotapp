@@ -179,7 +179,7 @@ export default async function MonthlyReport({ searchParams }) {
                   <div className="space-y-4 max-w-lg">
                      <h3 className="text-sm font-black uppercase tracking-[0.3em] text-blue-200">Presupuesto Tecnológico</h3>
                      <h4 className="text-4xl font-black italic tracking-tighter leading-none mb-2">Inversión y Costos de Escalamiento</h4>
-                     <p className="text-blue-200/80 text-xs leading-relaxed max-w-md font-medium">Actualmente, la plataforma opera bajo un modelo de rentabilidad máxima con un costo de mantenimiento de infraestructura de <strong>$ 0</strong>. Sin embargo, con base en los proyectos que tiene el administrador para la futura expansión operativa (módulo avanzado de despachos, tracking en vivo y expansión a nuevas 50 sucursales), se proyecta este estimado gerencial para mantener latencia cero.</p>
+                     <p className="text-blue-200/80 text-xs leading-relaxed max-w-md font-medium">Actualmente, la plataforma opera bajo un modelo de rentabilidad con un costo de mantenimiento mensual de <strong>$ 0</strong>. Sin embargo, en el marco de la futura expansión tecnológica planteada por el administrador (módulo avanzado de despachos, logística y seguridad, más control satelital integral y nuevos desafíos operativos), se emite esta proyección mensual para asegurar latencia cero a nivel gerencial.</p>
                   </div>
                   <div className="bg-slate-950/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 w-full md:w-auto">
                      <div className="mb-6">
@@ -196,6 +196,67 @@ export default async function MonthlyReport({ searchParams }) {
                      </div>
                   </div>
                </div>
+            </div>
+          </section>
+
+          {/* SECCIÓN IV: RANKING DE NODOS (CRÍTICOS) */}
+          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+            <div className="flex items-center gap-4 mb-10">
+               <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Nodos Críticos</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                  <table className="w-full text-left font-sans">
+                     <thead className="bg-slate-50 border-b-2 border-slate-900">
+                        <tr className="text-slate-950">
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Posición</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Hitrate</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
+                        {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
+                          <tr key={i} className="hover:bg-slate-50 transition-colors">
+                             <td className="p-6 pl-10 font-black text-slate-300">#0{i+1}</td>
+                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950">{s.nombre}</td>
+                             <td className="p-6 text-right pr-10">
+                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px]">{s.visitas}</span>
+                             </td>
+                          </tr>
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
+                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                   <table className="w-full text-left font-sans">
+                      <thead className="bg-slate-50 border-b-2 border-slate-900">
+                         <tr className="text-slate-950">
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Oficial de Flota</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Vehículos</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Desempeño</th>
+                         </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
+                         {driverStats.sort((a,b) => b.totalKm - a.totalKm).slice(0, 10).map((d, i) => (
+                           <tr key={i} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-6 pl-10">
+                                 <div className="font-black uppercase tracking-tighter text-slate-950">{d.nombre}</div>
+                                 <div className="text-[9px] text-slate-400 font-bold uppercase">{d.totalTrips} Sucursales</div>
+                              </td>
+                              <td className="p-6 font-bold uppercase text-[10px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                                 {d.vehicles[0]} {d.vehicles.length > 1 ? `(+${d.vehicles.length - 1})` : ''}
+                              </td>
+                              <td className="p-6 text-right pr-10">
+                                 <span className="bg-emerald-600 text-white px-4 py-1 rounded-full font-black text-[11px] whitespace-nowrap">
+                                    {Math.round(d.totalKm).toLocaleString()} km
+                                 </span>
+                              </td>
+                           </tr>
+                         ))}
+                      </tbody>
+                   </table>
+                </div>
             </div>
           </section>
 

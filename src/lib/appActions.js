@@ -479,6 +479,7 @@ export async function getMonthlySummary(month, year) {
         if (clean.includes("MATIAS CHAILE") || clean.includes("MATÍAS CHAILE") || clean.includes("CHAILE")) return "MATÍAS CHAILE";
         if (clean.includes("JUAN CRUZ") || clean.includes("HIDALGO")) return "JUAN CRUZ HIDALGO";
         if (clean.includes("DAVID FRANCISCONI") || clean.includes("FRANCISCONI")) return "DAVID FRANCISCONI";
+        if (clean.includes("ESTEBAN")) return "ESTEBAN DÍAZ";
         if (clean === "VIDEOTES" || clean === "MARIANO" || clean === "SISTEMA") return clean; 
         return n.toString().trim();
     };
