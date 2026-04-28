@@ -479,13 +479,12 @@ export async function getMonthlySummary(month, year) {
         if (clean.includes("MATIAS CHAILE") || clean.includes("MATÍAS CHAILE") || clean.includes("CHAILE")) return "MATÍAS CHAILE";
         if (clean.includes("JUAN CRUZ") || clean.includes("HIDALGO")) return "JUAN CRUZ HIDALGO";
         if (clean.includes("DAVID FRANCISCONI") || clean.includes("FRANCISCONI")) return "DAVID FRANCISCONI";
-        if (clean === "VIDEOTES" || clean === "MARIANO") return "EXCLUDE_TEST_USER"; 
+        if (clean === "VIDEOTES" || clean === "MARIANO" || clean === "SISTEMA") return clean; 
         return n.toString().trim();
     };
 
     // CONSOLIDACIÓN TÁCTICA POR CHOFER Y PATENTE (Fase 1 y Fase 2 separadas)
     const fleetMap = new Map(); // Key: "DriverName|Patente"
-    const mapBranchesMap = new Map();
 
     const TACTICAL_COORDS = {
       "Mar del Plata": { lat: -38.0055, lng: -57.5426 },
@@ -530,9 +529,8 @@ export async function getMonthlySummary(month, year) {
     allRegistros.forEach(r => {
       const originalName = r.nombreConductor || "S/D";
       const driverName = nameConsolidator(originalName);
-      const isTestDriver = driverName === "EXCLUDE_TEST_USER" || driverName === "SISTEMA";
 
-      if (!isTestDriver && driverName !== "S/D") {
+      if (driverName !== "S/D") {
          const patente = r.vehiculo?.patente || "OTROS VEHÍCULOS";
          const key = `${driverName}|${patente}`;
          
