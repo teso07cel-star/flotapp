@@ -4,6 +4,9 @@ import DynamicMap from "@/components/DynamicMap";
 import PrintButton from "@/components/PrintButton";
 import DriverAnalyticsClient from "@/components/DriverAnalyticsClient";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function MonthlyReport({ searchParams }) {
   const params = await searchParams;
   const now = new Date();

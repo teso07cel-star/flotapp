@@ -513,7 +513,7 @@ export async function getMonthlySummary(month, year) {
       "San Justo": { lat: -34.6800, lng: -58.5600 },
       "La Plata": { lat: -34.9214, lng: -57.9545 },
       "La Plata 56": { lat: -34.9214, lng: -57.9545 },
-      "Voy y Vuelvo": { lat: -33.0050, lng: -58.5100 },
+      "Voy y Vuelvo": { lat: -33.0094, lng: -58.5172 },
       "Canning": { lat: -34.8694, lng: -58.5204 },
       "Adrogue": { lat: -34.8000, lng: -58.3833 },
       "Banfield": { lat: -34.7431, lng: -58.3961 },
@@ -532,7 +532,12 @@ export async function getMonthlySummary(month, year) {
       const driverName = nameConsolidator(originalName);
 
       if (driverName !== "S/D") {
-         const patente = r.vehiculo?.patente || "OTROS VEHÍCULOS";
+         let patente = r.vehiculo?.patente;
+         if (!patente && r.novedades && r.novedades.includes("[UNIDAD:")) {
+            const match = r.novedades.match(/\[UNIDAD:\s*([^\]]+)\]/i);
+            if (match) patente = match[1].trim().toUpperCase();
+         }
+         patente = patente || "OTROS VEHÍCULOS";
          const key = `${driverName}|${patente}`;
          
          if (!fleetMap.has(key)) {
