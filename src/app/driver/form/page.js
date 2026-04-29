@@ -33,17 +33,32 @@ export default async function DriverForm({ searchParams }) {
 
   if (redirectTarget) redirect(redirectTarget);
 
-  // 2. CARGA DE DATOS EN PARALELO CON FALLBACKS INDIVIDUALES
+  // 2. CARGA DE DATOS STATUS PRIMERO PARA AUTO-ASIGNACIÓN
   let vehiculoRes = { success: false, data: { patente: patente || "NUEVA", categoria: "AUTO", id: 0 } };
   let sucursalesRes = { success: true, data: MASTER_SUCURSALES };
-  let statusRes = { success: true, data: { active: false, proposedKm: 0, lastKm: 0 } };
+  let statusRes = { success: true, data: { active: false, proposedKm: 0, lastKm: 0, assignedPatente: null } };
 
   try {
-    // Si tenemos patente, intentamos cargar datos reales, pero no bloqueamos si falla
+    const statusData = await getDriverOperationalStatus(identifiedDriver);
+    if (statusData?.success) statusRes.data = statusData.data;
+  } catch (error) {
+    console.error("Fallo carga de status:", error);
+  }
+
+  // AUTO-SELECCIÓN TÁCTICA DE PATENTE (Pedida por Brian AUDIO 1)
+  let effectivePatente = patente;
+  if (!effectivePatente || effectivePatente === "NUEVA") {
+      if (statusRes.data.active && statusRes.data.vehiculo?.patente) {
+         effectivePatente = statusRes.data.vehiculo.patente;
+      } else if (statusRes.data.assignedPatente) {
+         effectivePatente = statusRes.data.assignedPatente;
+      }
+  }
+
+  try {
     const results = await Promise.allSettled([
-      patente && patente !== "NUEVA" ? getVehiculoByPatente(patente) : Promise.resolve({ success: false }),
-      getAllSucursales(),
-      getDriverOperationalStatus(identifiedDriver)
+      effectivePatente && effectivePatente !== "NUEVA" ? getVehiculoByPatente(effectivePatente) : Promise.resolve({ success: false }),
+      getAllSucursales()
     ]);
 
     if (results[0].status === 'fulfilled' && results[0].value?.success && results[0].value.data) {
@@ -52,9 +67,6 @@ export default async function DriverForm({ searchParams }) {
     }
     if (results[1].status === 'fulfilled' && results[1].value?.success) {
       sucursalesRes.data = results[1].value.data;
-    }
-    if (results[2].status === 'fulfilled' && results[2].value?.success) {
-      statusRes.data = results[2].value.data;
     }
   } catch (error) {
     console.error("Fallo carga resiliente:", error);
@@ -66,6 +78,9 @@ export default async function DriverForm({ searchParams }) {
   const lastLog = vehiculo.registros?.[0];
   const isFirstLog = !operationalStatus.active;
   const proposedKm = operationalStatus.proposedKm || (lastLog?.kmActual || 0);
+  
+  // Update effectivePatente so UI knows we bypassed the selector
+  const showSelector = !effectivePatente || effectivePatente === "NUEVA";
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-12 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
@@ -111,7 +126,7 @@ export default async function DriverForm({ searchParams }) {
           </div>
 
           <div className="relative z-10">
-            {(!patente || patente === "NUEVA") ? (
+            {showSelector ? (
               <form action={handleDriverEntry} className="space-y-8">
                 <input type="hidden" name="nombreConductor" value={identifiedDriver} />
                 <PatenteSelector defaultPatente={

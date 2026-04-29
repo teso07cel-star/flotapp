@@ -1,27 +1,59 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { StrategicGearIcon } from "@/components/FuturisticIcons";
 
 function HomePageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const success = searchParams.get("success");
 
-  // Logic to determine if driver is logged in
   const [isLogged, setIsLogged] = useState(false);
+  const [driverName, setDriverName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    setIsLogged(document.cookie.includes("driver_name="));
-  }, []);
+    const rawCookie = document.cookie;
+    const isL = rawCookie.includes("driver_name=");
+    if (!isL) {
+      router.replace("/driver/entry");
+      return;
+    }
+    
+    // Extrayendo el valor de la cookie
+    const nameMatch = rawCookie.match(/driver_name=([^;]+)/);
+    const dName = nameMatch ? decodeURIComponent(nameMatch[1]).toUpperCase() : "";
+    setDriverName(dName);
+    setIsLogged(true);
+    setIsLoading(false);
+  }, [router]);
+
+  // Pantalla de carga super táctica para que no haya un flash del menú antes del redirect
+  if (isLoading) {
+      return (
+         <div className="min-h-screen flex items-center justify-center bg-[#0f172a] p-6 selection:bg-blue-500/30">
+            <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+         </div>
+      );
+  }
+
+  // Permisos para Administración
+  const isAdminSession = driverName.includes("VIDEOTES") || driverName.includes("BRIAN") || driverName.includes("SISTEMA");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f172a] p-6 selection:bg-blue-500/30 relative overflow-hidden font-sans">
       {success && (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-10 duration-500">
-          <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-emerald-500/20 flex items-center gap-3 glass-panel">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            ¡Registro Guardado con Éxito!
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-10 duration-700">
+          <div className="bg-emerald-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_40px_rgba(16,185,129,0.4)] flex flex-col items-center gap-2 border border-emerald-400">
+            <div className="flex items-center gap-3">
+               <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+               </div>
+               <span className="text-xl">INICIO DE JORNADA EXITOSO</span>
+            </div>
+            <span className="text-[10px] opacity-80 tracking-widest mt-1">Conductor: {driverName}</span>
           </div>
         </div>
       )}
@@ -36,21 +68,18 @@ function HomePageContent() {
           <div className="inline-flex items-center justify-center space-x-4 mb-10">
              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-blue-500/50" />
              <h1 className="text-6xl font-black tracking-[-0.05em] text-white flex items-center gap-4">
-                 FLOT<span className="text-blue-500">APP</span> <span className="text-xs bg-blue-600 px-3 py-1 rounded-full animate-pulse shadow-[0_0_20px_rgba(37,99,235,0.6)] uppercase">v8.9.9 PRESTIGE</span>
+                 FLOT<span className="text-blue-500">APP</span>
               </h1>
               <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-blue-500/50" />
            </div>
-           <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Estratégico de Flotas</p>
-           <div className="mt-4 inline-block bg-blue-600/10 border border-blue-500/20 px-4 py-1 rounded-full">
-             <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">SISTEMA INTEGRAL v8.9.9 - OPERATIVO</span>
-           </div>
+           <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.6em] opacity-60">Sistema de Control Operativo</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto px-4">
           
           {/* CONDUCTOR ESTRATÉGICO */}
           <Link 
-            href={isLogged ? "/driver/form" : "/driver/entry"}
+            href="/driver/form"
             className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a]/60 backdrop-blur-xl overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
           >
             <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
@@ -113,36 +142,38 @@ function HomePageContent() {
           </Link>
 
           {/* GESTIÓN ADMINISTRATIVA */}
-          <Link 
-            href="/admin"
-            className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a] overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
-          >
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
-            
-            <div className="p-8 pb-0 text-center relative z-10 mt-2">
-               <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                  Gestión<br />Administrativa
-               </h3>
-            </div>
-            
-            <div className="relative flex-1 flex flex-col items-center justify-center p-6 min-h-[220px]">
-              <div className="w-56 h-56 relative flex items-center justify-center pl-4 py-2">
-                <img 
-                  src="/icons/admin_hud.png" 
-                  alt="Benjamin Franklin" 
-                  className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700"
-                />
+          {isAdminSession && (
+            <Link 
+              href="/admin"
+              className="group flex flex-col relative rounded-[2rem] border border-blue-500/30 bg-[#0f172a] overflow-hidden hover:border-blue-400/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500"
+            >
+              <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-blue-500/20 to-transparent pointer-events-none" />
+              
+              <div className="p-8 pb-0 text-center relative z-10 mt-2">
+                 <h3 className="text-[22px] leading-tight font-black text-white tracking-widest uppercase mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                    Gestión<br />Administrativa
+                 </h3>
               </div>
-              <div className="absolute bottom-6 right-8 z-30 opacity-60 group-hover:opacity-100 group-hover:rotate-45 transition-all duration-1000">
-                 <StrategicGearIcon className="text-blue-500/40 animate-spin-slow w-20 h-20" />
+              
+              <div className="relative flex-1 flex flex-col items-center justify-center p-6 min-h-[220px]">
+                <div className="w-56 h-56 relative flex items-center justify-center pl-4 py-2">
+                  <img 
+                    src="/icons/admin_hud.png" 
+                    alt="Benjamin Franklin" 
+                    className="w-full h-full object-contain mix-blend-screen saturate-0 opacity-90 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700"
+                  />
+                </div>
+                <div className="absolute bottom-6 right-8 z-30 opacity-60 group-hover:opacity-100 group-hover:rotate-45 transition-all duration-1000">
+                   <StrategicGearIcon className="text-blue-500/40 animate-spin-slow w-20 h-20" />
+                </div>
               </div>
-            </div>
-            
-            <div className="p-8 pt-0 text-center space-y-6 relative z-10">
-               <p className="text-slate-400 text-[11px] uppercase tracking-widest">Control Operacional</p>
-               <div className="inline-block px-10 py-3 rounded-full border border-blue-500/50 text-blue-400 text-[10px] font-black uppercase tracking-widest group-hover:bg-blue-500 group-hover:text-white transition-all shadow-lg">Gestionar</div>
-            </div>
-          </Link>
+              
+              <div className="p-8 pt-0 text-center space-y-6 relative z-10">
+                 <p className="text-slate-400 text-[11px] uppercase tracking-widest">Control Operacional</p>
+                 <div className="inline-block px-10 py-3 rounded-full border border-blue-500/50 text-blue-400 text-[10px] font-black uppercase tracking-widest group-hover:bg-blue-500 group-hover:text-white transition-all shadow-lg">Gestionar</div>
+              </div>
+            </Link>
+          )}
 
         </div>
 
@@ -166,7 +197,7 @@ function HomePageContent() {
           </div>
           
           <p className="text-[7px] font-medium uppercase tracking-[0.5em] text-slate-200/[0.02] select-none pointer-events-none">
-             ADMINISTRACIÓN SUPERIOR: BRIAN EZEQUIEL LÓPEZ - v8.9.9 PRESTIGE
+             ADMINISTRACIÓN SUPERIOR: BRIAN EZEQUIEL LÓPEZ - v9.1.0 PRESTIGE
           </p>
         </div>
       </div>

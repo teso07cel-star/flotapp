@@ -446,7 +446,7 @@ export async function getMonthlySummary(month, year) {
       getPrisma().vehiculo.findMany(),
       getPrisma().registroDiario.findMany({
         where: { fecha: { gte: isoStart, lte: isoEnd } },
-        include: { sucursales: true }
+        include: { sucursales: true, vehiculo: true }
       }),
       getPrisma().gasto.findMany({
         where: { fecha: { gte: isoStart, lte: isoEnd } }
@@ -492,129 +492,184 @@ export async function getMonthlySummary(month, year) {
         if (clean.includes("DIEGO RETAMAR") || clean === "DIEGO R") return "DIEGO RETAMAR";
         if (clean.includes("GERARDO VISCONTI") || clean === "GERARDO V") return "GERARDO VISCONTI";
         if (clean.includes("GONZALO") || clean === "GONZALO M" || clean === "GONZALO MARTINEZ") return "GONZALO MARTINEZ";
-        if (clean === "VIDEOTES") return "VIDEOTES"; // Mantener por ahora si es prueba de Brian
+        if (clean.includes("GALLY") || clean.includes("NELSON")) return "GALLY NELSON";
+        if (clean.includes("VEGA") || clean.includes("JORGE DANIEL")) return "JORGE DANIEL VEGA";
+        if (clean.includes("MATIAS CHAILE") || clean.includes("MATÍAS CHAILE") || clean.includes("CHAILE")) return "MATÍAS CHAILE";
+        if (clean.includes("JUAN CRUZ") || clean.includes("HIDALGO")) return "JUAN CRUZ HIDALGO";
+        if (clean.includes("DAVID FRANCISCONI") || clean.includes("FRANCISCONI")) return "DAVID FRANCISCONI";
+        if (clean.includes("ESTEBAN")) return "ESTEBAN DÍAZ";
+        if (clean.includes("TOMAS CASCO") || clean.includes("TOMÁS CASCO") || clean === "TOMAS C" || clean === "TOMÁS C") return "TOMÁS CASCO";
+        if (clean.includes("BRIAN LOPEZ") || clean.includes("BRIAN LÓPEZ") || clean === "BRIAN L") return "BRIAN LÓPEZ";
+        if (clean === "VIDEOTES" || clean === "MARIANO" || clean === "SISTEMA") return clean; 
         return n.toString().trim();
     };
 
-    // CONSOLIDACIÓN TÁCTICA POR CHOFER (ABRIL 2026)
-    const consolidatedMap = new Map();
-    const mapBranchesMap = new Map();
+    // CONSOLIDACIÓN TÁCTICA POR CHOFER Y PATENTE (Fase 1 y Fase 2 separadas)
+    const fleetMap = new Map(); // Key: "DriverName|Patente"
+
+    const TACTICAL_COORDS = {
+      "Mar del Plata": { lat: -38.0055, lng: -57.5426 },
+      "Tandil": { lat: -37.3217, lng: -59.1331 },
+      "Olavarría": { lat: -36.8927, lng: -60.3225 },
+      "Gualeguaychú": { lat: -33.0094, lng: -58.5172 },
+      "Puerto Madero": { lat: -34.6111, lng: -58.3619 },
+      "Nordelta 1": { lat: -34.4000, lng: -58.6400 },
+      "Nordelta 2": { lat: -34.4100, lng: -58.6500 },
+      "Cabildo": { lat: -34.5613, lng: -58.4556 },
+      "Plaza Italia": { lat: -34.5815, lng: -58.4210 },
+      "Barrio Norte": { lat: -34.5916, lng: -58.3976 },
+      "Once": { lat: -34.6097, lng: -58.4061 },
+      "Belgrano": { lat: -34.5623, lng: -58.4554 },
+      "San Miguel": { lat: -34.5434, lng: -58.7126 },
+      "San Fernando": { lat: -34.4449, lng: -58.5484 },
+      "Olivos": { lat: -34.5097, lng: -58.4841 },
+      "Martinez": { lat: -34.4925, lng: -58.5146 },
+      "Vicente Lopez": { lat: -34.5342, lng: -58.4759 },
+      "Pacheco": { lat: -34.4533, lng: -58.6253 },
+      "Teso San Telmo": { lat: -34.6206, lng: -58.3732 },
+      "Campana": { lat: -34.1627, lng: -58.9592 },
+      "San Martin": { lat: -34.5779, lng: -58.5385 },
+      "Ramos": { lat: -34.6465, lng: -58.5638 },
+      "San Justo": { lat: -34.6800, lng: -58.5600 },
+      "La Plata": { lat: -34.9214, lng: -57.9545 },
+      "La Plata 56": { lat: -34.9214, lng: -57.9545 },
+      "Voy y Vuelvo": { lat: -33.0094, lng: -58.5172 },
+      "Canning": { lat: -34.8694, lng: -58.5204 },
+      "Adrogue": { lat: -34.8000, lng: -58.3833 },
+      "Banfield": { lat: -34.7431, lng: -58.3961 },
+      "Berisso": { lat: -34.8711, lng: -57.8833 },
+      "Lanus": { lat: -34.7042, lng: -58.3964 },
+      "Teso Norte": { lat: -34.4000, lng: -58.6400 },
+      "Chascomus": { lat: -35.5768, lng: -58.0096 },
+      "Independencia": { lat: -38.0004, lng: -57.5562 },
+      "Guemes": { lat: -38.0125, lng: -57.5401 },
+      "San Nicolas": { lat: -33.3332, lng: -60.2185 },
+      "Otros": { lat: -34.6037, lng: -58.3816 } // Obelisco
+    };
 
     allRegistros.forEach(r => {
-      const driverName = nameConsolidator(r.nombreConductor);
-      const isTestDriver = driverName === "VIDEOTES" || driverName === "SISTEMA";
+      const originalName = r.nombreConductor || "S/D";
+      const driverName = nameConsolidator(originalName);
 
-      if (!isTestDriver) {
-        if (!consolidatedMap.has(driverName)) {
-          consolidatedMap.set(driverName, { 
-            conductor: driverName, 
-            kmRecorridos: 0,
-            visitasSucursales: 0,
-            totalGastos: 0,
-            vehiculos: new Set(),
-            branchDetails: new Map() 
-          });
-        }
-        const c = consolidatedMap.get(driverName);
-        c.kmRecorridos += (r.kmTeoricos || 0);
-        c.visitasSucursales += (r.sucursales?.length || 0);
-        c.totalGastos += (r.montoCombustible || 0);
-        if (r.vehiculo?.patente) c.vehiculos.add(r.vehiculo.patente);
-      }
-      
-      if (Array.isArray(r.sucursales)) {
-        r.sucursales.forEach(s => {
-          let sName = s.nombre?.trim();
-          let sLat = s.lat; let sLng = s.lng;
-          const TACTICAL_COORDS = {
-            "Mar del Plata": { lat: -38.0055, lng: -57.5426 },
-            "Tandil": { lat: -37.3217, lng: -59.1331 },
-            "Olavarría": { lat: -36.8927, lng: -60.3225 },
-            "Gualeguaychú": { lat: -33.0094, lng: -58.5172 },
-            "Puerto Madero": { lat: -34.6111, lng: -58.3619 },
-            "Nordelta 1": { lat: -34.4000, lng: -58.6400 },
-            "Nordelta 2": { lat: -34.4100, lng: -58.6500 },
-            "Cabildo": { lat: -34.5613, lng: -58.4556 },
-            "Plaza Italia": { lat: -34.5815, lng: -58.4210 },
-            "Barrio Norte": { lat: -34.5916, lng: -58.3976 },
-            "Once": { lat: -34.6097, lng: -58.4061 },
-            "Belgrano": { lat: -34.5623, lng: -58.4554 },
-            "San Miguel": { lat: -34.5434, lng: -58.7126 },
-            "San Fernando": { lat: -34.4449, lng: -58.5484 },
-            "Olivos": { lat: -34.5097, lng: -58.4841 },
-            "Martinez": { lat: -34.4925, lng: -58.5146 },
-            "Vicente Lopez": { lat: -34.5342, lng: -58.4759 },
-            "Pacheco": { lat: -34.4533, lng: -58.6253 },
-            "Teso San Telmo": { lat: -34.6206, lng: -58.3732 },
-            "Campana": { lat: -34.1627, lng: -58.9592 },
-            "San Martin": { lat: -34.5779, lng: -58.5385 },
-            "Ramos": { lat: -34.6465, lng: -58.5638 },
-            "San Justo": { lat: -34.6800, lng: -58.5600 },
-            "La Plata": { lat: -34.9214, lng: -57.9545 },
-            "Voy y Vuelvo": { lat: -33.0050, lng: -58.5100 },
-            "Otros": { lat: -34.6037, lng: -58.3816 }
-          };
+      if (driverName !== "S/D") {
+         let patente = r.vehiculo?.patente;
+         if (!patente && r.novedades && r.novedades.includes("[UNIDAD:")) {
+            const match = r.novedades.match(/\[UNIDAD:\s*([^\]]+)\]/i);
+            if (match) patente = match[1].trim().toUpperCase();
+         }
+         patente = patente || "OTROS VEHÍCULOS";
+         const key = `${driverName}|${patente}`;
+         
+         if (!fleetMap.has(key)) {
+            fleetMap.set(key, {
+               conductor: driverName,
+               patente: patente,
+               kmRecorridos: 0,
+               visitasSucursales: 0,
+               totalGastos: 0,
+               branchDetails: new Map()
+            });
+         }
+         
+         const c = fleetMap.get(key);
+         c.kmRecorridos += (Number(r.kmTeoricos) || 0);
+         c.visitasSucursales += (r.sucursales?.length || 0);
+         c.totalGastos += (Number(r.montoCombustible) || 0);
+         
+         if (Array.isArray(r.sucursales)) {
+            r.sucursales.forEach(s => {
+               let sName = s.nombre?.trim();
+               if (!sName || sName === "") sName = "Otros";
+               
+               let sLat = s.lat; let sLng = s.lng;
+               const matched = Object.keys(TACTICAL_COORDS).find(k => sName.toUpperCase().includes(k.toUpperCase()));
+               if (matched && (!sLat || Math.abs(sLat) < 1)) {
+                   sLat = TACTICAL_COORDS[matched].lat;
+                   sLng = TACTICAL_COORDS[matched].lng;
+               }
 
-          const matched = Object.keys(TACTICAL_COORDS).find(k => sName?.toUpperCase().includes(k.toUpperCase()));
-          if (matched && (!sLat || Math.abs(sLat) < 1)) {
-              sLat = TACTICAL_COORDS[matched].lat;
-              sLng = TACTICAL_COORDS[matched].lng;
-          }
+               const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
+               
+               let branchId = sName === "Otros" ? "OTROS_GENERIC_ID" : (s.id || sName);
 
-          if (!sName || sName === "") sName = "Otros";
-          const hasValidGps = sLat != null && sLng != null && Math.abs(sLat) > 1;
-
-          if (!isTestDriver) {
-            const dr = consolidatedMap.get(driverName);
-            if (dr) {
-              if (!dr.branchDetails.has(s.id || sName)) {
-                  dr.branchDetails.set(s.id || sName, { 
-                    id: s.id || sName, nombre: sName, 
-                    lat: hasValidGps ? Number(sLat) : null, 
-                    lng: hasValidGps ? Number(sLng) : null, 
-                    visitas: 1 
+               // Add to Driver+Vehicle map
+               if (!c.branchDetails.has(branchId)) {
+                  c.branchDetails.set(branchId, { 
+                     id: branchId, nombre: sName, 
+                     lat: hasValidGps ? Number(sLat) : null, 
+                     lng: hasValidGps ? Number(sLng) : null, 
+                     visitas: 1 
                   });
-              } else {
-                  dr.branchDetails.get(s.id || sName).visitas++;
-              }
-            }
-          }
+               } else {
+                  c.branchDetails.get(branchId).visitas++;
+               }
 
-          if (!mapBranchesMap.has(s.id || sName)) {
-              mapBranchesMap.set(s.id || sName, { 
-                id: s.id || sName, nombre: sName, 
-                lat: hasValidGps ? Number(sLat) : null, 
-                lng: hasValidGps ? Number(sLng) : null, 
-                visitas: 1 
-              });
-          } else {
-              mapBranchesMap.get(s.id || sName).visitas++;
-          }
-        });
+               // Add to global branch tracking
+               if (!mapBranchesMap.has(branchId)) {
+                  mapBranchesMap.set(branchId, { 
+                     id: branchId, nombre: sName, 
+                     lat: hasValidGps ? Number(sLat) : null, 
+                     lng: hasValidGps ? Number(sLng) : null, 
+                     visitas: 1 
+                  });
+               } else {
+                  mapBranchesMap.get(branchId).visitas++;
+               }
+            });
+         }
       }
     });
 
-    const finalSummary = Array.from(consolidatedMap.values()).map(d => ({
-        id: d.conductor,
-        patente: Array.from(d.vehiculos).join("/") || "S/D",
+    const fleetSummaryArray = Array.from(fleetMap.values()).map(d => ({
+        id: `${d.conductor}-${d.patente}`,
         conductor: d.conductor,
+        patente: d.patente,
         kmRecorridos: d.kmRecorridos,
         visitasSucursales: d.visitasSucursales,
         totalGastos: d.totalGastos,
         branchDetails: Array.from(d.branchDetails.values())
-    })).sort((a,b) => b.kmRecorridos - a.kmRecorridos);
+    })).sort((a,b) => {
+       // Sort by driver name first, then km
+       if (a.conductor === b.conductor) return b.kmRecorridos - a.kmRecorridos;
+       return a.conductor.localeCompare(b.conductor);
+    });
+
+    // Consolidar driverStats agrupando por driver (para la Fase 2)
+    const driverStatsMap = new Map();
+    fleetSummaryArray.forEach(row => {
+       if (!driverStatsMap.has(row.conductor)) {
+          driverStatsMap.set(row.conductor, {
+             nombre: row.conductor,
+             totalTrips: 0,
+             totalKm: 0,
+             vehicles: [],
+             branchDetails: new Map()
+          });
+       }
+       const ds = driverStatsMap.get(row.conductor);
+       ds.totalTrips += row.visitasSucursales;
+       ds.totalKm += row.kmRecorridos;
+       if (!ds.vehicles.includes(row.patente)) ds.vehicles.push(row.patente);
+       
+       row.branchDetails.forEach(b => {
+          if (!ds.branchDetails.has(b.id)) {
+             ds.branchDetails.set(b.id, { ...b });
+          } else {
+             ds.branchDetails.get(b.id).visitas += b.visitas;
+          }
+       });
+    });
+
+    const finalDriverStats = Array.from(driverStatsMap.values()).map(ds => ({
+       ...ds,
+       branchDetails: Array.from(ds.branchDetails.values())
+    })).sort((a,b) => b.totalKm - a.totalKm);
 
     const finalData = {
-      summary: finalSummary,
+      summary: fleetSummaryArray, // Usado en Fase 1 y tiene 1 fila por (Driver, Vehicle)
       totalFleetVisits: Array.from(mapBranchesMap.values()).reduce((sum, b) => sum + b.visitas, 0),
       mapBranches: Array.from(mapBranchesMap.values()),
-      driverStats: finalSummary.map(d => ({
-        nombre: d.conductor,
-        totalTrips: d.visitasSucursales,
-        totalKm: d.kmRecorridos,
-        vehicles: d.patente.split("/"),
-        branchDetails: d.branchDetails
-      }))
+      driverStats: finalDriverStats
     };
 
     return { success: true, data: JSON.parse(JSON.stringify(finalData)) };

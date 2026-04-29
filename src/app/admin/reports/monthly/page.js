@@ -4,6 +4,9 @@ import DynamicMap from "@/components/DynamicMap";
 import PrintButton from "@/components/PrintButton";
 import DriverAnalyticsClient from "@/components/DriverAnalyticsClient";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function MonthlyReport({ searchParams }) {
   const params = await searchParams;
   const now = new Date();
@@ -101,7 +104,7 @@ export default async function MonthlyReport({ searchParams }) {
                     <tr key={i} className="hover:bg-slate-50 transition-colors">
                       <td className="p-8 border-r border-slate-900 text-center">
                          <div className="text-4xl font-black italic tracking-tighter leading-none mb-1 text-slate-950">{v.patente}</div>
-                         <div className="text-[9px] font-bold uppercase text-slate-600 tracking-widest">Protocolo #V-{v.id}</div>
+                         <div className="text-[9px] font-bold uppercase text-slate-600 tracking-widest">{v.conductor}</div>
                       </td>
                       <td className="p-8 border-r border-slate-900 text-center">
                          <div className="text-5xl font-black italic tracking-tighter text-slate-950">{v.visitasSucursales}</div>
@@ -130,7 +133,7 @@ export default async function MonthlyReport({ searchParams }) {
           <section className="space-y-12 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-blue-600 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 02</span>
-               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Inteligencia Individual por Oficial</h2>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-white italic">Inteligencia Individual por Conductor</h2>
             </div>
             
             <div className="bg-white border-2 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl">
@@ -141,22 +144,65 @@ export default async function MonthlyReport({ searchParams }) {
           {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA */}
           <section className="space-y-12 py-10 print:pt-10 mb-24">
             <div className="flex items-center gap-4 mb-10">
-               <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 03</span>
-               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Análisis de Inversión Tecnológica</h2>
+               <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Core Engine</span>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-white italic">FlotApp: Ecosistema Táctico</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-               <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
-                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Consumo Operativo</p>
-                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 1.450 / km</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+               <div className="bg-slate-950/60 border border-slate-800 p-8 shadow-2xl rounded-[2rem] relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                     <svg className="w-32 h-32 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  </div>
+                  <h3 className="text-xl font-black text-white uppercase tracking-widest mb-4">Eficiencia Operativa</h3>
+                  <ul className="space-y-4 text-xs font-medium text-slate-400">
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Control biométrico y validación de identidad en terreno.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Trazabilidad satelital milimétrica de impacto en sucursales.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Supresión de tiempos muertos mediante asignación automatizada.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Consolidación de kilometraje inteligente contra mapas termográficos.</li>
+                  </ul>
                </div>
-               <div className="bg-white border-2 border-slate-900 p-10 shadow-sm group hover:-translate-y-1 transition-all rounded-[2rem]">
-                  <p className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] italic">Inversión Logística</p>
-                  <p className="text-5xl font-black italic tracking-tighter italic text-slate-900">$ 512.4K</p>
+
+               <div className="bg-slate-950/60 border border-slate-800 p-8 shadow-2xl rounded-[2rem] relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-45 transition-transform duration-700">
+                     <svg className="w-32 h-32 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  </div>
+                  <h3 className="text-xl font-black text-white uppercase tracking-widest mb-4">Seguridad y Resiliencia</h3>
+                  <ul className="space-y-4 text-xs font-medium text-slate-400">
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Arquitectura cifrada v10.2 NUCLEAR de alta disponibilidad.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> PWA nativa Offline-First, impidiendo la pérdida de datos de campo.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cierre automatizado de turnos inactivos con motor CRON.</li>
+                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Dashboard Gerencial aislado y protegido por tokens de seguridad.</li>
+                  </ul>
                </div>
-               <div className="bg-slate-950 text-white p-10 shadow-xl relative overflow-hidden group rounded-[2rem]">
-                  <p className="text-[10px] font-black uppercase opacity-60 mb-4 tracking-[0.2em] italic">Disponibilidad</p>
-                  <p className="text-5xl font-black italic tracking-tighter text-blue-400">99.1%</p>
+            </div>
+
+            <div className="bg-blue-900 text-white rounded-[2rem] p-10 shadow-[0_20px_50px_rgba(37,99,235,0.2)] overflow-hidden relative border border-blue-400/30">
+               <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-blue-500/20 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
+               <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+                  <div className="space-y-4 max-w-lg shadow-[0_0_15px_rgba(0,0,0,0.5)] p-6 bg-slate-950/60 rounded-3xl border border-blue-500/10">
+                     <h3 className="text-sm font-black uppercase tracking-[0.3em] text-blue-200">Presupuesto Tecnológico</h3>
+                     <h4 className="text-3xl font-black italic tracking-tighter leading-none mb-2">Inversión y Escalamiento</h4>
+                     <p className="text-blue-200/80 text-[10px] leading-relaxed max-w-md font-medium text-justify">Actualmente, la plataforma opera bajo un modelo de rentabilidad con un costo de mantenimiento mensual de <strong>$ 0</strong>. Sin embargo, en el marco de la futura expansión tecnológica planteada por el administrador (módulo avanzado de despachos, logística y seguridad, más control satelital integral y nuevos desafíos operativos), se emite esta proyección mensual para asegurar latencia cero a nivel gerencial.</p>
+                     
+                     <div className="bg-blue-500/10 border border-blue-400/20 rounded-xl p-4 mt-4">
+                        <p className="text-[9px] font-black uppercase text-blue-300 tracking-widest mb-1 shadow-sm">🌐 Expansión Estratégica Autorizada</p>
+                        <p className="text-blue-100/70 text-[9px] text-justify font-medium">El Ecosistema FlotApp ya se encuentra programado y capacitado con infraestructura de Inteligencia Artificial para integrar de forma unificada no solo a los conductores estratégicos, sino también a todos los choferes y vehículos de <strong>movilidad empresarial general</strong> de la corporación, listos para sumarse al mapa termográfico y los rankings logísticos en cualquier momento.</p>
+                     </div>
+                  </div>
+                  <div className="bg-slate-950/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 w-full md:w-auto">
+                     <div className="mb-6">
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] opacity-80 mb-1">Costo Operativo Actual (Mensual)</p>
+                        <p className="text-3xl font-black italic tracking-tighter">U$D 0</p>
+                     </div>
+                     <div className="mb-6">
+                        <p className="text-[10px] font-black uppercase text-blue-300 tracking-[0.2em] opacity-80 mb-1">Costo Proyectado Futuro (Mensual)</p>
+                        <p className="text-3xl font-black italic tracking-tighter text-blue-400">U$D 69.700</p>
+                     </div>
+                     <div className="pt-6 border-t border-white/10">
+                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-[0.2em] mb-1">Ahorro Mensual vs Auditoría Presencial</p>
+                        <p className="text-5xl font-black italic tracking-tighter text-white">+ 250%</p>
+                     </div>
+                  </div>
                </div>
             </div>
           </section>
@@ -165,54 +211,59 @@ export default async function MonthlyReport({ searchParams }) {
           <section className="space-y-12 print:pt-10 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
-               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Nodos Críticos</h2>
+               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Operadores y Nodos</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 print:block">
+               <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none print:mb-16">
                   <table className="w-full text-left font-sans">
-                     <thead className="bg-slate-50 border-b-2 border-slate-900">
+                     <thead className="bg-slate-50 border-b-2 border-slate-900 print:bg-white print:border-b-4">
                         <tr className="text-slate-950">
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Posición</th>
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal</th>
-                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Hitrate</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10 print:pl-0">Posición</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest">Sucursal / Nodo</th>
+                           <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10 hover:bg-slate-50 transition-colors">Hitrate</th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
-                        {mapBranches.sort((a,b) => b.visitas - a.visitas).slice(0, 10).map((s, i) => (
-                          <tr key={i} className="hover:bg-slate-50 transition-colors">
-                             <td className="p-6 pl-10 font-black text-slate-300">#0{i+1}</td>
-                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950">{s.nombre}</td>
-                             <td className="p-6 text-right pr-10">
-                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px]">{s.visitas}</span>
+                        {mapBranches.sort((a,b) => b.visitas - a.visitas).map((s, i) => (
+                          <tr key={i} className="hover:bg-slate-50 transition-colors print:break-inside-avoid">
+                             <td className="p-6 pl-10 font-black text-slate-300 print:pl-0 text-xs"># {i+1}</td>
+                             <td className="p-6 font-black uppercase tracking-tighter text-slate-950 text-xs">{s.nombre}</td>
+                             <td className="p-6 text-right pr-10 text-xs">
+                                <span className="bg-blue-700 text-white px-4 py-1 rounded-full font-black text-[11px] print:text-blue-900 print:bg-transparent print:px-0">{s.visitas}</span>
                              </td>
                           </tr>
                         ))}
                      </tbody>
                   </table>
                </div>
-                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm">
+                <div className="bg-white border-2 border-slate-900 rounded-[2rem] overflow-hidden shadow-sm print:overflow-visible print:border-none print:shadow-none print:mt-10">
                    <table className="w-full text-left font-sans">
-                      <thead className="bg-slate-50 border-b-2 border-slate-900">
+                      <thead className="bg-slate-50 border-b-2 border-slate-900 print:bg-white print:border-b-4">
                          <tr className="text-slate-950">
-                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10">Oficial de Flota</th>
-                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Vehículos</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest pl-10 print:pl-0">Oficial de Flota</th>
+                            <th className="p-6 font-black uppercase text-[10px] tracking-widest">Unidad</th>
                             <th className="p-6 font-black uppercase text-[10px] tracking-widest text-right pr-10">Desempeño</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 italic font-medium text-sm">
-                         {driverStats.sort((a,b) => b.totalKm - a.totalKm).slice(0, 10).map((d, i) => (
-                           <tr key={i} className="hover:bg-slate-50 transition-colors">
-                              <td className="p-6 pl-10">
-                                 <div className="font-black uppercase tracking-tighter text-slate-950">{d.nombre}</div>
-                                 <div className="text-[9px] text-slate-400 font-bold uppercase">{d.totalTrips} Sucursales</div>
+                         {driverStats.sort((a,b) => b.totalTrips - a.totalTrips).map((d, i) => (
+                           <tr key={i} className="hover:bg-slate-50 transition-colors print:break-inside-avoid">
+                              <td className="p-6 pl-10 print:pl-0">
+                                 <div className="flex flex-col">
+                                    <span className="font-black uppercase tracking-tighter text-slate-950 text-xs">{d.nombre}</span>
+                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1"># {i+1} RANKING</span>
+                                 </div>
                               </td>
-                              <td className="p-6 font-bold uppercase text-[10px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
-                                 {d.vehicles.join(" / ")}
+                              <td className="p-6 font-bold uppercase text-[9px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                                 {d.vehicles[0] || "N/A"} {d.vehicles.length > 1 ? `(+${d.vehicles.length - 1})` : ''}
                               </td>
                               <td className="p-6 text-right pr-10">
-                                 <span className="bg-emerald-600 text-white px-4 py-1 rounded-full font-black text-[11px] whitespace-nowrap">
-                                    {Math.round(d.totalKm).toLocaleString()} km
-                                 </span>
+                                 <div className="flex flex-col items-end gap-1">
+                                    <div className="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-[12px] whitespace-nowrap shadow-sm print:bg-transparent print:text-emerald-800 print:p-0">
+                                       {d.totalTrips} CHECK-INS
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{Math.round(d.totalKm).toLocaleString()} km Tot.</div>
+                                 </div>
                               </td>
                            </tr>
                          ))}

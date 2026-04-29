@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }) {
                  <div className="flex flex-col relative">
                      <span className="text-sm font-black tracking-[0.1em] text-white leading-tight uppercase">Dashboard</span>
                      <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase opacity-90">Administrativo</span>
-                      <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)] uppercase whitespace-nowrap">v8.9.9 PRESTIGE</div>
+                      <div className="absolute -top-1 -right-4 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-full font-black animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.5)] uppercase whitespace-nowrap">v9.1.0 PRESTIGE</div>
                   </div>
               </div>
               
@@ -106,7 +106,7 @@ export default async function AdminLayout({ children }) {
            {/* SEÑAL TACTICA v9.0.0 */}
            <div className="w-full bg-slate-950 text-white text-[9px] font-black uppercase tracking-[0.6em] py-3 text-center border-b border-blue-500/40 z-50 animate-in fade-in slide-in-from-top duration-700 no-print flex items-center justify-center gap-4">
               <StrategicGearIcon className="w-4 h-4 text-blue-500 animate-spin-slow" />
-              <span>SISTEMA v9.0.0 PRESTIGE - CONTROL LOGÍSTICO TOTAL</span>
+              <span>SISTEMA v9.1.0 PRESTIGE - CONTROL LOGÍSTICO TOTAL</span>
               <StrategicGearIcon className="w-4 h-4 text-blue-500 animate-spin-slow" />
            </div>
 

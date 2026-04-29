@@ -210,6 +210,43 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
             >
                Siguiente Nodo &rarr;
             </button>
+
+            <div className="flex gap-4 pt-2">
+               <button 
+                  type="button" 
+                  onClick={() => setStage(3)}
+                  disabled={!currentKm || loading}
+                  className="flex-1 py-5 border-2 border-red-500/20 bg-red-500/5 text-red-500 hover:bg-red-500 hover:text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all"
+               >
+                  Finalizar Turno
+               </button>
+               <button 
+                  type="button" 
+                  onClick={() => setChangingVehicle(!changingVehicle)}
+                  className="flex-1 py-5 border-2 border-slate-700 bg-[#0f172a] text-slate-300 hover:bg-slate-800 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all"
+               >
+                  Cambiar Unidad
+               </button>
+            </div>
+
+            {changingVehicle && (
+               <div className="mt-4 p-6 bg-slate-900/60 border border-white/5 rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-300 flex flex-col gap-4">
+                  <input 
+                     type="text" 
+                     placeholder="NUEVA PATENTE" 
+                     value={newPatente} 
+                     onChange={(e) => setNewPatente(e.target.value)} 
+                     className="w-full bg-[#020617] border-2 border-blue-500/30 rounded-2xl px-5 py-4 text-white text-center uppercase focus:border-blue-500 outline-none font-bold"
+                  />
+                  <button 
+                     onClick={handlePlateChange} 
+                     disabled={!newPatente.trim()}
+                     className="w-full py-4 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 text-white font-black uppercase tracking-widest rounded-2xl transition-all text-[10px]"
+                  >
+                     Confirmar Cambio
+                  </button>
+               </div>
+            )}
          </div>
       )}
 
@@ -268,13 +305,6 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                   className="w-full py-8 bg-blue-600 text-white rounded-[3rem] font-black uppercase tracking-[0.5em] shadow-2xl active:scale-[0.98] transition-all text-[11px]"
                >
                   {loading ? "TRANSMITIENDO..." : "Transmitir Parada Operativa"}
-               </button>
-               <button 
-                  type="button" 
-                  onClick={() => setStage(3)}
-                  className="w-full py-6 border-2 border-red-500/20 bg-red-500/5 text-red-500 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[9px]"
-               >
-                  Finalizar Protocolo Diario
                </button>
             </div>
          </form>

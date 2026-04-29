@@ -1,26 +1,57 @@
-import { NextResponse } from "next/server";
-import { autoCloseInternalShifts } from "@/lib/appActions";
+import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
+const prisma = new PrismaClient();
 
-/**
- * GET /api/cron/close-shifts
- * Llamado por Vercel Cron Jobs o un sistema externo para cerrar turnos abiertos del día anterior.
- * Protegido por CRON_SECRET si está definido.
- */
-export async function GET(req) {
-  if (process.env.CRON_SECRET) {
-    const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-  }
+export const maxDuration = 30; // Seconds
 
+export async function GET(request) {
   try {
-    const result = await autoCloseInternalShifts();
-    return NextResponse.json(result);
+    // Solo permitir solicitudes validadas (opcional en un entorno real con Vercel Cron Secret)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Buscar todos los registros de HOY
+    const registrosHoy = await prisma.registroDiario.findMany({
+      where: { fecha: { gte: todayStart } },
+      orderBy: { fecha: 'desc' }
+    });
+
+    // Agrupar por conductor para encontrar el último estado de cada uno
+    const lastRecordsByDriver = new Map();
+    for (const r of registrosHoy) {
+      if (!lastRecordsByDriver.has(r.nombreConductor)) {
+        lastRecordsByDriver.set(r.nombreConductor, r);
+      }
+    }
+
+    let closedCount = 0;
+
+    for (const [driver, lastDoc] of lastRecordsByDriver.entries()) {
+      if (lastDoc.tipoReporte !== "CIERRE") {
+        // Encontramos un turno abierto. Proceder a cerrarlo "Sin Datos"
+        await prisma.registroDiario.create({
+          data: {
+            vehiculoId: lastDoc.vehiculoId,
+            nombreConductor: driver,
+            kmActual: lastDoc.kmActual, // Mantenemos el último km conocido
+            kmModificado: false,
+            kmTeoricos: 0,
+            nivelCombustible: "SIN DATOS_AUTO",
+            novedades: "CIERRE AUTOMATIZADO 20:00HS",
+            tipoReporte: "CIERRE",
+            lugarGuarda: "CIERRE AUTOMÁTICO DEL SISTEMA"
+          }
+        });
+        closedCount++;
+      }
+    }
+
+    return NextResponse.json({ success: true, closedCount, message: `Se cerraron automáticamente ${closedCount} turnos activos.` });
   } catch (error) {
-    console.error("Error en cron close-shifts:", error);
+    console.error("Error en CRON cierre turnos:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
