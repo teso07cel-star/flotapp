@@ -38,19 +38,61 @@ export async function getDriverOperationalStatus(driverName) {
     if (!driverName) return { success: false, error: "Nombre de conductor requerido" };
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const lastRecord = await getPrisma().registroDiario.findFirst({
+    
+    const lastRecordToday = await getPrisma().registroDiario.findFirst({
        where: { nombreConductor: driverName, fecha: { gte: todayStart } },
        orderBy: { fecha: 'desc' },
        include: { vehiculo: true }
     });
-    if (!lastRecord || lastRecord.tipoReporte === "CIERRE") {
+    
+    if (!lastRecordToday || lastRecordToday.tipoReporte === "CIERRE") {
+       // Buscar el último registro histórico para saber qué vehículo usó por última vez
+       const lastRecordEver = await getPrisma().registroDiario.findFirst({
+          where: { nombreConductor: driverName, vehiculo: { isNot: null } },
+          orderBy: { fecha: 'desc' },
+          include: { vehiculo: true }
+       });
+
        const cleanName = driverName.toString().trim();
        const choferDB = await getPrisma().chofer.findUnique({ where: { nombre: cleanName } });
-       return purify({ success: true, data: { active: false, assignedPatente: choferDB?.patenteAsignada || null, lastKm: 0, proposedKm: 0 } });
+       
+       const patenteSugerida = choferDB?.patenteAsignada || lastRecordEver?.vehiculo?.patente || null;
+       let lastKmSugerido = 0;
+
+       if (patenteSugerida) {
+          // Obtener el último kilometraje conocido de esa patente sugerida
+          const lastRecordVehiculo = await getPrisma().registroDiario.findFirst({
+             where: { vehiculo: { patente: patenteSugerida }, kmActual: { not: null } },
+             orderBy: { fecha: 'desc' }
+          });
+          if (lastRecordVehiculo) {
+             lastKmSugerido = lastRecordVehiculo.kmActual;
+          }
+       }
+
+       return purify({ 
+          success: true, 
+          data: { 
+             active: false, 
+             assignedPatente: patenteSugerida, 
+             lastKm: lastKmSugerido, 
+             proposedKm: lastKmSugerido 
+          } 
+       });
     }
-    const lastKm = lastRecord.kmActual || 0;
-    const addedDistance = lastRecord.kmTeoricos || 0;
-    return purify({ success: true, data: { active: true, vehiculo: lastRecord.vehiculo, lastKm: lastKm, proposedKm: lastKm + addedDistance, lastLogType: lastRecord.tipoReporte } });
+
+    const lastKm = lastRecordToday.kmActual || 0;
+    const addedDistance = lastRecordToday.kmTeoricos || 0;
+    return purify({ 
+       success: true, 
+       data: { 
+          active: true, 
+          vehiculo: lastRecordToday.vehiculo, 
+          lastKm: lastKm, 
+          proposedKm: lastKm + addedDistance, 
+          lastLogType: lastRecordToday.tipoReporte 
+       } 
+    });
   } catch (error) {
     return { success: false, error: error.message };
   }
