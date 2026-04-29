@@ -154,22 +154,40 @@ export async function createRegistroDiario(data) {
 
       if (kmActual !== null) {
         if (lastRecord) {
-          if (kmActual < lastRecord.kmActual) {
-            const vehiculo = await getPrisma().vehiculo.findUnique({
-              where: { id: vehiculoId }
-            });
-
-            if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
-              return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
-            }
-
-            await getPrisma().vehiculo.update({
-              where: { id: vehiculoId },
-              data: { codigoAutorizacion: null }
-            });
+          if (kmActual !== lastRecord.kmActual) {
             kmModificado = true;
-          } else if (kmActual !== lastRecord.kmActual) {
-            kmModificado = true;
+          }
+
+          // PROTOCOLO DE PIN (v9.2): Solo requerir PIN si el reporte es CIERRE, y el KM es igual al inicial del día, habiendo hecho bitácoras
+          if (data.tipoReporte === "CIERRE") {
+             const todayStart = new Date();
+             todayStart.setHours(0, 0, 0, 0);
+             
+             const primerRegistroHoy = await getPrisma().registroDiario.findFirst({
+               where: { vehiculoId, fecha: { gte: todayStart }, kmActual: { not: null } },
+               orderBy: { fecha: 'asc' }
+             });
+             
+             const kmInicio = primerRegistroHoy ? primerRegistroHoy.kmActual : lastRecord.kmActual;
+
+             if (kmActual === kmInicio) {
+                const bitacorasHoy = await getPrisma().registroDiario.count({
+                   where: { vehiculoId, nombreConductor: data.nombreConductor, fecha: { gte: todayStart }, sucursales: { some: {} } }
+                });
+                
+                if (bitacorasHoy > 0) {
+                   const vehiculo = await getPrisma().vehiculo.findUnique({
+                      where: { id: vehiculoId }
+                   });
+                   if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+                      return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+                   }
+                   await getPrisma().vehiculo.update({
+                      where: { id: vehiculoId },
+                      data: { codigoAutorizacion: null }
+                   });
+                }
+             }
           }
         }
       }

@@ -20,9 +20,9 @@ export default function DriverAnalyticsClient({ driverStats }) {
                  <span className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">{d.nombre}</span>
               </div>
               <div className="flex items-center gap-8">
-                 <div className="text-right">
-                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Recorrido</p>
-                    <p className="font-black italic text-xl">{d.totalKm.toLocaleString()} KM</p>
+                 <div className="text-right bg-blue-600 px-6 py-3 rounded-2xl shadow-lg border border-blue-500 hover:scale-105 transition-transform">
+                    <p className="text-[9px] font-black uppercase text-blue-200 tracking-widest">Recorrido Total</p>
+                    <p className="font-black italic text-3xl text-white">{d.totalKm.toLocaleString()} <span className="text-lg">KM</span></p>
                  </div>
                  <div className={`transition-transform duration-300 ${selectedDriver === d.nombre ? "rotate-180" : ""}`}>
                     <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,7 +57,7 @@ export default function DriverAnalyticsClient({ driverStats }) {
                       <div className="space-y-4">
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nodos Impactados (Frecuencia):</p>
                          <div className="flex flex-wrap gap-2">
-                            {d.branchesVisited.map((b, idx) => (
+                            {d.branchDetails?.map((b, idx) => (
                               <span key={idx} className="bg-slate-950 text-white text-[9px] font-black uppercase px-4 py-2 rounded-lg italic tracking-[0.1em] flex items-center gap-2">
                                  <span>{b.nombre}</span>
                                  <span className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-[7px] not-italic">{b.visitas}</span>

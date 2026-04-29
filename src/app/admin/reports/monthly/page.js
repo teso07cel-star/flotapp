@@ -60,7 +60,7 @@ export default async function MonthlyReport({ searchParams }) {
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* CABECERA MINIMALISTA DE ÉLITE */}
-        <header className="p-12 mb-20 text-center relative bg-white border-b-4 border-slate-900 print:mb-10 print:break-after-page">
+        <header className="p-12 mb-20 text-center relative bg-white border-b-4 border-slate-900 print:mb-10">
            <div className="space-y-6">
               <p className="text-[11px] font-sans font-black uppercase tracking-[0.6em] text-slate-400">Sistema de Inteligencia Logística</p>
               <h1 className="text-6xl sm:text-8xl font-black italic tracking-tighter uppercase leading-none text-slate-900">Libro de Ruta</h1>
@@ -77,7 +77,7 @@ export default async function MonthlyReport({ searchParams }) {
         <div className="space-y-32">
           
           {/* SECCIÓN I: RESUMEN DE FLOTA */}
-          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+          <section className="space-y-12 print:hidden mb-24">
              <div className="flex items-center gap-4 mb-10">
                 <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 01</span>
                 <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Desempeño Global de Unidades</h2>
@@ -86,9 +86,9 @@ export default async function MonthlyReport({ searchParams }) {
                <h3 className="text-3xl font-black uppercase tracking-tighter italic">I. Resumen Operativo de Flota</h3>
                <div className="h-[1px] flex-1 bg-slate-200" />
             </div>
-            <div className="border-[12px] border-slate-950 overflow-hidden shadow-[30px_30px_0_rgba(0,0,0,0.05)] bg-white">
-              <table className="w-full text-left border-collapse font-sans">
-                <thead>
+            <div className="border-[12px] border-slate-950 overflow-hidden shadow-[30px_30px_0_rgba(0,0,0,0.05)] bg-white max-h-[500px] overflow-y-auto custom-scrollbar relative">
+              <table className="w-full text-left border-collapse font-sans relative">
+                <thead className="sticky top-0 z-10 shadow-md">
                   <tr className="bg-slate-950 text-white text-[11px] uppercase font-black tracking-widest italic">
                     <th className="p-8 border-r border-white/10 text-center">Unidad / Auditoría</th>
                     <th className="p-8 border-r border-white/10 text-center">Nodos Visitados</th>
@@ -127,7 +127,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN II: INTELIGENCIA POR CONDUCTOR (INTERACTIVO) */}
-          <section className="space-y-12 print:hidden mb-24">
+          <section className="space-y-12 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-blue-600 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 02</span>
                <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Inteligencia Individual por Oficial</h2>
@@ -139,7 +139,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN III: ANÁLISIS DE INVERSIÓN LOGÍSTICA */}
-          <section className="space-y-12 py-10 print:break-after-page print:pt-10 mb-24">
+          <section className="space-y-12 py-10 print:pt-10 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 03</span>
                <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Análisis de Inversión Tecnológica</h2>
@@ -162,7 +162,7 @@ export default async function MonthlyReport({ searchParams }) {
           </section>
 
           {/* SECCIÓN IV: RANKING DE NODOS (CRÍTICOS) */}
-          <section className="space-y-12 print:break-after-page print:pt-10 mb-24">
+          <section className="space-y-12 print:pt-10 mb-24">
             <div className="flex items-center gap-4 mb-10">
                <span className="bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase">Fase 04</span>
                <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 italic">Ranking de Nodos Críticos</h2>

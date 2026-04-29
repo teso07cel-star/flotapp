@@ -298,11 +298,11 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                   />
                </div>
                
-               <div className="grid grid-cols-3 gap-3">
-                  {["LLENO", "1/2", "RESERVA"].map((val, idx) => (
-                    <label key={val} className="cursor-pointer">
+               <div className="flex flex-wrap justify-center gap-3">
+                  {["LLENO", "3/4", "1/2", "1/4", "RESERVA"].map((val, idx) => (
+                    <label key={val} className="cursor-pointer flex-1 min-w-[60px]">
                       <input type="radio" name="nivelCombustible" value={val} defaultChecked={idx===0} className="peer sr-only" required />
-                      <div className="w-full py-6 rounded-2xl font-black text-[9px] uppercase text-slate-600 bg-slate-900 border border-white/5 peer-checked:bg-red-600 peer-checked:text-white transition-all">
+                      <div className="w-full py-4 rounded-2xl font-black text-[9px] uppercase text-slate-600 bg-slate-900 border border-white/5 peer-checked:bg-red-600 peer-checked:text-white transition-all text-center">
                         {val}
                       </div>
                     </label>
@@ -310,6 +310,18 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
                </div>
             </div>
             <div className="flex flex-col gap-5">
+               {showAuth && (
+                  <div className="space-y-4 animate-in fade-in zoom-in duration-300 bg-red-500/10 p-6 rounded-3xl border border-red-500/30">
+                     <label className="block text-[10px] font-black text-red-400 uppercase tracking-[0.6em] text-center mb-2">Código de Seguridad Requerido</label>
+                     <input 
+                        type="text"
+                        value={authCode}
+                        onChange={(e) => setAuthCode(e.target.value)}
+                        placeholder="INGRESE EL PIN"
+                        className="w-full bg-[#020617] text-center border-2 border-red-500/30 rounded-2xl px-5 py-6 text-white font-black text-3xl shadow-2xl focus:border-red-500 outline-none"
+                     />
+                  </div>
+               )}
                {error && (
                   <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
                      <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{error}</p>
