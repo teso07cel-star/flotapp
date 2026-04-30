@@ -21,7 +21,8 @@ model Sucursal {
 model RegistroDiario {
   id              Int      @id @default(autoincrement())
   fecha           DateTime @default(now())
-  kmActual        Int
+  kmActual        Int 
+
   novedades       String?
   novedadResuelta Boolean  @default(false)
   resolucion      String?
