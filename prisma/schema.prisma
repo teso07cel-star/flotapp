@@ -40,3 +40,14 @@ model RegistroDiario {
   vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
   sucursales      Sucursal[]
 }
+
+
+model Gasto {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @default(now())
+  monto       Float
+  descripcion String
+  tipo        String
+  vehiculoId  Int
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+}
