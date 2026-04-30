@@ -29,8 +29,6 @@ async function resolverNovedadAction(formData) {
     const { revalidatePath } = await import("next/cache");
     revalidatePath("/admin");
 }
-}
-
 export default async function AdminDashboard() {
     const [vRes, rRes] = await Promise.all([
           getAllVehiculos(),
