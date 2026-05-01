@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Vehiculo {
@@ -16,9 +17,12 @@ model Vehiculo {
   vtvVencimiento    DateTime?
   seguroVencimiento DateTime?
   proximoServiceKm  Int?
+  proximoCambioCubiertasKm Int?
   activo            Boolean  @default(true)
+  codigoAutorizacion String?
   registros         RegistroDiario[]
   gastos            Gasto[]
+  mantenimientos    Mantenimiento[]
 }
 
 model Sucursal {
@@ -28,12 +32,27 @@ model Sucursal {
   registros RegistroDiario[]
 }
 
+model Chofer {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  dni             String?  @unique
+  patenteAsignada String?
+  deviceId        String?  @unique
+  activo          Boolean  @default(true)
+  registros       RegistroDiario[]
+  autorizaciones  Autorizacion[]
+}
+
 model RegistroDiario {
   id              Int      @id @default(autoincrement())
   fecha           DateTime @default(now())
   kmActual        Int
   novedades       String?
+  novedadResuelta Boolean  @default(false)
+  resolucion      String?
   nombreConductor String?
+  choferId        Int?
+  chofer          Chofer?  @relation(fields: [choferId], references: [id])
   vehiculoId      Int
   vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
   sucursales      Sucursal[]
@@ -48,3 +67,27 @@ model Gasto {
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
 }
+
+model Mantenimiento {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @default(now())
+  tipo        String   // VTV, SEGURO, SERVICE, CUBIERTAS
+  detalle     String?
+  proximoKm   Int?
+  proximaFecha DateTime?
+  vehiculoId  Int
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
+}
+
+model Autorizacion {
+  id          Int      @id @default(autoincrement())
+  tipo        String   // DEVICE_BIND, MILEAGE_AUTH, etc.
+  estado      String   @default("PENDIENTE")
+  fecha       DateTime @default(now())
+  choferId    Int?
+  chofer      Chofer?  @relation(fields: [choferId], references: [id])
+  vehiculoId  Int?
+  vehiculo    Vehiculo? @relation(fields: [vehiculoId], references: [id])
+  datos       String?
+}
+

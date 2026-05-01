@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getVehiculoById, updateVehiculo } from "@/lib/actions";
 import { revalidatePath } from "next/cache";
 import FormattedDate from "@/components/FormattedDate";
+import MileageAuth from "@/components/MileageAuth";
 
 async function saveAction(formData) {
   "use server";
@@ -9,10 +10,22 @@ async function saveAction(formData) {
   const payload = {
     vtvVencimiento: formData.get("vtvVencimiento") || null,
     seguroVencimiento: formData.get("seguroVencimiento") || null,
-    proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null
+    proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null,
+    proximoCambioCubiertasKm: parseInt(formData.get("proximoCambioCubiertasKm")) || null
   };
   await updateVehiculo(id, payload);
   revalidatePath(`/admin/vehicles/${id}`);
+}
+
+async function resolverNovedadAction(formData) {
+  "use server";
+  const id = formData.get("id");
+  const vehicleId = formData.get("vehicleId");
+  const resolucion = formData.get("resolucion");
+  const { resolverNovedad } = await import("@/lib/actions");
+  await resolverNovedad(id, resolucion);
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath(`/admin/vehicles/${vehicleId}`);
 }
 
 export default async function VehicleDetails({ params }) {
@@ -87,6 +100,12 @@ export default async function VehicleDetails({ params }) {
           else if (kmParaService <= 500) alerts.push({ type: 'amber', msg: `Service Cercano: Faltan ${kmParaService} km` });
         }
 
+        const kmParaCubiertas = vehiculo.proximoCambioCubiertasKm ? (vehiculo.proximoCambioCubiertasKm - kmActual) : null;
+        if (kmParaCubiertas !== null) {
+            if (kmParaCubiertas <= 500) alerts.push({ type: 'red', msg: `CUBIERTAS CRÍTICO: Faltan ${kmParaCubiertas} km` });
+            else if (kmParaCubiertas <= 2000) alerts.push({ type: 'amber', msg: `Cubiertas Próximas: Faltan ${kmParaCubiertas} km` });
+        }
+
         if (alerts.length === 0) return null;
 
         return (
@@ -141,6 +160,16 @@ export default async function VehicleDetails({ params }) {
                   placeholder="Ej. 150000"
                 />
               </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Próx. Cambio Cubiertas (km)</label>
+                <input
+                  name="proximoCambioCubiertasKm"
+                  type="number"
+                  defaultValue={vehiculo.proximoCambioCubiertasKm || ""}
+                  className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
+                  placeholder="Ej. 200000"
+                />
+              </div>
 
               <button
                 type="submit"
@@ -164,6 +193,8 @@ export default async function VehicleDetails({ params }) {
               ))}
             </div>
           </div>
+
+          <MileageAuth vehiculoId={vehiculo.id} initialCode={vehiculo.codigoAutorizacion} />
         </div>
 
         {/* Columna Derecha: Historial */}
@@ -201,8 +232,24 @@ export default async function VehicleDetails({ params }) {
                   </div>
 
                   {r.novedades && (
-                    <div className="bg-amber-50 dark:bg-amber-500/5 p-4 rounded-2xl border border-amber-100 dark:border-amber-500/10 text-sm font-medium italic text-amber-900 dark:text-amber-200">
+                    <div className={`p-4 rounded-2xl border text-sm font-medium leading-relaxed ${r.novedadResuelta ? 'bg-emerald-50 dark:bg-emerald-500/5 text-emerald-900 dark:text-emerald-200 border-emerald-100 dark:border-emerald-500/10' : 'bg-amber-50 dark:bg-amber-500/5 text-amber-900 dark:text-amber-200 border-amber-100 dark:border-amber-500/10 italic'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                         <span className="font-black uppercase text-[9px] tracking-widest">{r.novedadResuelta ? 'Resuelto' : 'Aviso del Conductor'}</span>
+                         {!r.novedadResuelta && (
+                            <form action={resolverNovedadAction} className="flex gap-2">
+                               <input type="hidden" name="id" value={r.id} />
+                               <input type="hidden" name="vehicleId" value={vehiculo.id} />
+                               <input name="resolucion" placeholder="Cómo se arregló..." className="text-[9px] px-3 py-1 bg-white dark:bg-gray-950 border border-amber-200 dark:border-amber-500/30 rounded-lg outline-none" required />
+                               <button type="submit" className="text-[9px] font-black uppercase text-amber-600 hover:text-emerald-600 transition-colors">Marcar Solucionado</button>
+                            </form>
+                         )}
+                      </div>
                       &quot;{r.novedades}&quot;
+                      {r.resolucion && (
+                        <div className="mt-3 pt-3 border-t border-emerald-100 dark:border-emerald-500/10 text-[10px] font-bold not-italic">
+                           <span className="opacity-50 mr-1 uppercase">Resolución:</span> {r.resolucion}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

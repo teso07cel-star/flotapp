@@ -8,7 +8,8 @@ async function createVehiculoAction(formData) {
     patente: formData.get("patente")?.toString().toUpperCase(),
     vtvVencimiento: formData.get("vtvVencimiento") || null,
     seguroVencimiento: formData.get("seguroVencimiento") || null,
-    proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null
+    proximoServiceKm: parseInt(formData.get("proximoServiceKm")) || null,
+    proximoCambioCubiertasKm: parseInt(formData.get("proximoCambioCubiertasKm")) || null
   };
 
   if (!payload.patente) return; // Should be handled by required attribute
@@ -67,6 +68,15 @@ export default function NewVehicle() {
               type="number"
               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
               placeholder="Ej. 150000"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Próx. Cambio Cubiertas (km)</label>
+            <input
+              name="proximoCambioCubiertasKm"
+              type="number"
+              className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+              placeholder="Ej. 200000"
             />
           </div>
 

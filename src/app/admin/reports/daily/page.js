@@ -1,6 +1,7 @@
 import { getDailyReport } from "@/lib/actions";
 import Link from "next/link";
 import FormattedDate from "@/components/FormattedDate";
+import PrintButton from "@/components/PrintButton";
 
 export default async function DailyReport({ searchParams }) {
   const params = await searchParams;
@@ -24,24 +25,29 @@ export default async function DailyReport({ searchParams }) {
   const branchEntries = Object.entries(stats.branchBreakdown || {});
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 dark">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-600 dark:text-blue-400">Reporte Diario</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest">Actividad operativa por fecha</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-400">Libro de Ruta</h1>
+          <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Actividad operativa diaria</p>
+        </div>
+
+        <div className="flex items-center gap-4 no-print">
+          <PrintButton />
         </div>
         
-        <form className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5">
-          <label className="pl-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Fecha:</label>
+        <form className="flex items-center gap-3 bg-gray-900 p-2 rounded-2xl border border-gray-800 shadow-xl shadow-black/5">
+          <label className="pl-4 text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha:</label>
           <input 
             name="date"
             type="date" 
             defaultValue={dateStr}
-            className="bg-transparent text-sm font-bold outline-none p-2 border-r border-gray-100 dark:border-gray-800"
+            className="bg-transparent text-sm font-bold outline-none p-2 border-r border-gray-800 text-white"
           />
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Ver Día</button>
         </form>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">

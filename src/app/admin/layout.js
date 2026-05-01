@@ -11,36 +11,37 @@ export default async function AdminLayout({ children }) {
   // Si no queremos mostrar el sidebar en /login, lo ocultamos aqu
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row font-sans text-gray-900 dark:text-gray-100 selection:bg-blue-500/30">
+    <div className="min-h-screen bg-gray-950 flex flex-col md:flex-row font-sans text-gray-100 selection:bg-blue-500/30 dark">
       {/* Sidebar */}
       {isAuth && (
-        <aside className="w-full md:w-64 bg-white dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800 flex-shrink-0 z-20">
+        <aside className="w-full md:w-64 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex-shrink-0 z-20 no-print">
           <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
-               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+            <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-600/30">
                  F
                </div>
-               <span className="text-xl font-bold tracking-tight">FlotaAdmin</span>
+               <span className="text-xl font-black tracking-tighter uppercase italic">FlotApp</span>
             </div>
             
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-              <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                 Vehículos & Registros
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+              <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-blue-400 transition-all cursor-pointer group">
+                 <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                 <span className="text-xs font-black uppercase tracking-widest">Panel General</span>
               </Link>
-              <Link href="/admin/branches" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                 Sucursales
+              <Link href="/admin/reports/daily" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-blue-400 transition-all cursor-pointer group">
+                 <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m3 2h12a2 2 0 002-2v-3a2 2 0 00-2-2h-3M9 19H3m9 0a3 3 0 01-3 3H7a3 3 0 01-3-3m9 0h6m-9-4V3a2 2 0 012-2h6a2 2 0 012 2v12m-5-8v1m-3 8v1m-3-10V5m-4 0h4"/></svg>
+                 <span className="text-xs font-black uppercase tracking-widest">Libro de Ruta</span>
               </Link>
-              <Link href="/admin/reports/daily" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m3 2h12a2 2 0 002-2v-3a2 2 0 00-2-2h-3M9 19H3m9 0a3 3 0 01-3 3H7a3 3 0 01-3-3m9 0h6m-9-4V3a2 2 0 012-2h6a2 2 0 012 2v12m-5-8v1m-3 8v1m-3-10V5m-4 0h4"/></svg>
-                 Reporte Diario
+              <Link href="/admin/summary" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-blue-400 transition-all cursor-pointer group">
+                 <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.623 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.623-1M12 16v1m4-12V3c0-1.1-.9-2-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2h4v-1.1a1 1 0 01.1-.5l.9-1.8c.2-.4.4-.8.7-1a4 4 0 012.3-1z"/></svg>
+                 <span className="text-xs font-black uppercase tracking-widest">Inteligencia Logística</span>
               </Link>
-              <Link href="/admin/expenses" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.623 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.623-1M12 16v1m4-12V3c0-1.1-.9-2-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2h4v-1.1a1 1 0 01.1-.5l.9-1.8c.2-.4.4-.8.7-1a4 4 0 012.3-1z"/></svg>
-                 Gastos Globales
+              <Link href="/admin/branches" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-blue-400 transition-all cursor-pointer group">
+                 <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                 <span className="text-xs font-black uppercase tracking-widest">Sucursales</span>
               </Link>
             </nav>
+
 
             <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
                <form action={logoutAdmin}>

@@ -1,6 +1,9 @@
 "use server";
-import prisma from "./prisma";
+import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
+
+const getArDate = () => new Date(new Date().toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+
 
 export async function getVehiculoByPatente(patente) {
   try {
@@ -39,6 +42,7 @@ export async function createVehiculo(data) {
         vtvVencimiento: data.vtvVencimiento ? new Date(data.vtvVencimiento) : null,
         seguroVencimiento: data.seguroVencimiento ? new Date(data.seguroVencimiento) : null,
         proximoServiceKm: data.proximoServiceKm ? parseInt(data.proximoServiceKm) : null,
+        proximoCambioCubiertasKm: data.proximoCambioCubiertasKm ? parseInt(data.proximoCambioCubiertasKm) : null,
       }
     });
     revalidatePath("/admin");
@@ -54,6 +58,7 @@ export async function updateVehiculo(id, data) {
     if (updateData.vtvVencimiento) updateData.vtvVencimiento = new Date(updateData.vtvVencimiento);
     if (updateData.seguroVencimiento) updateData.seguroVencimiento = new Date(updateData.seguroVencimiento);
     if (updateData.proximoServiceKm !== undefined) updateData.proximoServiceKm = parseInt(updateData.proximoServiceKm) || null;
+    if (updateData.proximoCambioCubiertasKm !== undefined) updateData.proximoCambioCubiertasKm = parseInt(updateData.proximoCambioCubiertasKm) || null;
 
     const vehiculo = await prisma.vehiculo.update({
       where: { id: parseInt(id) },
@@ -88,14 +93,112 @@ export async function addSucursal(nombre, direccion) {
   }
 }
 
+export async function getAllChoferes() {
+  try {
+    const choferes = await prisma.chofer.findMany({ 
+      where: { activo: true },
+      orderBy: { nombre: 'asc' } 
+    });
+    return { success: true, data: choferes };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function addChofer(data) {
+  try {
+    const c = await prisma.chofer.create({
+      data: {
+        nombre: data.nombre,
+        dni: data.dni,
+        patenteAsignada: data.patenteAsignada?.toUpperCase().trim() || null,
+        deviceId: data.deviceId || null
+      }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true, data: c };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteChofer(id) {
+  try {
+    await prisma.chofer.update({
+      where: { id: parseInt(id) },
+      data: { activo: false }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateChoferPatente(choferId, patente) {
+  try {
+    const c = await prisma.chofer.update({
+      where: { id: parseInt(choferId) },
+      data: { patenteAsignada: patente?.toUpperCase().trim() || null }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true, data: c };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resetDriverDevice(choferId) {
+  try {
+    await prisma.chofer.update({
+      where: { id: parseInt(choferId) },
+      data: { deviceId: null }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+
 export async function createRegistroDiario(data) {
   try {
+    const vehiculoId = parseInt(data.vehiculoId);
+    const kmActual = parseInt(data.kmActual);
+
+    // Buscar el último registro para este vehículo
+    const lastRecord = await prisma.registroDiario.findFirst({
+      where: { vehiculoId },
+      orderBy: { fecha: 'desc' }
+    });
+
+    if (lastRecord && kmActual <= lastRecord.kmActual) {
+      // Si el kilometraje no aumentó, verificamos el código de autorización
+      const vehiculo = await prisma.vehiculo.findUnique({
+        where: { id: vehiculoId }
+      });
+
+      if (!data.authCode || data.authCode !== vehiculo.codigoAutorizacion) {
+        return { success: false, error: "MILEAGE_AUTH_REQUIRED" };
+      }
+
+      // Si el código es correcto, lo limpiamos (se usa una sola vez)
+      await prisma.vehiculo.update({
+        where: { id: vehiculoId },
+        data: { codigoAutorizacion: null }
+      });
+    }
+
     const registro = await prisma.registroDiario.create({
       data: {
-        vehiculoId: parseInt(data.vehiculoId),
-        kmActual: parseInt(data.kmActual),
+        vehiculoId,
+        kmActual,
         novedades: data.novedades || null,
+        novedadResuelta: false,
         nombreConductor: data.nombreConductor || null,
+        choferId: data.choferId ? parseInt(data.choferId) : null,
+        fecha: getArDate(),
         sucursales: {
           connect: data.sucursalIds ? data.sucursalIds.map(id => ({ id: parseInt(id) })) : []
         }
@@ -108,6 +211,39 @@ export async function createRegistroDiario(data) {
     return { success: false, error: error.message };
   }
 }
+
+export async function addMantenimiento(data) {
+  try {
+    const m = await prisma.mantenimiento.create({
+      data: {
+        vehiculoId: parseInt(data.vehiculoId),
+        tipo: data.tipo,
+        detalle: data.detalle,
+        proximoKm: data.proximoKm ? parseInt(data.proximoKm) : null,
+        proximaFecha: data.proximaFecha ? new Date(data.proximaFecha) : null,
+        fecha: getArDate()
+      }
+    });
+    
+    // Actualizar el vehículo con el nuevo recordatorio
+    const updateData = {};
+    if (data.tipo === "VTV") updateData.vtvVencimiento = data.proximaFecha ? new Date(data.proximaFecha) : null;
+    if (data.tipo === "SEGURO") updateData.seguroVencimiento = data.proximaFecha ? new Date(data.proximaFecha) : null;
+    if (data.tipo === "SERVICE") updateData.proximoServiceKm = data.proximoKm ? parseInt(data.proximoKm) : null;
+    if (data.tipo === "CUBIERTAS") updateData.proximoCambioCubiertasKm = data.proximoKm ? parseInt(data.proximoKm) : null;
+    
+    await prisma.vehiculo.update({
+      where: { id: parseInt(data.vehiculoId) },
+      data: updateData
+    });
+
+    revalidatePath("/admin/vehicles/[id]", "page");
+    return { success: true, data: m };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 
 export async function addGasto(formData) {
   try {
@@ -173,6 +309,156 @@ export async function deleteSucursal(id) {
   }
 }
 
+export async function updateSucursal(id, data) {
+  try {
+    const s = await prisma.sucursal.update({
+      where: { id: parseInt(id) },
+      data: {
+        nombre: data.nombre,
+        direccion: data.direccion
+      }
+    });
+    revalidatePath("/admin/branches");
+    return { success: true, data: s };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function generarCodigoAutorizacion(vehiculoId) {
+  try {
+    const nuevoCodigo = Math.floor(1000 + Math.random() * 9000).toString();
+    await prisma.vehiculo.update({
+      where: { id: parseInt(vehiculoId) },
+      data: { codigoAutorizacion: nuevoCodigo }
+    });
+    revalidatePath("/admin/vehicles/[id]", "page");
+    return { success: true, code: nuevoCodigo };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resolverNovedad(registroId, resolucion) {
+  try {
+    await prisma.registroDiario.update({
+      where: { id: parseInt(registroId) },
+      data: {
+        novedadResuelta: true,
+        resolucion: resolucion
+      }
+    });
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getAutorizacionesPendientes() {
+  try {
+    const auths = await prisma.autorizacion.findMany({
+      where: { estado: "PENDIENTE" },
+      include: { chofer: true, vehiculo: true },
+      orderBy: { fecha: 'desc' }
+    });
+    return { success: true, data: auths };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function aprobarAutorizacion(id) {
+  try {
+    const auth = await prisma.autorizacion.findUnique({ where: { id: parseInt(id) } });
+    if (!auth) return { success: false, error: "Autorización no encontrada" };
+
+    if (auth.tipo === "DEVICE_BIND") {
+      const { deviceId } = JSON.parse(auth.datos);
+      await prisma.chofer.update({
+        where: { id: auth.choferId },
+        data: { deviceId }
+      });
+    }
+
+    await prisma.autorizacion.update({
+      where: { id: parseInt(id) },
+      data: { estado: "APROBADA" }
+    });
+
+    revalidatePath("/admin/choferes");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function rechazarAutorizacion(id) {
+  try {
+    await prisma.autorizacion.update({
+      where: { id: parseInt(id) },
+      data: { estado: "RECHAZADA" }
+    });
+    revalidatePath("/admin/choferes");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function solicitarAutorizacion(data) {
+  try {
+    const auth = await prisma.autorizacion.create({
+      data: {
+        tipo: data.tipo,
+        choferId: data.choferId ? parseInt(data.choferId) : null,
+        vehiculoId: data.vehiculoId ? parseInt(data.vehiculoId) : null,
+        datos: data.datos ? JSON.stringify(data.datos) : null,
+        fecha: getArDate()
+      }
+    });
+    return { success: true, data: auth };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function checkEstadoAutorizacion(id) {
+  try {
+    const auth = await prisma.autorizacion.findUnique({ where: { id: parseInt(id) } });
+    return { success: true, data: auth };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function bindDriverToDevice(choferId, deviceId) {
+  try {
+    // Primero solicitamos autorización
+    return await solicitarAutorizacion({
+      tipo: "DEVICE_BIND",
+      choferId,
+      datos: { deviceId }
+    });
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resetSystem() {
+  try {
+    // Acción peligrosa: Limpiar datos operativos (Bitácoras y Gastos) para nueva temporada
+    await prisma.registroDiario.deleteMany({});
+    await prisma.gasto.deleteMany({});
+    await prisma.autorizacion.deleteMany({});
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+
 export async function deleteRegistroDiario(id) {
   try {
     await prisma.registroDiario.delete({ where: { id: parseInt(id) } });
@@ -223,20 +509,35 @@ export async function getMonthlySummary(month, year) {
       };
     });
 
-    const currentMonthVisits = allRegistros.filter(r => {
+    const currentMonthRecords = allRegistros.filter(r => {
       if (!r.fecha) return false;
       const d = new Date(r.fecha);
       return d.getMonth() === month && d.getFullYear() === year;
     });
     
-    const totalFleetVisits = currentMonthVisits.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0);
+    const totalFleetVisits = currentMonthRecords.reduce((sum, r) => sum + (r.sucursales?.length || 0), 0);
+    const totalFleetKm = summary.reduce((sum, s) => sum + s.kmRecorridos, 0);
+    const unitsUsed = summary.filter(s => s.cantidadRegistros > 0).length;
 
-    return { success: true, data: { summary, totalFleetVisits } };
+    // Pricing info updated
+    const pricingNote = "Aprox. 70 USD/mes (sujeto a variaciones de proveedores de IA y capacidad)";
+
+    return { 
+      success: true, 
+      data: { 
+        summary, 
+        totalFleetVisits, 
+        totalFleetKm, 
+        unitsUsed, 
+        pricingNote 
+      } 
+    };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
     return { success: false, error: error.message, data: [] };
   }
 }
+
 
 export async function getUltimosRegistros(limit = 10) {
   try {
@@ -318,7 +619,7 @@ export async function handleDriverEntry(formData) {
 export async function getDailyReport(dateString) {
   try {
     if (!dateString) {
-        dateString = new Date().toISOString().split('T')[0];
+        dateString = new Date().toLocaleString("en-CA", {timeZone: "America/Argentina/Buenos_Aires"}).split(',')[0];
     }
     
     //console.log("Fetching daily report for:", dateString);
