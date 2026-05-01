@@ -16,9 +16,18 @@ async function commitChanges() {
       message: 'Mejoras premium: modo oscuro y nuevas secciones'
     });
     console.log('Committed successfully! SHA:', sha);
+    
+    // Create branch principal if it doesn't exist
+    try {
+      await git.branch({ fs, dir, ref: 'principal', force: true });
+      console.log('Branch principal created/updated');
+    } catch (e) {
+      console.log('Branch principal already exists or error:', e.message);
+    }
   } catch (err) {
     console.error('Error committing:', err);
   }
 }
+
 
 commitChanges();
