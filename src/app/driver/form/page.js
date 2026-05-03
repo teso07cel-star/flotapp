@@ -1,159 +1,163 @@
-export const dynamic = 'force-dynamic';
-import { getVehiculoByPatente, getAllSucursales, handleDriverEntry, getDriverOperationalStatus } from "@/lib/appActions";
-import { redirect } from "next/navigation";
-import DriverFormClient from "@/components/DriverFormClient";
-import { cookies } from "next/headers";
-import LogoutButton from "@/components/LogoutButton";
-import PatenteSelector from "@/components/PatenteSelector";
-import { MASTER_SUCURSALES } from "@/lib/constants";
+"use client";
 
-/**
- * DriverForm v8.6 - BLINDAJE ATÓMICO
- * Eliminada toda posibilidad de bloqueo por redirección o fallo de DB.
- */
-export default async function DriverForm({ searchParams }) {
-  let patente = null;
-  let identifiedDriver = null;
-  let redirectTarget = null;
+export const dynamic = "force-dynamic";
 
-  // 1. OBTENER IDENTIDAD Y PARÁMETROS (Blindado)
-  try {
-    const params = await searchParams;
-    patente = params?.patente;
-    const cookieStore = await cookies();
-    const rawDriverName = cookieStore.get("driver_name")?.value;
-    identifiedDriver = rawDriverName ? decodeURIComponent(rawDriverName).trim() : null;
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { getAllSucursales, saveRegistroDiario } from "@/lib/actions";
+import Link from "next/link";
 
-    if (!identifiedDriver) {
-      redirectTarget = "/driver/entry";
+function DriverFormContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const patente = searchParams.get("patente") || "PGX770";
+  const choferId = searchParams.get("choferId");
+
+  const [sucursales, setSucursales] = useState([]);
+  const [selectedSucursales, setSelectedSucursales] = useState([]);
+  const [kmActual, setKmActual] = useState("");
+  const [novedades, setNovedades] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getAllSucursales().then(res => {
+      if (res.success) setSucursales(res.data);
+    });
+  }, []);
+
+  const toggleSucursal = (id) => {
+    setSelectedSucursales(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!kmActual) return alert("Ingresa el KM actual");
+    
+    setLoading(true);
+    const res = await saveRegistroDiario({
+      patente,
+      choferId: parseInt(choferId),
+      kmActual: parseInt(kmActual),
+      novedades,
+      sucursales: selectedSucursales
+    });
+
+    if (res.success) {
+      router.push("/?success=true");
+    } else {
+      alert("Error: " + res.error);
+      setLoading(false);
     }
-  } catch (e) {
-    console.error("Error inicial en DriverForm:", e);
-  }
-
-  if (redirectTarget) redirect(redirectTarget);
-
-  // 2. CARGA DE DATOS STATUS PRIMERO PARA AUTO-ASIGNACIÓN
-  let vehiculoRes = { success: false, data: { patente: patente || "NUEVA", categoria: "AUTO", id: 0 } };
-  let sucursalesRes = { success: true, data: MASTER_SUCURSALES };
-  let statusRes = { success: true, data: { active: false, proposedKm: 0, lastKm: 0, assignedPatente: null } };
-
-  try {
-    const statusData = await getDriverOperationalStatus(identifiedDriver);
-    if (statusData?.success) statusRes.data = statusData.data;
-  } catch (error) {
-    console.error("Fallo carga de status:", error);
-  }
-
-  // AUTO-SELECCIÓN TÁCTICA DE PATENTE (Pedida por Brian AUDIO 1)
-  let effectivePatente = patente;
-  if (!effectivePatente || effectivePatente === "NUEVA") {
-      if (statusRes.data.active && statusRes.data.vehiculo?.patente) {
-         effectivePatente = statusRes.data.vehiculo.patente;
-      } else if (statusRes.data.assignedPatente) {
-         effectivePatente = statusRes.data.assignedPatente;
-      }
-  }
-
-  try {
-    const results = await Promise.allSettled([
-      effectivePatente && effectivePatente !== "NUEVA" ? getVehiculoByPatente(effectivePatente) : Promise.resolve({ success: false }),
-      getAllSucursales()
-    ]);
-
-    if (results[0].status === 'fulfilled' && results[0].value?.success && results[0].value.data) {
-      vehiculoRes.data = results[0].value.data;
-      vehiculoRes.success = true;
-    }
-    if (results[1].status === 'fulfilled' && results[1].value?.success) {
-      sucursalesRes.data = results[1].value.data;
-    }
-  } catch (error) {
-    console.error("Fallo carga resiliente:", error);
-  }
-
-  const vehiculo = vehiculoRes.data;
-  const sucursales = sucursalesRes.data;
-  const operationalStatus = statusRes.data;
-  const lastLog = vehiculo.registros?.[0];
-  const isFirstLog = !operationalStatus.active;
-  const proposedKm = operationalStatus.proposedKm || (lastLog?.kmActual || 0);
-  
-  // Update effectivePatente so UI knows we bypassed the selector
-  const showSelector = !effectivePatente || effectivePatente === "NUEVA";
+  };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200 p-4 sm:p-12 flex items-center justify-center relative overflow-hidden selection:bg-blue-500/30">
-      <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-[0.02] pointer-events-none" />
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-xl relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-        <LogoutButton />
-        <div className="glass-panel p-8 sm:p-14 rounded-[4rem] blue-glow-border relative overflow-hidden bg-slate-900/40 backdrop-blur-2xl shadow-3xl">
-          <div className="absolute top-0 right-0 p-10 opacity-40 pointer-events-none mix-blend-screen overflow-visible group">
-             {vehiculo.categoria === "MOTO" ? (
-               <img src="/icons/moto.png" className="w-64 grayscale contrast-125 brightness-110 rotate-3 group-hover:rotate-0 transition-transform duration-1000" alt="Moto" />
-             ) : (vehiculo.categoria === "PICKUP" || vehiculo.categoria === "CAMIONETA") ? (
-               <img src="/icons/pickup.png" className="w-96 relative top-6 right-6 grayscale brightness-[0.8] contrast-[1.3] -rotate-2 group-hover:rotate-0 transition-transform duration-1000" alt="Unidad Pesada" />
-             ) : (
-               <img src="/icons/etios.png" className="w-80 relative top-10 right-10 brightness-110 contrast-125 rotate-2 group-hover:rotate-0 transition-transform duration-1000" alt="Unidad Ligera" />
-             )}
-          </div>
-          
-          <div className="flex flex-col gap-8 mb-12 pb-12 border-b border-white/10 relative z-10">
-            <div className="flex items-center gap-6">
-              <div className="h-20 w-40 bg-blue-600/10 rounded-3xl flex items-center justify-center border-2 border-blue-500/30 shadow-2xl relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-blue-500/5 blur-xl group-hover:bg-blue-500/20 transition-all duration-500" />
-                 <span className="font-mono font-black text-white tracking-[0.25em] text-3xl relative z-10 uppercase drop-shadow-lg">{vehiculo.patente}</span>
-              </div>
-              <div className="space-y-1">
-                <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">
-                  Protocolo <span className="text-blue-500">Operativo</span>
-                </h1>
-                <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.5em] flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Registro de Bitácora B8.4
-                </p>
-              </div>
-            </div>
-
-            {!vehiculoRes.success && patente !== "NUEVA" && (
-              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-500 text-[9px] font-black uppercase tracking-[0.3em] text-center animate-pulse shadow-inner">
-                 Advertencia: Modo Resiliente — Cargando Sucursales de Respaldo
-              </div>
-            )}
-          </div>
-
-          <div className="relative z-10">
-            {showSelector ? (
-              <form action={handleDriverEntry} className="space-y-8">
-                <input type="hidden" name="nombreConductor" value={identifiedDriver} />
-                <PatenteSelector defaultPatente={
-                   vehiculo.patente !== "NUEVA" ? vehiculo.patente : 
-                   (operationalStatus.active ? operationalStatus.vehiculo?.patente : operationalStatus.assignedPatente) 
-                } />
-              </form>
-            ) : (
-              <DriverFormClient 
-                vehiculo={vehiculo} 
-                sucursales={sucursales} 
-                lastLog={lastLog} 
-                identifiedDriver={identifiedDriver}
-                isFirstLog={isFirstLog}
-                operationalStatus={operationalStatus}
-                proposedKm={proposedKm}
-              />
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#050b18] text-white flex flex-col items-center p-4 selection:bg-blue-500/30 font-sans overflow-x-hidden">
+      <div className="w-full max-w-sm flex flex-col items-center py-10">
         
-        <div className="mt-8 flex justify-center gap-8 opacity-30 select-none grayscale">
-           <img src="/icons/toyota.png" className="h-4 object-contain" alt="Toyota" />
-           <div className="w-px h-4 bg-white/20" />
-           <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">FlotApp Tactical Division</span>
+        <div className="w-full bg-[#0a1428] border-2 border-blue-500/30 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden mb-12">
+           <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
+           
+           <div className="flex justify-between items-start mb-6">
+              <div className="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest italic shadow-lg shadow-blue-600/40">
+                 NR07
+              </div>
+              <div className="text-right">
+                 <h4 className="text-blue-500 font-black text-[10px] uppercase tracking-widest leading-none">Protocolo</h4>
+                 <p className="text-white font-black text-xs uppercase tracking-tighter italic">Operativo</p>
+              </div>
+           </div>
+
+           <div className="flex flex-col items-center mb-8">
+              <img 
+                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=400" 
+                alt="Vehicle" 
+                className="h-20 object-contain drop-shadow-[0_10px_30px_rgba(255,255,255,0.1)] mb-4"
+              />
+              <h1 className="text-5xl font-black tracking-[0.1em] italic uppercase text-white leading-none">{patente}</h1>
+              <p className="text-gray-500 font-bold text-[9px] uppercase tracking-[0.4em] mt-2">ID_DRIVER: {choferId || "OFFLINE"}</p>
+           </div>
+
+           <form onSubmit={handleSubmit} className="space-y-8">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Kilometraje Actual</label>
+                <input 
+                  type="number" 
+                  value={kmActual}
+                  onChange={(e) => setKmActual(e.target.value)}
+                  placeholder="000.000"
+                  required
+                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-black text-3xl text-center focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-gray-800"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Ruta / Sucursales</label>
+                <div className="flex flex-wrap gap-2 justify-center max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                   {sucursales.map(s => (
+                     <button
+                       key={s.id}
+                       type="button"
+                       onClick={() => toggleSucursal(s.id)}
+                       className={`px-4 py-3 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${
+                         selectedSucursales.includes(s.id) 
+                         ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105" 
+                         : "bg-black/40 border-white/5 text-gray-500 hover:border-white/20"
+                       }`}
+                     >
+                        {s.nombre}
+                     </button>
+                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Novedades / Observaciones</label>
+                <textarea 
+                  value={novedades}
+                  onChange={(e) => setNovedades(e.target.value)}
+                  placeholder="Escribe aquí cualquier novedad..."
+                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-bold text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all h-24 resize-none placeholder:text-gray-800"
+                />
+              </div>
+
+              <button 
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/40 active:scale-95 flex items-center justify-center gap-3"
+              >
+                {loading ? "Sincronizando..." : "Confirmar Reporte"}
+                {!loading && <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>}
+              </button>
+           </form>
         </div>
+
+        <Link href="/driver/entry" className="text-[10px] font-black text-gray-600 uppercase tracking-widest hover:text-white transition-colors">
+          Cambiar de Operador
+        </Link>
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0,0,0,0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59,130,246,0.3);
+          border-radius: 10px;
+        }
+      `}</style>
     </div>
+  );
+}
+
+export default function DriverForm() {
+  return (
+    <Suspense>
+      <DriverFormContent />
+    </Suspense>
   );
 }
