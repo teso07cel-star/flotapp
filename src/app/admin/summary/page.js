@@ -1,179 +1,104 @@
-export const dynamic = 'force-dynamic';
-import { getMonthlyReport } from "@/lib/appActions";
-import PrintButton from "@/components/PrintButton";
-import ShareReportButton from "@/components/ShareReportButton";
+import { getMonthlySummary } from "@/lib/actions";
 import Link from "next/link";
-import { MASTER_VEHICULOS } from "@/lib/constants";
+export const dynamic = "force-dynamic";
 
 export default async function MonthlySummary({ searchParams }) {
   const params = await searchParams;
-  const month = params.month || new Date().getMonth() + 1;
-  const year = params.year || new Date().getFullYear();
+  const month = params.month ? parseInt(params.month) : new Date().getMonth();
+  const year = params.year ? parseInt(params.year) : new Date().getFullYear();
 
-  let data = null;
-  let errorStatus = null;
+  const res = await getMonthlySummary(month, year);
+  const summary = res.success ? res.data : [];
 
-  try {
-    const res = await getMonthlyReport(month, year);
-    if (res.success) {
-      data = res.data;
-    } else {
-      console.warn("Fallback en Reporte Mensual");
-      data = { vehicles: MASTER_VEHICULOS.map(v => ({ ...v, totalKm: 0, totalTrips: 0 })), totalKm: 0, totalTrips: 0 };
-      errorStatus = "FALLBACK";
-    }
-  } catch (error) {
-    console.error("Error en Reporte Mensual:", error);
-    data = { vehicles: MASTER_VEHICULOS.map(v => ({ ...v, totalKm: 0, totalTrips: 0 })), totalKm: 0, totalTrips: 0 };
-    errorStatus = "CRITICAL";
-  }
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
 
-  const getVehicleIcon = (category) => {
-    const cat = (category || "").toUpperCase();
-    if (cat.includes("MOTO")) return "/icons/moto_tactic.png";
-    if (cat.includes("PICKUP") || cat.includes("CAMIONETA")) return "/icons/pickup_tactic.png";
-    return "/icons/etios_tactic_v2.png";
-  };
+  const totalFlotaGastos = summary.reduce((sum, v) => sum + v.totalGastos, 0);
+  const totalFlotaKm = summary.reduce((sum, v) => sum + v.kmRecorridos, 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8 md:p-12 animate-in fade-in duration-700 font-sans print:bg-white print:text-black">
-      {/* HUD Header */}
-      <div className="max-w-6xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#050b18] text-white p-4 md:p-8 space-y-12 animate-in fade-in duration-500 pb-20 selection:bg-blue-500/30">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div>
+          <h1 className="text-5xl font-black tracking-tighter mb-2 uppercase italic text-white leading-none">Estado de Flota</h1>
+          <p className="text-blue-500 font-black uppercase text-[10px] tracking-[0.4em] opacity-80 mt-2">INTELIGENCIA OPERATIVA Y FINANCIERA</p>
+        </div>
         
-        {errorStatus && (
-           <div className="bg-blue-600/10 border border-blue-500/20 p-4 rounded-3xl text-center">
-              <p className="text-[10px] font-black uppercase text-blue-400 tracking-[0.3em] animate-pulse">
-                Modo Auditoría de Respaldo Activo (Off-Grid)
-              </p>
-           </div>
-        )}
+        <form className="flex items-center gap-2 bg-[#0a1428] p-1.5 rounded-2xl border border-white/5 shadow-2xl backdrop-blur-xl">
+          <select 
+            name="month"
+            defaultValue={month}
+            className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none px-4 py-3 border-r border-white/5 appearance-none cursor-pointer hover:text-blue-400 transition-colors"
+          >
+            {months.map((m, i) => (
+              <option key={m} value={i} className="bg-[#0a1428]">{m}</option>
+            ))}
+          </select>
+          <input 
+            name="year"
+            type="number" 
+            defaultValue={year}
+            className="bg-transparent text-[10px] font-black w-16 outline-none px-4 py-3 tracking-widest"
+          />
+          <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 active:scale-95">Sincronizar</button>
+        </form>
+      </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-white/5 pb-10 print:hidden">
-          <div className="space-y-2">
-             <div className="flex items-center gap-3">
-                <div className="h-0.5 w-8 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">Métrica Auditoría v8.4.2</span>
-             </div>
-             <h1 className="text-7xl font-black italic tracking-tighter uppercase text-white drop-shadow-2xl">
-               El <span className="text-blue-500">Libro</span>
-             </h1>
-             <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.5em] pl-1 flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                Consolidado Mensual de Operaciones
-             </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4">
-             <ShareReportButton month={month} year={year} />
-             <PrintButton />
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-           <div className="bg-blue-600 rounded-[3rem] p-10 shadow-3xl shadow-blue-500/20 relative group overflow-hidden">
-             <div className="relative z-10 space-y-2">
-                <p className="text-blue-200/60 text-[9px] font-black uppercase tracking-widest italic">Recorrido Total Flota</p>
-                <div className="flex items-end gap-3">
-                  <h2 className="text-7xl font-black tracking-tighter leading-none">{data.totalKm.toLocaleString()}</h2>
-                  <span className="text-xl font-bold bg-white/20 px-3 py-1 rounded-xl mb-1">KM</span>
-                </div>
-                <p className="text-blue-100/40 text-[8px] font-black uppercase mt-4">Consolidado de todas las unidades</p>
-             </div>
-             <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-             </div>
-           </div>
-
-           <div className="bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 group hover:border-blue-500/30 transition-all duration-500">
-              <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-2">Visitas a Red Cumplidas</p>
-              <h2 className="text-7xl font-black tracking-tighter text-white">{data.totalTrips}</h2>
-              <p className="text-blue-500 font-bold text-[9px] uppercase mt-4 tracking-tighter">Puntos de control operados</p>
-           </div>
-
-           <div className="bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 group hover:border-blue-500/30 transition-all duration-500">
-              <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-2">Caja Operativa Mensual</p>
-              <div className="flex items-end gap-2 text-white">
-                <span className="text-4xl font-bold text-blue-500 mb-2">$</span>
-                <h2 className="text-7xl font-black tracking-tighter">0</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+         <div className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden group">
+            <div className="relative z-10">
+              <p className="text-blue-100/60 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Kilometraje Total de Flota</p>
+              <h2 className="text-7xl font-black tracking-tighter mb-4 italic leading-none">{totalFlotaKm.toLocaleString()} <span className="text-lg opacity-50 not-italic ml-2">KM</span></h2>
+              <div className="inline-flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                 <span className="text-[10px] font-black uppercase tracking-widest">{months[month]} {year}</span>
               </div>
-              <p className="text-amber-500 font-bold text-[9px] uppercase mt-4 tracking-tighter italic">Mantenimiento y combustible</p>
-           </div>
-        </div>
+            </div>
+         </div>
 
-        {/* Detailed Table Section */}
-        <div className="space-y-8 pt-8">
-           <div className="flex items-center justify-between px-4">
-              <h3 className="text-xl font-black uppercase tracking-[0.4em] text-white italic">Desglose Detallado por Unidad</h3>
-              <p className="text-[9px] font-bold text-slate-500 uppercase">Estado de unidades activas: {data.vehicles?.length || 0}</p>
-           </div>
+         <div className="bg-[#0a1428]/40 border-2 border-white/5 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden group backdrop-blur-sm">
+            <div className="relative z-10">
+              <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Inversión Mensual Consolidada</p>
+              <h2 className="text-7xl font-black tracking-tighter mb-4 text-blue-500 italic leading-none">$ {totalFlotaGastos.toLocaleString()}</h2>
+            </div>
+         </div>
+      </div>
 
-           <div className="bg-slate-900/40 border border-white/5 rounded-[3.5rem] overflow-hidden backdrop-blur-2xl">
-              <div className="overflow-x-auto">
-                 <table className="w-full text-left border-collapse">
-                    <thead>
-                       <tr className="bg-white/[0.02] text-blue-400 text-[10px] tracking-[0.4em] uppercase font-black border-b border-white/5">
-                          <th className="p-10">Unidad</th>
-                          <th className="p-10">Ocupación / Cat.</th>
-                          <th className="p-10">Recorrido Mensual</th>
-                          <th className="p-10">Inversión Auditada</th>
-                          <th className="p-10">Rendimiento</th>
-                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-white">
-                       {data.vehicles.length === 0 ? (
-                          <tr>
-                             <td colSpan="5" className="p-32 text-center text-slate-600 font-black uppercase tracking-[0.5em] text-[10px] italic">
-                                Sin registros consolidados para el período.
-                             </td>
-                          </tr>
-                       ) : data.vehicles.map((v) => (
-                          <tr key={v.patente} className="group hover:bg-blue-600/5 transition-all print:text-black">
-                             <td className="p-10">
-                                <div className="flex items-center gap-8">
-                                   <div className="hidden sm:block w-20 print:w-16 grayscale group-hover:grayscale-0 transition-all duration-500">
-                                      <img src={getVehicleIcon(v.categoria)} alt={v.categoria} className="w-full object-contain" />
-                                   </div>
-                                   <div>
-                                      <div className="font-mono font-black text-2xl tracking-widest text-white group-hover:text-blue-400 transition-colors">{v.patente}</div>
-                                      <div className="text-[9px] font-black uppercase text-slate-500 mt-1 tracking-widest">{v.modelo || "S/D"}</div>
-                                   </div>
-                                </div>
-                             </td>
-                             <td className="p-10">
-                                <span className="px-5 py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-all">
-                                   {v.categoria}
-                                </span>
-                             </td>
-                             <td className="p-10">
-                                <div className="space-y-1">
-                                   <div className="text-2xl font-black">{(v.totalKm || 0).toLocaleString()} <span className="text-xs text-slate-600">KM</span></div>
-                                   <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                      <div className="h-full bg-blue-500" style={{ width: `${Math.min((v.totalKm/1000)*100, 100)}%` }}></div>
-                                   </div>
-                                </div>
-                             </td>
-                             <td className="p-10">
-                                <div className="text-2xl font-black text-slate-400">$ 0.00</div>
-                             </td>
-                             <td className="p-10">
-                                <div className="text-[10px] font-black text-emerald-500 uppercase bg-emerald-500/10 px-4 py-2 rounded-xl inline-block border border-emerald-500/20">ÓPTIMO</div>
-                             </td>
-                          </tr>
-                       ))}
-                    </tbody>
-                 </table>
-              </div>
-           </div>
-        </div>
-
-        <div className="py-20 text-center space-y-10 border-t border-white/5 print:hidden">
-           <p className="text-[8px] font-black uppercase tracking-[1em] text-slate-600 opacity-50">
-              Reporte Generado por Sistema FlotApp Tactical Division
-           </p>
-           <Link href="/admin" className="inline-block px-12 py-5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 hover:text-white hover:border-blue-500 transition-all">
-              Retorno al Cuartel General
-           </Link>
+      <div className="bg-[#0a1428]/40 border border-white/5 rounded-[3.5rem] overflow-hidden shadow-2xl backdrop-blur-md">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white/5 text-[10px] font-black uppercase text-gray-500 border-b border-white/5">
+                <th className="p-10 pl-14">Unidad / Matrícula</th>
+                <th className="p-10">Recorrido Total</th>
+                <th className="p-10">Egresos</th>
+                <th className="p-10">Actividad</th>
+                <th className="p-10 text-right pr-14">Protocolo</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {summary.map((v) => (
+                <tr key={v.id} className="hover:bg-white/5 transition-colors group">
+                  <td className="p-10 pl-14">
+                    <div className="font-black text-3xl italic tracking-widest text-white leading-none group-hover:text-blue-400 transition-colors">{v.patente}</div>
+                  </td>
+                  <td className="p-10">
+                    <div className="font-black text-2xl tracking-tighter leading-none text-gray-300">{v.kmRecorridos.toLocaleString()} <span className="text-[10px] text-gray-600 font-black uppercase ml-1">km</span></div>
+                  </td>
+                  <td className="p-10">
+                    <div className="font-black text-2xl tracking-tighter text-blue-500 leading-none">$ {v.totalGastos.toLocaleString()}</div>
+                  </td>
+                  <td className="p-10 pr-14 text-right">
+                     <Link href={`/admin/vehicles/${v.id}`} className="inline-flex h-12 px-8 items-center bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-500 hover:text-white transition-all shadow-xl active:scale-95">
+                       Ficha Táctica
+                     </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
