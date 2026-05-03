@@ -1,45 +1,73 @@
-    export const dynamic = 'force-dynamic';
-    import Link from "next/link";
-    import { getAllVehiculos, getUltimosRegistros, deleteVehiculo, deleteRegistroDiario } from "@/lib/appActions";
-    import { revalidatePath } from "next/cache";
-    import FormattedDate from "@/components/FormattedDate";
+"use client";
 
-    async function deleteVehiculoAction(formData) {
-              'use server';
-              const id = formData.get('id');
-              if (id) {
-                          await deleteVehiculo(id);
-                          revalidatePath("/admin");
-              }
-    }
+import { Suspense, useState, useEffect } from "react";
+import Link from "next/link";
+import { getAllVehiculos, getUltimosRegistros } from "@/lib/actions";
 
-    async function deleteRegistroAction(formData) {
-              'use server';
-              const id = formData.get('id');
-              if (id) {
-                          await deleteRegistroDiario(id);
-                          revalidatePath("/admin");
-              }
-    }
+export const dynamic = "force-dynamic";
+
+function AdminDashboardContent() {
+  const [vehiculos, setVehiculos] = useState([]);
+  const [registros, setRegistros] = useState([]);
+
+  useEffect(() => {
+    Promise.all([getAllVehiculos(), getUltimosRegistros(5)]).then(([vRes, rRes]) => {
+      if (vRes.success) setVehiculos(vRes.data);
+      if (rRes.success) setRegistros(rRes.data);
+    });
+  }, []);
+
+  return (
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black tracking-tighter uppercase italic text-white">Panel de Inteligencia</h1>
+          <p className="text-blue-500 font-black text-[10px] uppercase tracking-[0.4em] opacity-80 mt-1">SISTEMA DE CONTROL CENTRAL V4.6</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-12">
+           
+           <div className="space-y-6">
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-amber-500">Alertas de Mantenimiento</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {vehiculos.map(v => {
+                    const lastKm = v.registros?.[0]?.kmActual || 0;
+                    const serviceDue = v.proximoServiceKm && (v.proximoServiceKm - lastKm < 1000);
+                    const tiresDue = v.ultimoCambioCubiertasKm && (lastKm - v.ultimoCambioCubiertasKm > (v.kmParaCambioCubiertas || 60000));
+                    const vtvDue = v.vtvVencimiento && (new Date(v.vtvVencimiento) - new Date() < 1000 * 60 * 60 * 24 * 30);
+                    const seguroDue = v.seguroVencimiento && (new Date(v.seguroVencimiento) - new Date() < 1000 * 60 * 60 * 24 * 15);
+
+                    if (!serviceDue && !tiresDue && !vtvDue && !seguroDue) return null;
+
+                    return (
+                       <div key={v.id} className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 flex items-start gap-4 animate-pulse">
+                          <div className="bg-amber-500 p-2 rounded-lg text-[#050b18]">
+                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                          </div>
+                          <div>
+                             <p className="text-sm font-black text-white italic uppercase tracking-widest">{v.patente}</p>
+                             <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-1">
+                                {serviceDue && "SERVICE INMINENTE • "}
+                                {tiresDue && "CAMBIO DE CUBIERTAS • "}
+                                {vtvDue && "VTV POR VENCER • "}
+                                {seguroDue && "REVISAR SEGURO"}
+                             </p>
+                          </div>
+                       </div>
+                    );
+                 })}
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-    export default async function AdminDashboard() {
-              const vRes = await getAllVehiculos();
-              const rRes = await getUltimosRegistros();
-              const vehiculos = vRes.success ? vRes.data : [];
-              const registros = rRes.success ? rRes.data : [];
-
-      return (
-                  <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">Panel General</h1>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm italic">Gestion de flota y registros.</p>
-          </div>
-                    <div className="flex gap-3">
-                        <Link href="/admin/summary" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20 text-sm">
-                          RESUMEN
-          </Link>
-          </div>
-          </div>
-        
+export default function AdminDashboard() {
+  return (
+    <Suspense><AdminDashboardContent /></Suspense>
+  );
+}
