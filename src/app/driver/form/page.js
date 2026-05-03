@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getAllSucursales, saveRegistroDiario } from "@/lib/actions";
+import { getAllSucursales, createRegistroDiario } from "@/lib/actions";
 import Link from "next/link";
 
 function DriverFormContent() {
@@ -36,7 +36,7 @@ function DriverFormContent() {
     if (!kmActual) return alert("Ingresa el KM actual");
     
     setLoading(true);
-    const res = await saveRegistroDiario({
+    const res = await createRegistroDiario({
       patente,
       choferId: parseInt(choferId),
       kmActual: parseInt(kmActual),
@@ -61,22 +61,17 @@ function DriverFormContent() {
            
            <div className="flex justify-between items-start mb-6">
               <div className="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest italic shadow-lg shadow-blue-600/40">
-                 NR07
+                 PROT-FLOT
               </div>
               <div className="text-right">
-                 <h4 className="text-blue-500 font-black text-[10px] uppercase tracking-widest leading-none">Protocolo</h4>
-                 <p className="text-white font-black text-xs uppercase tracking-tighter italic">Operativo</p>
+                 <h4 className="text-blue-500 font-black text-[10px] uppercase tracking-widest leading-none">Ruta Activa</h4>
+                 <p className="text-white font-black text-xs uppercase tracking-tighter italic">Confirmación</p>
               </div>
            </div>
 
            <div className="flex flex-col items-center mb-8">
-              <img 
-                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=400" 
-                alt="Vehicle" 
-                className="h-20 object-contain drop-shadow-[0_10px_30px_rgba(255,255,255,0.1)] mb-4"
-              />
               <h1 className="text-5xl font-black tracking-[0.1em] italic uppercase text-white leading-none">{patente}</h1>
-              <p className="text-gray-500 font-bold text-[9px] uppercase tracking-[0.4em] mt-2">ID_DRIVER: {choferId || "OFFLINE"}</p>
+              <p className="text-gray-500 font-bold text-[9px] uppercase tracking-[0.4em] mt-2">CHOFER_ID: {choferId || "OFFLINE"}</p>
            </div>
 
            <form onSubmit={handleSubmit} className="space-y-8">
@@ -88,13 +83,13 @@ function DriverFormContent() {
                   onChange={(e) => setKmActual(e.target.value)}
                   placeholder="000.000"
                   required
-                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-black text-3xl text-center focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-gray-800"
+                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-black text-3xl text-center focus:ring-2 focus:ring-blue-600 outline-none transition-all"
                 />
               </div>
 
               <div className="space-y-4">
                 <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Ruta / Sucursales</label>
-                <div className="flex flex-wrap gap-2 justify-center max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                <div className="flex flex-wrap gap-2 justify-center max-h-60 overflow-y-auto p-1">
                    {sucursales.map(s => (
                      <button
                        key={s.id}
@@ -103,7 +98,7 @@ function DriverFormContent() {
                        className={`px-4 py-3 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${
                          selectedSucursales.includes(s.id) 
                          ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105" 
-                         : "bg-black/40 border-white/5 text-gray-500 hover:border-white/20"
+                         : "bg-black/40 border-white/5 text-gray-500"
                        }`}
                      >
                         {s.nombre}
@@ -112,23 +107,12 @@ function DriverFormContent() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Novedades / Observaciones</label>
-                <textarea 
-                  value={novedades}
-                  onChange={(e) => setNovedades(e.target.value)}
-                  placeholder="Escribe aquí cualquier novedad..."
-                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-bold text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all h-24 resize-none placeholder:text-gray-800"
-                />
-              </div>
-
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/40 active:scale-95 flex items-center justify-center gap-3"
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/40 active:scale-95"
               >
                 {loading ? "Sincronizando..." : "Confirmar Reporte"}
-                {!loading && <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>}
               </button>
            </form>
         </div>
@@ -137,19 +121,6 @@ function DriverFormContent() {
           Cambiar de Operador
         </Link>
       </div>
-
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(0,0,0,0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59,130,246,0.3);
-          border-radius: 10px;
-        }
-      `}</style>
     </div>
   );
 }
