@@ -1,163 +1,87 @@
 "use client";
 
+import { Suspense, useState, useEffect } from "react";
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { getAllSucursales, saveRegistroDiario } from "@/lib/actions";
+import { useSearchParams } from "next/navigation";
+import { getDailyReport } from "@/lib/actions";
 import Link from "next/link";
 
-function DriverFormContent() {
+function DailyReportContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const patente = searchParams.get("patente") || "PGX770";
-  const choferId = searchParams.get("choferId");
-
-  const [sucursales, setSucursales] = useState([]);
-  const [selectedSucursales, setSelectedSucursales] = useState([]);
-  const [kmActual, setKmActual] = useState("");
-  const [novedades, setNovedades] = useState("");
-  const [loading, setLoading] = useState(false);
+  const dateStr = searchParams.get("date") || new Date().toISOString().split('T')[0];
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    getAllSucursales().then(res => {
-      if (res.success) setSucursales(res.data);
+    getDailyReport(dateStr).then(res => {
+      if (res.success) setData(res.data);
     });
-  }, []);
+  }, [dateStr]);
 
-  const toggleSucursal = (id) => {
-    setSelectedSucursales(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
+  if (!data) return <div className="min-h-screen bg-[#050b18] flex items-center justify-center text-blue-500 font-black uppercase tracking-widest text-xs">Iniciando Protocolo...</div>;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!kmActual) return alert("Ingresa el KM actual");
-    
-    setLoading(true);
-    const res = await saveRegistroDiario({
-      patente,
-      choferId: parseInt(choferId),
-      kmActual: parseInt(kmActual),
-      novedades,
-      sucursales: selectedSucursales
-    });
-
-    if (res.success) {
-      router.push("/?success=true");
-    } else {
-      alert("Error: " + res.error);
-      setLoading(false);
-    }
-  };
+  const { registros } = data;
 
   return (
-    <div className="min-h-screen bg-[#050b18] text-white flex flex-col items-center p-4 selection:bg-blue-500/30 font-sans overflow-x-hidden">
-      <div className="w-full max-w-sm flex flex-col items-center py-10">
+    <div className="min-h-screen bg-[#050b18] text-white flex flex-col items-center p-4 md:p-12 selection:bg-blue-500/30 font-sans overflow-x-hidden">
+      
+      <div className="w-full max-w-5xl space-y-20">
         
-        <div className="w-full bg-[#0a1428] border-2 border-blue-500/30 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden mb-12">
-           <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
-           
-           <div className="flex justify-between items-start mb-6">
-              <div className="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest italic shadow-lg shadow-blue-600/40">
-                 NR07
-              </div>
-              <div className="text-right">
-                 <h4 className="text-blue-500 font-black text-[10px] uppercase tracking-widest leading-none">Protocolo</h4>
-                 <p className="text-white font-black text-xs uppercase tracking-tighter italic">Operativo</p>
-              </div>
+         <div className="flex flex-col items-center text-center space-y-6">
+            <div className="w-full bg-[#0a1428]/80 border-2 border-blue-500/20 backdrop-blur-xl text-white rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
+               <h1 className="text-7xl font-black tracking-tighter uppercase mb-4 italic">LIBRO DE RUTA</h1>
+               <div className="flex items-center justify-center gap-6">
+                  <div className="h-[2px] w-16 bg-blue-600/50" />
+                  <span className="text-2xl font-black uppercase tracking-[0.4em] text-blue-500 italic">REPORTE DIARIO</span>
+                  <div className="h-[2px] w-16 bg-blue-600/50" />
+               </div>
+            </div>
+         </div>
+
+        <div className="space-y-10">
+           <div className="bg-[#0a1428]/40 border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl backdrop-blur-sm">
+              <table className="w-full text-center border-collapse">
+                 <thead>
+                    <tr className="bg-white/5 text-[9px] font-black uppercase text-gray-500 border-b border-white/5">
+                       <th className="p-8 text-left pl-14">Matrícula</th>
+                       <th className="p-8">Kilometraje</th>
+                       <th className="p-8 text-right pr-14">Operador</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-white/5">
+                    {registros.map((row) => (
+                      <tr key={row.id} className="group hover:bg-white/5 transition-colors">
+                         <td className="p-10 pl-14 text-left font-black text-3xl italic tracking-widest text-white leading-none group-hover:text-blue-400 transition-colors">{row.vehiculo.patente}</td>
+                         <td className="p-10 font-black text-2xl tracking-tighter text-blue-400">{row.kmActual.toLocaleString()} KM</td>
+                         <td className="p-10 pr-14 text-right font-black uppercase text-xs text-gray-500">{row.nombreConductor}</td>
+                      </tr>
+                    ))}
+                 </tbody>
+              </table>
            </div>
-
-           <div className="flex flex-col items-center mb-8">
-              <img 
-                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=400" 
-                alt="Vehicle" 
-                className="h-20 object-contain drop-shadow-[0_10px_30px_rgba(255,255,255,0.1)] mb-4"
-              />
-              <h1 className="text-5xl font-black tracking-[0.1em] italic uppercase text-white leading-none">{patente}</h1>
-              <p className="text-gray-500 font-bold text-[9px] uppercase tracking-[0.4em] mt-2">ID_DRIVER: {choferId || "OFFLINE"}</p>
-           </div>
-
-           <form onSubmit={handleSubmit} className="space-y-8">
-              <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Kilometraje Actual</label>
-                <input 
-                  type="number" 
-                  value={kmActual}
-                  onChange={(e) => setKmActual(e.target.value)}
-                  placeholder="000.000"
-                  required
-                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-black text-3xl text-center focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-gray-800"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Ruta / Sucursales</label>
-                <div className="flex flex-wrap gap-2 justify-center max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                   {sucursales.map(s => (
-                     <button
-                       key={s.id}
-                       type="button"
-                       onClick={() => toggleSucursal(s.id)}
-                       className={`px-4 py-3 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${
-                         selectedSucursales.includes(s.id) 
-                         ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105" 
-                         : "bg-black/40 border-white/5 text-gray-500 hover:border-white/20"
-                       }`}
-                     >
-                        {s.nombre}
-                     </button>
-                   ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Novedades / Observaciones</label>
-                <textarea 
-                  value={novedades}
-                  onChange={(e) => setNovedades(e.target.value)}
-                  placeholder="Escribe aquí cualquier novedad..."
-                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-bold text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all h-24 resize-none placeholder:text-gray-800"
-                />
-              </div>
-
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/40 active:scale-95 flex items-center justify-center gap-3"
-              >
-                {loading ? "Sincronizando..." : "Confirmar Reporte"}
-                {!loading && <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>}
-              </button>
-           </form>
         </div>
 
-        <Link href="/driver/entry" className="text-[10px] font-black text-gray-600 uppercase tracking-widest hover:text-white transition-colors">
-          Cambiar de Operador
-        </Link>
+        <div className="w-full max-w-sm mx-auto">
+           <div className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
+              <div className="relative z-10 space-y-10 text-center">
+                 <div className="flex flex-col items-center">
+                    <span className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">Valor Proyectado</span>
+                    <div className="text-4xl font-black">USD 70</div>
+                 </div>
+                 <div className="bg-[#050b18] p-4 rounded-2xl">
+                    <span className="text-blue-500 font-black text-xl">+ 250%</span>
+                 </div>
+              </div>
+           </div>
+        </div>
       </div>
-
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(0,0,0,0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59,130,246,0.3);
-          border-radius: 10px;
-        }
-      `}</style>
     </div>
   );
 }
 
-export default function DriverForm() {
+export default function DailyReport() {
   return (
-    <Suspense>
-      <DriverFormContent />
-    </Suspense>
+    <Suspense><DailyReportContent /></Suspense>
   );
 }
