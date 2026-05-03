@@ -1,140 +1,163 @@
-import { getDailyReport } from "@/lib/actions";
+"use client";
+
+export const dynamic = "force-dynamic";
+
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { getAllSucursales, saveRegistroDiario } from "@/lib/actions";
 import Link from "next/link";
-import FormattedDate from "@/components/FormattedDate";
-import PrintButton from "@/components/PrintButton";
 
-export default async function DailyReport({ searchParams }) {
-  const params = await searchParams;
-  // Usar la fecha actual en la zona horaria del servidor como fallback
-  // Nota: Para ser 100% precisos con el usuario, esto podría ser un Client Component,
-  // pero por ahora aseguramos que no crashee y use una fecha válida.
-  const dateStr = params.date || new Date().toISOString().split('T')[0];
-  
-  const res = await getDailyReport(dateStr);
-  
-  if (!res.success) {
-      return (
-          <div className="p-10 border-2 border-dashed border-red-200 rounded-[2rem] text-center bg-red-50/30">
-              <h2 className="text-red-500 font-black uppercase mb-2">Error al cargar reporte</h2>
-              <p className="text-xs text-red-500/60 font-medium">{res.error}</p>
-          </div>
-      );
-  }
+function DriverFormContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const patente = searchParams.get("patente") || "PGX770";
+  const choferId = searchParams.get("choferId");
 
-  const { registros, stats } = res.data;
-  const branchEntries = Object.entries(stats.branchBreakdown || {});
+  const [sucursales, setSucursales] = useState([]);
+  const [selectedSucursales, setSelectedSucursales] = useState([]);
+  const [kmActual, setKmActual] = useState("");
+  const [novedades, setNovedades] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getAllSucursales().then(res => {
+      if (res.success) setSucursales(res.data);
+    });
+  }, []);
+
+  const toggleSucursal = (id) => {
+    setSelectedSucursales(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!kmActual) return alert("Ingresa el KM actual");
+    
+    setLoading(true);
+    const res = await saveRegistroDiario({
+      patente,
+      choferId: parseInt(choferId),
+      kmActual: parseInt(kmActual),
+      novedades,
+      sucursales: selectedSucursales
+    });
+
+    if (res.success) {
+      router.push("/?success=true");
+    } else {
+      alert("Error: " + res.error);
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 dark">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic text-blue-400">Libro de Ruta</h1>
-          <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Actividad operativa diaria</p>
-        </div>
-
-        <div className="flex items-center gap-4 no-print">
-          <PrintButton />
-        </div>
+    <div className="min-h-screen bg-[#050b18] text-white flex flex-col items-center p-4 selection:bg-blue-500/30 font-sans overflow-x-hidden">
+      <div className="w-full max-w-sm flex flex-col items-center py-10">
         
-        <form className="flex items-center gap-3 bg-gray-900 p-2 rounded-2xl border border-gray-800 shadow-xl shadow-black/5">
-          <label className="pl-4 text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha:</label>
-          <input 
-            name="date"
-            type="date" 
-            defaultValue={dateStr}
-            className="bg-transparent text-sm font-bold outline-none p-2 border-r border-gray-800 text-white"
-          />
-          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">Ver Día</button>
-        </form>
-      </div>
+        <div className="w-full bg-[#0a1428] border-2 border-blue-500/30 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden mb-12">
+           <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
+           
+           <div className="flex justify-between items-start mb-6">
+              <div className="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest italic shadow-lg shadow-blue-600/40">
+                 NR07
+              </div>
+              <div className="text-right">
+                 <h4 className="text-blue-500 font-black text-[10px] uppercase tracking-widest leading-none">Protocolo</h4>
+                 <p className="text-white font-black text-xs uppercase tracking-tighter italic">Operativo</p>
+              </div>
+           </div>
 
+           <div className="flex flex-col items-center mb-8">
+              <img 
+                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=400" 
+                alt="Vehicle" 
+                className="h-20 object-contain drop-shadow-[0_10px_30px_rgba(255,255,255,0.1)] mb-4"
+              />
+              <h1 className="text-5xl font-black tracking-[0.1em] italic uppercase text-white leading-none">{patente}</h1>
+              <p className="text-gray-500 font-bold text-[9px] uppercase tracking-[0.4em] mt-2">ID_DRIVER: {choferId || "OFFLINE"}</p>
+           </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Unidades Activas</p>
-            <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{stats.uniqueVehicles}</h2>
-         </div>
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Visitas Totales</p>
-            <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{stats.totalVisits}</h2>
-         </div>
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Kilometraje Total</p>
-            <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{(stats.totalKm || 0).toLocaleString()} <span className="text-xs">KM</span></h2>
-         </div>
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-black/5">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-2 text-center md:text-left">Sucursales Distintas</p>
-            <h2 className="text-4xl font-black tracking-tighter text-blue-600 dark:text-blue-400 text-center md:text-left">{Object.keys(stats.branchBreakdown || {}).length}</h2>
-         </div>
-      </div>
+           <form onSubmit={handleSubmit} className="space-y-8">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Kilometraje Actual</label>
+                <input 
+                  type="number" 
+                  value={kmActual}
+                  onChange={(e) => setKmActual(e.target.value)}
+                  placeholder="000.000"
+                  required
+                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-black text-3xl text-center focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-gray-800"
+                />
+              </div>
 
-      {/* Breakdown de sucursales */}
-      {branchEntries.length > 0 && (
-         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-8 shadow-xl shadow-black/5">
-            <h2 className="text-lg font-black uppercase tracking-tighter mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">Visitas por Sucursal</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-               {branchEntries.sort((a,b) => b[1] - a[1]).map(([name, count]) => (
-                  <div key={name} className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800">
-                     <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest text-center mb-1 truncate w-full">{name}</span>
-                     <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{count}</span>
-                  </div>
-               ))}
-            </div>
-         </div>
-      )}
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Ruta / Sucursales</label>
+                <div className="flex flex-wrap gap-2 justify-center max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                   {sucursales.map(s => (
+                     <button
+                       key={s.id}
+                       type="button"
+                       onClick={() => toggleSucursal(s.id)}
+                       className={`px-4 py-3 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${
+                         selectedSucursales.includes(s.id) 
+                         ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105" 
+                         : "bg-black/40 border-white/5 text-gray-500 hover:border-white/20"
+                       }`}
+                     >
+                        {s.nombre}
+                     </button>
+                   ))}
+                </div>
+              </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[3rem] overflow-hidden shadow-2xl shadow-black/5">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
-                <th className="p-6 pl-10">Horario</th>
-                <th className="p-6">Vehículo</th>
-                <th className="p-6">KM</th>
-                <th className="p-6">Conductor</th>
-                <th className="p-6">Sucursales Visitadas</th>
-                <th className="p-6 text-right pr-10">Novedades</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-sans">
-              {registros.length === 0 ? (
-                <tr><td colSpan="6" className="p-20 text-center text-gray-400 font-black uppercase tracking-widest">No hubo actividad este día.</td></tr>
-              ) : registros.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
-                  <td className="p-6 pl-10">
-                    <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
-                        <FormattedDate date={r.fecha} showDate={false} />
-                    </div>
-                  </td>
-                  <td className="p-6">
-                    <div className="font-mono font-black text-sm tracking-widest bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg inline-block border border-gray-200 dark:border-gray-700">{r.vehiculo.patente}</div>
-                  </td>
-                  <td className="p-6">
-                    <div className="font-bold">{(r.kmActual || 0).toLocaleString()}</div>
-                  </td>
-                  <td className="p-6">
-                    <div className="text-xs font-black uppercase tracking-tighter text-gray-600 dark:text-gray-400">{r.nombreConductor || "-"}</div>
-                  </td>
-                  <td className="p-6">
-                    <div className="flex flex-wrap gap-1">
-                      {r.sucursales?.map(s => (
-                        <span key={s.id} className="text-[9px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded font-black uppercase tracking-tighter border border-blue-100 dark:border-blue-800">
-                          {s.nombre}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-6 pr-10 text-right">
-                    {r.novedades ? (
-                        <span className="text-[10px] font-medium italic text-amber-600 dark:text-amber-400 truncate max-w-[200px] inline-block">{r.novedades}</span>
-                    ) : "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest text-center">Novedades / Observaciones</label>
+                <textarea 
+                  value={novedades}
+                  onChange={(e) => setNovedades(e.target.value)}
+                  placeholder="Escribe aquí cualquier novedad..."
+                  className="w-full bg-black/40 border border-blue-500/20 rounded-2xl px-6 py-4 text-white font-bold text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all h-24 resize-none placeholder:text-gray-800"
+                />
+              </div>
+
+              <button 
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/40 active:scale-95 flex items-center justify-center gap-3"
+              >
+                {loading ? "Sincronizando..." : "Confirmar Reporte"}
+                {!loading && <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>}
+              </button>
+           </form>
         </div>
+
+        <Link href="/driver/entry" className="text-[10px] font-black text-gray-600 uppercase tracking-widest hover:text-white transition-colors">
+          Cambiar de Operador
+        </Link>
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0,0,0,0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59,130,246,0.3);
+          border-radius: 10px;
+        }
+      `}</style>
     </div>
+  );
+}
+
+export default function DriverForm() {
+  return (
+    <Suspense>
+      <DriverFormContent />
+    </Suspense>
   );
 }
