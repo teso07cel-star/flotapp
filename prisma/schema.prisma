@@ -1,93 +1,58 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Vehiculo {
-  id                Int      @id @default(autoincrement())
-  patente           String   @unique
-  vtvVencimiento    DateTime?
-  seguroVencimiento DateTime?
-  proximoServiceKm  Int?
-  proximoCambioCubiertasKm Int?
-  activo            Boolean  @default(true)
-  codigoAutorizacion String?
-  registros         RegistroDiario[]
-  gastos            Gasto[]
-  mantenimientos    Mantenimiento[]
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Sucursal {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  direccion String?
-  registros RegistroDiario[]
+model Vehiculo {
+  id                      Int              @id @default(autoincrement())
+  patente                 String           @unique
+  vtvVencimiento          DateTime?
+  seguroVencimiento       DateTime?
+  proximoServiceKm        Int?
+  ultimoCambioCubiertasKm Int?
+  kmParaCambioCubiertas   Int?             @default(60000)
+  activo                  Boolean          @default(true)
+  registros               RegistroDiario[]
+  gastos                  Gasto[]
 }
 
 model Chofer {
-  id              Int      @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   nombre          String
-  dni             String?  @unique
   patenteAsignada String?
-  deviceId        String?  @unique
-  activo          Boolean  @default(true)
   registros       RegistroDiario[]
-  autorizaciones  Autorizacion[]
+}
+
+model Sucursal {
+  id        Int              @id @default(autoincrement())
+  nombre    String
+  direccion String?
+  registros RegistroDiario[] @relation("RegistroSucursales")
 }
 
 model RegistroDiario {
-  id              Int      @id @default(autoincrement())
-  fecha           DateTime @default(now())
+  id              Int        @id @default(autoincrement())
+  fecha           DateTime   @default(now())
   kmActual        Int
   novedades       String?
-  novedadResuelta Boolean  @default(false)
-  resolucion      String?
   nombreConductor String?
-  choferId        Int?
-  chofer          Chofer?  @relation(fields: [choferId], references: [id])
   vehiculoId      Int
-  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[]
+  vehiculo        Vehiculo   @relation(fields: [vehiculoId], references: [id])
+  choferId        Int?
+  chofer          Chofer?    @relation(fields: [choferId], references: [id])
+  sucursales      Sucursal[] @relation("RegistroSucursales")
 }
 
 model Gasto {
   id          Int      @id @default(autoincrement())
   fecha       DateTime @default(now())
   monto       Float
-  descripcion String
-  tipo        String   
+  tipo        String
+  descripcion String?
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
 }
-
-model Mantenimiento {
-  id          Int      @id @default(autoincrement())
-  fecha       DateTime @default(now())
-  tipo        String   // VTV, SEGURO, SERVICE, CUBIERTAS
-  detalle     String?
-  proximoKm   Int?
-  proximaFecha DateTime?
-  vehiculoId  Int
-  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
-}
-
-model Autorizacion {
-  id          Int      @id @default(autoincrement())
-  tipo        String   // DEVICE_BIND, MILEAGE_AUTH, etc.
-  estado      String   @default("PENDIENTE")
-  fecha       DateTime @default(now())
-  choferId    Int?
-  chofer      Chofer?  @relation(fields: [choferId], references: [id])
-  vehiculoId  Int?
-  vehiculo    Vehiculo? @relation(fields: [vehiculoId], references: [id])
-  datos       String?
-}
-
