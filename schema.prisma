@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AutorizacionDispositivo {
+  id              Int      @id @default(autoincrement())
+  nombreSolicitante String
+  deviceId        String
+  estado          String   @default("PENDIENTE")
+  fechaSolicitud  DateTime @default(now())
+}
+
+model Chofer {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  patenteAsignada String?
+  activo          Boolean  @default(true)
+  passkeyId       String?
+  passkeyPubKey   Bytes?
+  registros       RegistroDiario[]
+  inspecciones    InspeccionMensual[]
+}
+
+model ConfigLogistica {
+  id    Int    @id @default(autoincrement())
+  key   String
+  value String
+}
+
+model Gasto {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @default(now())
+  monto       Float
+  descripcion String
+  tipo        String
+  vehiculoId  Int
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id])
+}
+
+model InspeccionMensual {
+  id                  Int      @id @default(autoincrement())
+  vehiculoId          Int
+  choferId            Int?
+  nombreConductor     String?
+  mes                 Int
+  anio                Int
+  fecha               DateTime @default(now())
+  fotoFrente          String?
+  fotoTrasera         String?
+  fotoLateralIzq      String?
+  fotoLateralDer      String?
+  fotoVTV             String?
+  fotoSeguro          String?
+  lugarGuardaFijo     String?
+  lugarGuardaResguardo String?
+  chofer              Chofer?  @relation(fields: [choferId], references: [id])
+  vehiculo            Vehiculo @relation(fields: [vehiculoId], references: [id])
+}
+
+model Mantenimiento {
+  id             Int      @id @default(autoincrement())
+  fecha          DateTime @default(now())
+  vehiculoId     Int
+  costo          Float?
+  descripcion    String?
+  kilometraje    Int?
+  taller         String?
+  tipoServicio   String
+  vehiculo       Vehiculo @relation(fields: [vehiculoId], references: [id])
+}
+
+model RegistroDiario {
+  id                  Int      @id @default(autoincrement())
+  fecha               DateTime @default(now())
+  kmActual            Int?
+  novedades           String?
+  novedadResuelta     Boolean  @default(false)
+  resolucion          String?
+  nombreConductor     String?
+  choferId            Int?
+  vehiculoId          Int?
+  esExterno           Boolean  @default(false)
+  fotoFrente          String?
+  fotoLateralDer      String?
+  fotoLateralIzq      String?
+  fotoSeguro          String?
+  fotoTicketCombustible String?
+  fotoTrasera         String?
+  fotoVTV             String?
+  frecuenciaRegistro  String?
+  kmModificado        Boolean  @default(false)
+  kmTeoricos          Int?     @default(0)
+  lugarGuarda         String?
+  montoCombustible    Float?
+  motivoUso           String?
+  nivelCombustible    String?
+  tipoReporte         String?
+  chofer              Chofer?  @relation(fields: [choferId], references: [id])
+  vehiculo            Vehiculo? @relation(fields: [vehiculoId], references: [id])
+  sucursales          Sucursal[] @relation("RegistroDiarioToSucursal")
+  registroSucursales  RegistroSucursal[]
+}
+
+model RegistroSucursal {
+  id              Int      @id @default(autoincrement())
+  registroId      Int
+  sucursalId      Int
+  cantidadVisitas Int      @default(1)
+  registro        RegistroDiario @relation(fields: [registroId], references: [id])
+  sucursal        Sucursal       @relation(fields: [sucursalId], references: [id])
+}
+
+model Sucursal {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  direccion       String?
+  lat             Float?
+  lng             Float?
+  registros       RegistroDiario[] @relation("RegistroDiarioToSucursal")
+  registroSucursales RegistroSucursal[]
+}
+
+model Vehiculo {
+  id                  Int      @id @default(autoincrement())
+  patente             String   @unique
+  vtvVencimiento      DateTime?
+  seguroVencimiento   DateTime?
+  proximoServiceKm    Int?
+  activo              Boolean  @default(true)
+  codigoAutorizacion  String?
+  categoria           String   @default("PICKUP")
+  kmParaCambioCubiertas Int?   @default(60000)
+  tipo                String   @default("INTERNO")
+  ultimoCambioCubiertasKm Int?
+  gastos              Gasto[]
+  inspecciones        InspeccionMensual[]
+  mantenimientos      Mantenimiento[]
+  registros           RegistroDiario[]
+}
+
