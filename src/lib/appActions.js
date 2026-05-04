@@ -15,6 +15,14 @@ export const getAllVehiculos = async () => {
   } catch (e) { return { success: false, error: e.message }; }
 };
 
+// NUEVA FUNCIÓN QUE TE PEDÍA LA APP
+export const getAllChoferes = async () => {
+  try {
+    const data = await prisma.vehiculo.findMany({ select: { id: true, patente: true, codigoAutorizacion: true } });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (e) { return { success: false, error: e.message }; }
+};
+
 export const getUltimosRegistros = async (take = 10) => {
   try {
     const data = await prisma.registroDiario.findMany({ 
@@ -63,25 +71,3 @@ export const getAllSucursales = async () => {
     return { success: true, data: JSON.parse(JSON.stringify(data)) };
   } catch (e) { return { success: false, error: e.message }; }
 };
-
-export const getDailyReport = async (date) => {
-  try {
-    const start = new Date(date); start.setHours(0,0,0,0);
-    const end = new Date(date); end.setHours(23,59,59,999);
-    const registros = await prisma.registroDiario.findMany({ 
-      where: { fecha: { gte: start, lte: end } }, 
-      include: { vehiculo: true }, orderBy: { fecha: 'desc' } 
-    });
-    return { success: true, data: { registros: JSON.parse(JSON.stringify(registros)) } };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-export const resolverNovedad = async (id) => {
-  try {
-    await prisma.registroDiario.update({ where: { id }, data: { novedadResuelta: true } });
-    revalidatePath("/admin");
-    return { success: true };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-export const getArDate = async () => { return new Date(); };
