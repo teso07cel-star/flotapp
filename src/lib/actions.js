@@ -1,28 +1,22 @@
 "use server";
-import prisma from "./prisma";
+import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+
+// Motor de conexión blindado para Netlify
+const prisma = global.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
 export async function getAllVehiculos() {
   try {
-    const data = await prisma.vehiculo.findMany({ include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } }, orderBy: { patente: 'asc' } });
+    const data = await prisma.vehiculo.findMany({ 
+      include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } }, 
+      orderBy: { patente: 'asc' } 
+    });
     return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (error) { return { success: false, error: error.message }; }
-}
-
-export async function getUltimosRegistros(take = 10) {
-  try {
-    const data = await prisma.registroDiario.findMany({ take, orderBy: { fecha: 'desc' }, include: { vehiculo: true } });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (error) { return { success: false, error: error.message }; }
-}
-
-export async function getDailyReport(date) {
-  try {
-    const start = new Date(date); start.setHours(0,0,0,0);
-    const end = new Date(date); end.setHours(23,59,59,999);
-    const registros = await prisma.registroDiario.findMany({ where: { fecha: { gte: start, lte: end } }, include: { vehiculo: true }, orderBy: { fecha: 'desc' } });
-    return { success: true, data: { registros: JSON.parse(JSON.stringify(registros)) } };
-  } catch (error) { return { success: false, error: error.message }; }
+  } catch (error) { 
+    console.error("Error Prisma:", error.message);
+    return { success: false, error: error.message }; 
+  }
 }
 
 export async function getAllSucursales() {
@@ -69,13 +63,5 @@ export async function getMonthlySummary(month, year) {
       return { id: v.id, patente: v.patente, kmRecorridos: Math.abs(kms || 0), totalGastos: gastos };
     });
     return { success: true, data: JSON.parse(JSON.stringify(report)) };
-  } catch (error) { return { success: false, error: error.message }; }
-}
-
-export async function resolverNovedad(registroId) {
-  try {
-    await prisma.registroDiario.update({ where: { id: registroId }, data: { novedadResuelta: true } });
-    revalidatePath("/admin");
-    return { success: true };
   } catch (error) { return { success: false, error: error.message }; }
 }
