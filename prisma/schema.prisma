@@ -24,23 +24,21 @@ model Sucursal {
   id        Int      @id @default(autoincrement())
   nombre    String
   direccion String?
-  registros RegistroDiario[]
+  registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
 }
 
 model RegistroDiario {
   id              Int      @id @default(autoincrement())
   fecha           DateTime @default(now())
   kmActual        Int? 
-
   novedades       String?
   novedadResuelta Boolean  @default(false)
   resolucion      String?
   nombreConductor String?
-  vehiculoId      Int
-  vehiculo        Vehiculo @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[]
+  vehiculoId      Int?     // Lo puse opcional para que no falle con datos viejos
+  vehiculo        Vehiculo? @relation(fields: [vehiculoId], references: [id])
+  sucursales      Sucursal[] @relation("RegistroDiarioToSucursal")
 }
-
 
 model Gasto {
   id          Int      @id @default(autoincrement())
