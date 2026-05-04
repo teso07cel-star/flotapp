@@ -1,12 +1,26 @@
 "use server";
 
 import prisma from "./prisma";
+import { revalidatePath } from "next/cache";
 
 export async function getAllVehiculos() {
   try {
     const data = await prisma.vehiculo.findMany({
       include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } },
       orderBy: { patente: 'asc' }
+    });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getUltimosRegistros(take = 5) {
+  try {
+    const data = await prisma.registroDiario.findMany({
+      take,
+      orderBy: { fecha: 'desc' },
+      include: { vehiculo: true }
     });
     return { success: true, data: JSON.parse(JSON.stringify(data)) };
   } catch (error) {
@@ -47,6 +61,7 @@ export async function createRegistroDiario(data) {
         sucursales: { connect: data.sucursales.map(id => ({ id })) }
       }
     });
+    revalidatePath("/admin");
     return { success: true, data: JSON.parse(JSON.stringify(registro)) };
   } catch (error) {
     return { success: false, error: error.message };
@@ -81,6 +96,19 @@ export async function getMonthlySummary(month, year) {
     });
 
     return { success: true, data: JSON.parse(JSON.stringify(report)) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resolverNovedad(registroId) {
+  try {
+    await prisma.registroDiario.update({
+      where: { id: registroId },
+      data: { novedades: null }
+    });
+    revalidatePath("/admin");
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
