@@ -2,7 +2,6 @@
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-// Motor de conexión auto-gestionado
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
@@ -43,7 +42,6 @@ export const saveRegistroDiario = async (data) => {
 
 export const getMonthlySummary = async (month, year) => {
   try {
-    // Forzamos el rango para ver Abril y Mayo
     const start = new Date(2026, 3, 1); 
     const end = new Date(2026, 4, 31); 
     const vehiculos = await prisma.vehiculo.findMany({ 
