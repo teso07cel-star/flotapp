@@ -1,9 +1,6 @@
 "use server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "./prisma";
 import { revalidatePath } from "next/cache";
-
-const prisma = global.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
 export const getAllVehiculos = async () => {
   try {
@@ -15,18 +12,12 @@ export const getAllVehiculos = async () => {
   } catch (e) { return { success: false, error: e.message }; }
 };
 
-// NUEVA FUNCIÓN QUE TE PEDÍA LA APP
 export const getAllChoferes = async () => {
   try {
-    const data = await prisma.vehiculo.findMany({ select: { id: true, patente: true, codigoAutorizacion: true } });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-export const getUltimosRegistros = async (take = 10) => {
-  try {
-    const data = await prisma.registroDiario.findMany({ 
-      take, orderBy: { fecha: 'desc' }, include: { vehiculo: true } 
+    // Usamos los vehículos como "choferes" para que la lista cargue sí o sí
+    const data = await prisma.vehiculo.findMany({ 
+      where: { activo: true },
+      select: { id: true, patente: true, codigoAutorizacion: true } 
     });
     return { success: true, data: JSON.parse(JSON.stringify(data)) };
   } catch (e) { return { success: false, error: e.message }; }
@@ -55,13 +46,16 @@ export const getMonthlySummary = async (month, year) => {
     const start = new Date(2026, 3, 1); 
     const end = new Date(2026, 4, 31); 
     const vehiculos = await prisma.vehiculo.findMany({ 
-      include: { registros: { where: { fecha: { gte: start, lte: end } } }, gastos: { where: { fecha: { gte: start, lte: end } } } } 
+      include: { 
+        registros: { where: { fecha: { gte: start, lte: end } } }, 
+        gastos: { where: { fecha: { gte: start, lte: end } } } 
+      } 
     });
     const report = vehiculos.map(v => {
       const kms = v.registros.length > 1 ? (v.registros[0].kmActual - v.registros[v.registros.length-1].kmActual) : 0;
-      return { id: v.id, patente: v.patente, kmRecorridos: Math.abs(kms || 0), totalGastos: 0 };
+      return { id: v.id, patente: v.patente, kmRecorridos: Math.abs(kms || 0), totalGastos: 0, cantidadRegistros: v.registros.length };
     });
-    return { success: true, data: { summary: report, driverStats: [], mapBranches: [] } };
+    return { success: true, data: report };
   } catch (e) { return { success: false, error: e.message }; }
 };
 
