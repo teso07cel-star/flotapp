@@ -16,6 +16,22 @@ export async function getUltimosRegistros(take = 10) {
   } catch (error) { return { success: false, error: error.message }; }
 }
 
+export async function getDailyReport(date) {
+  try {
+    const start = new Date(date); start.setHours(0,0,0,0);
+    const end = new Date(date); end.setHours(23,59,59,999);
+    const registros = await prisma.registroDiario.findMany({ where: { fecha: { gte: start, lte: end } }, include: { vehiculo: true }, orderBy: { fecha: 'desc' } });
+    return { success: true, data: { registros: JSON.parse(JSON.stringify(registros)) } };
+  } catch (error) { return { success: false, error: error.message }; }
+}
+
+export async function getAllSucursales() {
+  try {
+    const data = await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (error) { return { success: false, error: error.message }; }
+}
+
 export async function saveRegistroDiario(data) {
   try {
     const vehiculo = await prisma.vehiculo.findUnique({ where: { patente: data.patente } });
@@ -38,7 +54,7 @@ export async function saveRegistroDiario(data) {
 export async function getMonthlySummary(month, year) {
   try {
     const start = new Date();
-    start.setDate(start.getDate() - 60); // Muestra últimos 60 días (Abril y Mayo)
+    start.setDate(start.getDate() - 60); // Abril y Mayo
 
     const vehiculos = await prisma.vehiculo.findMany({ 
       include: { 
