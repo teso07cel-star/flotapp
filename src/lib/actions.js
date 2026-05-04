@@ -1,28 +1,3 @@
-"use server";
-import { PrismaClient } from "@prisma/client";
-import { revalidatePath } from "next/cache";
-
-const prisma = global.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
-
-export const getAllVehiculos = async () => {
-  try {
-    const data = await prisma.vehiculo.findMany({ 
-      include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } }, 
-      orderBy: { patente: 'asc' } 
-    });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-export const getUltimosRegistros = async (take = 10) => {
-  try {
-    const data = await prisma.registroDiario.findMany({ take, orderBy: { fecha: 'desc' }, include: { vehiculo: true } });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-// FIX NAVEGACIÓN: Devolvemos el ID a nivel raíz para que el formulario pueda redireccionar
 export const saveRegistroDiario = async (data) => {
   try {
     const vehiculo = await prisma.vehiculo.findUnique({ where: { patente: data.patente } });
@@ -38,33 +13,7 @@ export const saveRegistroDiario = async (data) => {
       } 
     });
     revalidatePath("/admin");
-    // DEVOLVEMOS EL ID PARA WAZE/WHATSAPP
-    return { success: true, id: registro.id, data: JSON.parse(JSON.stringify(registro)) };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-// FIX ABRIL: Aseguramos que el reporte traiga datos desde el 1 de Abril
-export const getMonthlySummary = async () => {
-  try {
-    const start = new Date(2026, 3, 1); // 1 de Abril
-    const vehiculos = await prisma.vehiculo.findMany({ 
-      include: { 
-        registros: { where: { fecha: { gte: start } } }, 
-        gastos: { where: { fecha: { gte: start } } } 
-      } 
-    });
-    
-    const report = vehiculos.map(v => {
-      const kms = v.registros.length > 1 ? (v.registros[0].kmActual - v.registros[v.registros.length-1].kmActual) : 0;
-      return { id: v.id, patente: v.patente, kmRecorridos: Math.abs(kms || 0), totalGastos: 0, mesDisplay: "Abril/Mayo 2026" };
-    });
-    return { success: true, data: JSON.parse(JSON.stringify(report)) };
-  } catch (e) { return { success: false, error: e.message }; }
-};
-
-export const getAllSucursales = async () => {
-  try {
-    const data = await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+    // DEVOLVEMOS EL ID PARA QUE EL FORMULARIO SEPA A DÓNDE IR
+    return { success: true, id: registro.id };
   } catch (e) { return { success: false, error: e.message }; }
 };
