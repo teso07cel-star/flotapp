@@ -17,7 +17,10 @@
     "pg": "8.13.1",
     "tailwindcss": "3.4.17",
     "postcss": "8.4.49",
-    "autoprefixer": "10.4.20"
+    "autoprefixer": "10.4.20",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
+    "leaflet-defaulticon-compatibility": "^0.1.2"
   },
   "devDependencies": {
     "prisma": "6.2.1",
