@@ -10,14 +10,14 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
       {/* Lista de Conductores */}
       <div className="grid grid-cols-1 last:border-b-0">
         {driverStats?.map((d, i) => (
-          <div key={i} className="border-b border-slate-200 last:border-0 overflow-hidden">
+          <div key={i} className="border-b border-white/5 last:border-0 overflow-hidden">
             <button 
               onClick={() => setSelectedDriver(selectedDriver === d.nombre ? null : d.nombre)}
-              className={`w-full flex items-center justify-between p-8 transition-all hover:bg-slate-100 ${selectedDriver === d.nombre ? "bg-blue-50" : "bg-white"}`}
+              className={`w-full flex items-center justify-between p-8 transition-all hover:bg-[#0a1428] ${selectedDriver === d.nombre ? "bg-blue-900/30" : "bg-transparent"}`}
             >
               <div className="flex items-center gap-6">
                  <div className={`w-3 h-3 rounded-full ${selectedDriver === d.nombre ? "bg-blue-600 animate-pulse" : "bg-slate-300"}`} />
-                 <span className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">{d.nombre}</span>
+                 <span className="text-2xl font-black uppercase italic tracking-tighter text-white">{d.nombre}</span>
               </div>
               <div className="flex items-center gap-8">
                  <div className="text-right bg-blue-600 px-6 py-3 rounded-2xl shadow-lg border border-blue-500 hover:scale-105 transition-transform">
@@ -34,7 +34,7 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
 
             {/* Desglose Táctico al Expandir */}
             {selectedDriver === d.nombre && (
-              <div className="p-10 bg-white space-y-10 border-t border-blue-100 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="p-10 bg-transparent space-y-10 border-t border-blue-100 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                    {/* Info Detallada */}
                    <div className="space-y-8">
@@ -44,13 +44,13 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
                       </div>
                       
                       <div className="grid grid-cols-2 gap-6 font-sans">
-                         <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                         <div className="p-6 bg-[#0a1428] rounded-2xl border border-white/5">
                             <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Unidades Operadas</p>
-                            <p className="text-sm font-black italic text-slate-900">{d.vehicles.join(" / ")}</p>
+                            <p className="text-sm font-black italic text-white">{(Array.isArray(d.vehicles) ? d.vehicles : []).join(" / ")}</p>
                          </div>
-                         <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                         <div className="p-6 bg-[#0a1428] rounded-2xl border border-white/5">
                             <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Visitas</p>
-                            <p className="text-sm font-black italic text-slate-900">{d.totalTrips} Sucursales</p>
+                            <p className="text-sm font-black italic text-white">{d.totalTrips} Sucursales</p>
                          </div>
                       </div>
 
@@ -79,7 +79,41 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
             )}
           </div>
         ))}
+      
+      {/* Rankings Globales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-16 border-t border-white/10 pt-10">
+        <div className="bg-[#0a1428] rounded-3xl p-8 border border-white/5">
+           <h4 className="text-lg font-black uppercase tracking-widest text-blue-500 mb-6 text-center">Top Sucursales</h4>
+           <div className="space-y-4">
+              {Object.entries(
+                driverStats.reduce((acc, d) => {
+                  d.branchDetails?.forEach(b => {
+                    acc[b.nombre] = (acc[b.nombre] || 0) + b.visitas;
+                  });
+                  return acc;
+                }, {})
+              ).sort((a,b) => b[1] - a[1]).slice(0,5).map(([nombre, visitas], idx) => (
+                <div key={idx} className="flex justify-between items-center bg-black/20 p-4 rounded-xl">
+                  <span className="text-xs font-black uppercase text-white">{idx+1}. {nombre}</span>
+                  <span className="text-xs font-black text-blue-400">{visitas} V</span>
+                </div>
+              ))}
+           </div>
+        </div>
+        <div className="bg-[#0a1428] rounded-3xl p-8 border border-white/5">
+           <h4 className="text-lg font-black uppercase tracking-widest text-blue-500 mb-6 text-center">Top Choferes</h4>
+           <div className="space-y-4">
+              {[...driverStats].sort((a,b) => b.totalTrips - a.totalTrips).slice(0,5).map((d, idx) => (
+                <div key={idx} className="flex justify-between items-center bg-black/20 p-4 rounded-xl">
+                  <span className="text-xs font-black uppercase text-white">{idx+1}. {d.nombre}</span>
+                  <span className="text-xs font-black text-blue-400">{d.totalTrips} VIAJES</span>
+                </div>
+              ))}
+           </div>
+        </div>
       </div>
+    
+</div>
     </div>
   );
 }

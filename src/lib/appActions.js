@@ -495,17 +495,23 @@ export async function getMonthlySummary(month, year) {
             nombre: r.nombreConductor,
             vehicles: new Set(),
             totalTrips: 0,
-            kmArray: [],
+            kmMap: {},
             branchMap: {}
           };
         }
         driverStatsMap[r.nombreConductor].vehicles.add(r.vehiculo?.patente || 'Desconocido');
-        if (r.kmActual) driverStatsMap[r.nombreConductor].kmArray.push(r.kmActual);
+        
+        if (r.kmActual && r.vehiculoId) {
+            if (!driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId]) {
+                driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId] = [];
+            }
+            driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId].push(r.kmActual);
+        }
         
         r.sucursales?.forEach(s => {
             driverStatsMap[r.nombreConductor].totalTrips += 1;
             if (!driverStatsMap[r.nombreConductor].branchMap[s.nombre]) {
-                driverStatsMap[r.nombreConductor].branchMap[s.nombre] = { nombre: s.nombre, visitas: 0, lat: -34.6037, lng: -58.3816 };
+                driverStatsMap[r.nombreConductor].branchMap[s.nombre] = { nombre: s.nombre, visitas: 0 };
             }
             driverStatsMap[r.nombreConductor].branchMap[s.nombre].visitas += 1;
         });
@@ -514,13 +520,16 @@ export async function getMonthlySummary(month, year) {
 
     const driverStats = Object.values(driverStatsMap).map(d => {
       let totalKm = 0;
-      if (d.kmArray.length > 0) {
-         d.kmArray.sort((a, b) => a - b);
-         totalKm = d.kmArray[d.kmArray.length - 1] - d.kmArray[0];
-      }
+      Object.values(d.kmMap).forEach(kmArray => {
+          if (kmArray.length > 0) {
+             kmArray.sort((a, b) => a - b);
+             const diff = kmArray[kmArray.length - 1] - kmArray[0];
+             if (diff > 0) totalKm += diff;
+          }
+      });
       return {
         nombre: d.nombre,
-        totalKm: totalKm > 0 ? totalKm : 0,
+        totalKm: totalKm,
         vehicles: Array.from(d.vehicles),
         totalTrips: d.totalTrips,
         branchDetails: Object.values(d.branchMap)
