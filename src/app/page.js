@@ -34,7 +34,7 @@ function HomePageContent() {
   if (isLoading) {
       return (
          <div className="min-h-screen flex items-center justify-center bg-[#0f172a] p-6 selection:bg-blue-500/30">
-            <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div><div style={{position:"fixed", bottom:10, right:10, fontSize:8, opacity:0.3, color:"white", zIndex:9999}}>BUILD_v9.1.6_ELITE</div>
          </div>
       );
   }
