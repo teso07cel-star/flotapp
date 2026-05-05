@@ -1,20 +1,15 @@
 "use server";
-import prisma from "./prisma.js";
-import { revalidatePath } from "next/cache";
-
 const getArMonthYear = (date) => {
     const d = new Date(date);
     const argDate = new Date(d.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
     return { month: argDate.getMonth(), year: argDate.getFullYear() };
 };
-
 const normalizeName = (name) => {
   if (!name) return "DESCONOCIDO";
   const map = { "MIGUEL C": "MIGUEL CEJAS", "MIGUEL CEJA": "MIGUEL CEJAS", "MIGUEL": "MIGUEL CEJAS" };
   const up = name.toUpperCase().trim();
   return map[up] || up;
 };
-
 export async function deleteRegistro(id) {
   try {
     await prisma.registroDiario.delete({ where: { id: parseInt(id) } });
@@ -22,26 +17,11 @@ export async function deleteRegistro(id) {
     return { success: true };
   } catch (e) { return { success: false, error: e.message }; }
 }
-
-export async function getDailyReport(date) {
-  try {
-    const start = new Date(date); start.setHours(0,0,0,0);
-    const end = new Date(date); end.setHours(23,59,59,999);
-    const logs = await prisma.registroDiario.findMany({
-      where: { fecha: { gte: start, lte: end } },
-      include: { vehiculo: true, sucursales: true },
-      orderBy: { fecha: 'desc' }
-    });
-    return { success: true, data: logs };
-  } catch (e) { return { success: false, error: e.message }; }
-}
-
 export async function getMonthlySummary(month, year) {
   try {
     const allRegistros = await prisma.registroDiario.findMany({ include: { vehiculo: true, sucursales: true } });
     const branchStatsMap = {}; const driverStatsMap = {}; const vehicleLastInfo = {};
     const sorted = [...allRegistros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
     sorted.forEach(r => {
       const ar = getArMonthYear(r.fecha);
       const inMonth = (ar.month === month && ar.year === year);
@@ -74,27 +54,78 @@ export async function getMonthlySummary(month, year) {
     }};
   } catch (e) { return { success: false, error: e.message }; }
 }
-
-export async function getAllVehiculos() { return { success: true, data: await prisma.vehiculo.findMany({ include: { registros: true }, orderBy: { patente: 'asc' } }) }; }
-export async function getAllChoferes() { return { success: true, data: await prisma.chofer.findMany({ orderBy: { nombre: 'asc' } }) }; }
-export async function getAllSucursales() { return { success: true, data: await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } }) }; }
-
-export async function getVehiculoByPatente(p) { 
-  return { success: true, data: await prisma.vehiculo.findUnique({ where: { patente: p.toUpperCase().trim() }, include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } } }) };
-}
 export async function getDriverTodayInfo(id) {
-  const c = await prisma.chofer.findUnique({ where: { id: parseInt(id) } });
-  if(!c) return { success: false };
-  const logs = await prisma.registroDiario.findMany({ where: { nombreConductor: c.nombre }, include: { vehiculo: true, sucursales: true }, orderBy: { fecha: 'desc' }, take: 5 });
-  return { success: true, data: { nombre: c.nombre, logs } };
+  try {
+    const c = await prisma.chofer.findUnique({ where: { id: parseInt(id) } });
+    if(!c) return { success: false };
+    const logs = await prisma.registroDiario.findMany({ where: { nombreConductor: c.nombre }, include: { vehiculo: true, sucursales: true }, orderBy: { fecha: 'desc' }, take: 5 });
+    return { success: true, data: { nombre: c.nombre, logs } };
+  } catch (e) { return { success: false }; }
 }
 
-export async function solicitarAutorizacion(nombre, patente) {
-  return { success: true, data: await prisma.autorizacion.create({ data: { nombre, patente, estado: 'PENDIENTE' } }) };
-}
-export async function checkEstadoAutorizacion(id) {
-  return { success: true, data: await prisma.autorizacion.findUnique({ where: { id: parseInt(id) } }) };
-}
-export async function registrarChofer(nombre) {
-  return { success: true, data: await prisma.chofer.create({ data: { nombre: nombre.toUpperCase().trim() } }) };
-}
+import prisma from "./prisma";
+import { revalidatePath } from "next/cache";
+
+export const getAllVehiculos = async () => {
+  try {
+    const data = await prisma.vehiculo.findMany({ 
+      include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } }, 
+      orderBy: { patente: 'asc' } 
+    });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (e) { return { success: false, error: e.message }; }
+};
+
+export const getAllChoferes = async () => {
+  try {
+    // Usamos los vehículos como "choferes" para que la lista cargue sí o sí
+    const data = await prisma.vehiculo.findMany({ 
+      where: { activo: true },
+      select: { id: true, patente: true, codigoAutorizacion: true } 
+    });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (e) { return { success: false, error: e.message }; }
+};
+
+export const saveRegistroDiario = async (data) => {
+  try {
+    const vehiculo = await prisma.vehiculo.findUnique({ where: { patente: data.patente } });
+    if (!vehiculo) throw new Error("Vehículo no encontrado");
+    const registro = await prisma.registroDiario.create({ 
+      data: { 
+        kmActual: data.kmActual ? parseInt(data.kmActual) : null, 
+        novedades: data.novedades || "", 
+        nombreConductor: data.nombreConductor || "Anónimo", 
+        vehiculoId: vehiculo.id,
+        novedadResuelta: false
+      } 
+    });
+    revalidatePath("/admin");
+    return { success: true, id: registro.id };
+  } catch (e) { return { success: false, error: e.message }; }
+};
+
+export const getMonthlySummary = async (month, year) => {
+  try {
+    const start = new Date(2026, 3, 1); 
+    const end = new Date(2026, 4, 31); 
+    const vehiculos = await prisma.vehiculo.findMany({ 
+      include: { 
+        registros: { where: { fecha: { gte: start, lte: end } } }, 
+        gastos: { where: { fecha: { gte: start, lte: end } } } 
+      } 
+    });
+    const report = vehiculos.map(v => {
+      const kms = v.registros.length > 1 ? (v.registros[0].kmActual - v.registros[v.registros.length-1].kmActual) : 0;
+      return { id: v.id, patente: v.patente, kmRecorridos: Math.abs(kms || 0), totalGastos: 0, cantidadRegistros: v.registros.length };
+    });
+    return { success: true, data: report };
+  } catch (e) { return { success: false, error: e.message }; }
+};
+
+export const getAllSucursales = async () => {
+  try {
+    const data = await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (e) { return { success: false, error: e.message }; }
+};

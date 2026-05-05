@@ -1,38 +1,28 @@
-
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model Vehiculo {
-  id                Int      @id @default(autoincrement())
-  patente           String   @unique
-  vtvVencimiento    DateTime?
-  seguroVencimiento DateTime?
-  proximoServiceKm  Int?
-  proximoCambioCubiertasKm Int?
-  activo            Boolean  @default(true)
-  codigoAutorizacion String?
-  registros         RegistroDiario[]
-  gastos            Gasto[]
+  id              Int              @id @default(autoincrement())
+  patente         String           @unique
+  tipo            String
+  activo          Boolean          @default(true)
+  mantenimientos  Mantenimiento[]
+  registros       RegistroDiario[]
+  gastos          Gasto[]
 }
-
 model Sucursal {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  direccion String?
-  registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
+  id              Int              @id @default(autoincrement())
+  nombre          String           @unique
+  registros       RegistroDiario[] @relation("RegistroDiarioToSucursal")
 }
-
 model Chofer {
-  id     Int    @id @default(autoincrement())
-  nombre String @unique
+  id              Int              @id @default(autoincrement())
+  nombre          String           @unique
 }
-
 model Autorizacion {
   id        Int      @id @default(autoincrement())
   fecha     DateTime @default(now())
@@ -40,14 +30,13 @@ model Autorizacion {
   patente   String
   estado    String   @default("PENDIENTE")
 }
-
 model RegistroDiario {
   id              Int      @id @default(autoincrement())
   fecha           DateTime @default(now())
   kmActual        Int? 
   kmTeoricos      Int      @default(0)
   kmModificado    Boolean  @default(false)
-  tipoReporte     String?  // INICIO, STOP, CIERRE
+  tipoReporte     String?  
   nivelCombustible String?
   lugarGuarda     String?
   novedades       String?
@@ -58,13 +47,22 @@ model RegistroDiario {
   vehiculo        Vehiculo? @relation(fields: [vehiculoId], references: [id])
   sucursales      Sucursal[] @relation("RegistroDiarioToSucursal")
 }
-
 model Gasto {
   id          Int      @id @default(autoincrement())
   fecha       DateTime @default(now())
   monto       Float
   descripcion String
   tipo        String
+  vehiculoId  Int
+  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+}
+model Mantenimiento {
+  id          Int      @id @default(autoincrement())
+  tipo        String
+  fecha       DateTime @default(now())
+  kmAviso     Int
+  kmProx      Int
+  completado  Boolean  @default(false)
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
