@@ -45,7 +45,12 @@ export default async function AdminLayout({ children }) {
                       <Link href="/admin/branches" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Sucursales</Link>
                       <Link href="/admin/choferes" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Choferes</Link>
                       <Link href="/admin/reports/daily" className="px-4 py-2.5 rounded-xl text-gray-400 bg-slate-800 border border-white/5 hover:text-blue-300 transition-all text-[9.5px] font-black uppercase tracking-widest">Reportes</Link>
-                      <Link href="/admin/reports/monthly" className="px-4 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/20 border border-cyan-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Mensual</Link>
+                      
+                <Link href="/admin/reports/drivers" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 bg-blue-900/20 border border-blue-500/30 hover:bg-blue-900/40 transition-all font-bold">
+                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                   Libro de Choferes
+                </Link>
+                <Link href="/admin/reports/monthly" className="px-4 py-2.5 rounded-xl text-cyan-400 bg-cyan-900/20 border border-cyan-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Mensual</Link>
                       <Link href="/admin/mantenimiento" className="px-4 py-2.5 rounded-xl text-emerald-400 bg-emerald-900/20 border border-emerald-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Control</Link>
                       <Link href="/admin/settings" className="px-4 py-2.5 rounded-xl text-amber-500 bg-amber-900/20 border border-amber-500/30 transition-all text-[9.5px] font-black uppercase tracking-widest">Ajustes</Link>
                   </nav>
