@@ -34,12 +34,8 @@ export async function GET(request) {
         const createData = {
             nombreConductor: driver,
             kmActual: lastDoc.kmActual,
-            // kmModificado: false,
-            kmTeoricos: 0,
-            nivelCombustible: "SIN DATOS_AUTO",
-            novedades: "CIERRE AUTOMATIZADO 20:00HS",
-            tipoReporte: "CIERRE",
-            lugarGuarda: "CIERRE AUTOMÁTICO DEL SISTEMA"
+            novedades: 'CIERRE AUTOMATIZADO 20:00HS',
+            tipoReporte: 'CIERRE'
         };
         // Solo agregar vehiculoId si existe y es válido
         if (lastDoc.vehiculoId) {
