@@ -134,7 +134,7 @@ export default function DriverFormClient({ vehiculo, sucursales, lastLog, identi
       window.location.href = "/";
     } else {
       if (submittedRecordId) {
-         window.location.href = `/driver/success?id=${submittedRecordId}`;
+         window.location.href = `/driver/navigation/${submittedRecordId}`;
       } else {
          window.location.href = "/driver/entry";
       }

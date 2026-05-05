@@ -485,16 +485,49 @@ export async function getMonthlySummary(month, year) {
     // Pricing info updated
     const pricingNote = "Aprox. 70 USD/mes (sujeto a variaciones de proveedores de IA y capacidad)";
 
-    return { 
-      success: true, 
-      data: { 
-        summary, 
-        totalFleetVisits, 
-        totalFleetKm, 
-        unitsUsed, 
-        pricingNote 
-      } 
-    };
+    
+    const driverStatsMap = {};
+    allRegistros.forEach(r => {
+      const d = new Date(r.fecha);
+      if (d.getMonth() === month && d.getFullYear() === year && r.nombreConductor) {
+        if (!driverStatsMap[r.nombreConductor]) {
+          driverStatsMap[r.nombreConductor] = {
+            nombre: r.nombreConductor,
+            vehicles: new Set(),
+            totalTrips: 0,
+            kmArray: [],
+            branchMap: {}
+          };
+        }
+        driverStatsMap[r.nombreConductor].vehicles.add(r.vehiculo?.patente || 'Desconocido');
+        if (r.kmActual) driverStatsMap[r.nombreConductor].kmArray.push(r.kmActual);
+        
+        r.sucursales?.forEach(s => {
+            driverStatsMap[r.nombreConductor].totalTrips += 1;
+            if (!driverStatsMap[r.nombreConductor].branchMap[s.nombre]) {
+                driverStatsMap[r.nombreConductor].branchMap[s.nombre] = { nombre: s.nombre, visitas: 0, lat: -34.6037, lng: -58.3816 };
+            }
+            driverStatsMap[r.nombreConductor].branchMap[s.nombre].visitas += 1;
+        });
+      }
+    });
+
+    const driverStats = Object.values(driverStatsMap).map(d => {
+      let totalKm = 0;
+      if (d.kmArray.length > 0) {
+         d.kmArray.sort((a, b) => a - b);
+         totalKm = d.kmArray[d.kmArray.length - 1] - d.kmArray[0];
+      }
+      return {
+        nombre: d.nombre,
+        totalKm: totalKm > 0 ? totalKm : 0,
+        vehicles: Array.from(d.vehicles),
+        totalTrips: d.totalTrips,
+        branchDetails: Object.values(d.branchMap)
+      };
+    });
+    
+    return { success: true, data: { summary, driverStats, totalFleetVisits, totalFleetKm, unitsUsed, pricingNote } };
   } catch (error) {
     console.error("Error in getMonthlySummary:", error);
     return { success: false, error: error.message, data: [] };
