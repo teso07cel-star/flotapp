@@ -3,39 +3,48 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// CACHE BUSTER 1778013431145
-
 model Vehiculo {
-  id             Int              @id @default(autoincrement())
-  patente        String           @unique
-  tipo           String
-  activo         Boolean          @default(true)
-  gastos         Gasto[]
-  mantenimientos Mantenimiento[]
-  registros      RegistroDiario[]
+  id                       Int              @id @default(autoincrement())
+  patente                  String           @unique
+  tipo                     String?
+  activo                   Boolean          @default(true)
+  vtvVencimiento           DateTime?
+  seguroVencimiento        DateTime?
+  proximoServiceKm         Int?
+  proximoCambioCubiertasKm Int?
+  codigoAutorizacion       String?
+  gastos                   Gasto[]
+  mantenimientos           Mantenimiento[]
+  registros                RegistroDiario[]
 }
 
 model Chofer {
-  id     Int    @id @default(autoincrement())
-  nombre String 
+  id              Int      @id @default(autoincrement())
+  nombre          String   @unique
+  dni             String?
+  patenteAsignada String?
+  deviceId        String?
+  activo          Boolean  @default(true)
 }
 
 model Autorizacion {
-  id      Int      @id @default(autoincrement())
-  nombre  String
-  patente String
-  estado  String   @default("PENDIENTE")
-  fecha   DateTime @default(now())
+  id       Int      @id @default(autoincrement())
+  choferId Int?
+  tipo     String   // ej: "DEVICE_BIND"
+  datos    String   // JSON text
+  estado   String   @default("PENDIENTE") // PENDIENTE, APROBADA, RECHAZADA
+  fecha    DateTime @default(now())
 }
 
 model Sucursal {
   id        Int              @id @default(autoincrement())
-  nombre    String           
+  nombre    String
+  direccion String?
   registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
 }
 
@@ -66,12 +75,13 @@ model Gasto {
 }
 
 model Mantenimiento {
-  id         Int      @id @default(autoincrement())
-  tipo       String
-  fecha      DateTime @default(now())
-  kmAviso    Int
-  kmProx     Int
-  completado Boolean  @default(false)
-  vehiculoId Int
-  vehiculo   Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  id           Int       @id @default(autoincrement())
+  tipo         String
+  detalle      String?
+  fecha        DateTime  @default(now())
+  proximoKm    Int?
+  proximaFecha DateTime?
+  completado   Boolean   @default(false)
+  vehiculoId   Int
+  vehiculo     Vehiculo  @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
