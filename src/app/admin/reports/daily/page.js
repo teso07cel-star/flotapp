@@ -27,16 +27,15 @@ function DailyReportContent() {
       
       <div className="w-full max-w-5xl space-y-10">
 
-      <div className="flex flex-col items-center justify-center mb-10 w-full animate-in fade-in zoom-in duration-500">
-         <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-2">Seleccionar Día Operativo</label>
-         <input 
-            type="date" 
-            value={dateStr}
-            onChange={(e) => setDateStr(e.target.value)}
-            className="bg-[#0a1428] border-2 border-blue-500/30 text-white font-black text-xl rounded-2xl px-6 py-4 focus:outline-none focus:border-blue-500 transition-all text-center"
-         />
-      </div>
-    
+        <div className="flex flex-col items-center justify-center mb-10 w-full animate-in fade-in zoom-in duration-500">
+           <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-2">Seleccionar Día Operativo</label>
+           <input 
+              type="date" 
+              value={dateStr}
+              onChange={(e) => setDateStr(e.target.value)}
+              className="bg-[#0a1428] border-2 border-blue-500/30 text-white font-black text-xl rounded-2xl px-6 py-4 focus:outline-none focus:border-blue-500 transition-all text-center"
+           />
+        </div>
         
          <div className="flex flex-col items-center text-center space-y-6">
             <div className="w-full bg-[#0a1428]/80 border-2 border-blue-500/20 backdrop-blur-xl text-white rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
@@ -91,13 +90,6 @@ function DailyReportContent() {
            </div>
         </div>
 
-        
-                 <div className="bg-[#050b18] p-4 rounded-2xl text-center">
-                    <span className="text-blue-500 font-black text-xl">+ 250%</span>
-                 </div>
-              </div>
-           </div>
-        </div>
       </div>
     </div>
   );
