@@ -49,7 +49,6 @@ export const updateVehiculo = async (id, data) => {
 
 // --- CHOFERES ---
 export const getAllChoferes = async () => { try { if(!prisma) return { success: true, data: [] }; const data = await prisma.chofer.findMany({ orderBy: { nombre: 'asc' } }); return { success: true, data }; } catch(e) { return { success: true, data: [] }; } };
-};
 export const addChofer = async (nombre) => {
   if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
     await prisma.chofer.create({ data: { nombre: nombre.toUpperCase().trim() } });
@@ -192,7 +191,6 @@ export const checkEstadoAutorizacion = async (id) => {
   } catch (e) { return { success: false, data: { branchRanking: [], driverStats: [], totalVisits: 0 }, error: e.message }; }
 };
 export const getAutorizacionesPendientes = async () => { try { if(!prisma || !prisma.autorizacion) return { success: true, data: [] }; const data = await prisma.autorizacion.findMany({ where: { estado: 'PENDIENTE' }, orderBy: { fecha: 'desc' } }); return { success: true, data }; } catch(e) { return { success: true, data: [] }; } };
-};
 export const aprobarAutorizacion = async (id) => {
   if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
     const a = await prisma.autorizacion.update({ where: { id: parseInt(id) }, data: { estado: 'APROBADO' } });
