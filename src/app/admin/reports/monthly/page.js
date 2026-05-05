@@ -20,7 +20,8 @@ export default async function MonthlyReport({ searchParams }) {
     return <div className="p-10 text-red-500 font-black uppercase text-center">Error: {res.error}</div>;
   }
 
-  const { summary, driverStats } = res.data;
+  const { summary, driverStats, totalFleetVisits, totalFleetKm, unitsUsed } = res.data;
+  const totalViajes = driverStats.reduce((sum, d) => sum + d.totalTrips, 0);
 
   return (
     <div className="max-w-5xl mx-auto p-12 bg-[#050b18] text-white min-h-screen">
@@ -30,9 +31,31 @@ export default async function MonthlyReport({ searchParams }) {
           {monthNames[month]} {year}
         </h2>
         <p className="text-xs font-bold text-slate-400 mt-6 uppercase tracking-widest">Auditoría Operativa por Brian Ezequiel López</p>
+      
       </header>
 
+      {/* DASHBOARD TOTALES */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
+         <div className="bg-[#0a1428] p-8 rounded-3xl border border-blue-500/20 text-center shadow-xl">
+            <p className="text-[9px] font-black uppercase text-blue-500 tracking-widest mb-2">KM Recorridos</p>
+            <p className="text-4xl font-black text-white">{totalFleetKm.toLocaleString()}</p>
+         </div>
+         <div className="bg-[#0a1428] p-8 rounded-3xl border border-blue-500/20 text-center shadow-xl">
+            <p className="text-[9px] font-black uppercase text-blue-500 tracking-widest mb-2">Nodos Visitados</p>
+            <p className="text-4xl font-black text-white">{totalFleetVisits}</p>
+         </div>
+         <div className="bg-[#0a1428] p-8 rounded-3xl border border-blue-500/20 text-center shadow-xl">
+            <p className="text-[9px] font-black uppercase text-blue-500 tracking-widest mb-2">Viajes Realizados</p>
+            <p className="text-4xl font-black text-white">{totalViajes}</p>
+         </div>
+         <div className="bg-[#0a1428] p-8 rounded-3xl border border-blue-500/20 text-center shadow-xl">
+            <p className="text-[9px] font-black uppercase text-blue-500 tracking-widest mb-2">Unidades Activas</p>
+            <p className="text-4xl font-black text-white">{unitsUsed}</p>
+         </div>
+      </div>
+
       <section className="mb-20">
+    
         <h3 className="text-2xl font-black uppercase italic mb-10 border-l-8 border-blue-500/20 pl-4">I. Resumen de Flota</h3>
         <div className="border-4 border-slate-900 overflow-hidden shadow-2xl">
           <table className="w-full text-left">

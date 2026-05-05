@@ -21,6 +21,9 @@ function DailyReportContent() {
   if (!data) return <div className="min-h-screen bg-[#050b18] flex items-center justify-center text-blue-500 font-black uppercase tracking-widest">Iniciando Protocolo...</div>;
 
   const { registros, stats } = data;
+  const dateObj = new Date(dateStr + "T00:00:00-03:00");
+  const monthName = dateObj.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+  const year = dateObj.getFullYear();
 
   return (
     <div className="min-h-screen bg-[#050b18] text-white flex flex-col items-center p-4 md:p-12 selection:bg-blue-500/30 font-sans overflow-x-hidden">
@@ -43,7 +46,7 @@ function DailyReportContent() {
                <h1 className="text-7xl font-black tracking-tighter uppercase mb-4 italic">LIBRO DE RUTA</h1>
                <div className="flex items-center justify-center gap-6">
                   <div className="h-[2px] w-16 bg-blue-600/50" />
-                  <span className="text-2xl font-black uppercase tracking-[0.4em] text-blue-500 italic">MAYO 2026</span>
+                  <span className="text-2xl font-black uppercase tracking-[0.4em] text-blue-500 italic">{monthName} {year}</span>
                   <div className="h-[2px] w-16 bg-blue-600/50" />
                </div>
                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mt-10">SISTEMA DE INTELIGENCIA OPERATIVA V4.6 PRO</p>
@@ -60,32 +63,40 @@ function DailyReportContent() {
               <table className="w-full text-center border-collapse">
                  <thead>
                     <tr className="bg-white/5 text-[9px] font-black uppercase text-gray-500 border-b border-white/5">
-                       <th className="p-8">Unidades / Matrícula</th>
-                       <th className="p-8">Estado Operativo</th>
-                       <th className="p-8">Rendimiento Mensual</th>
-                       <th className="p-8">Mantenimiento</th>
+                       <th className="p-6">Hora</th>
+<th className="p-6">Operador</th>
+<th className="p-6">Unidad</th>
+<th className="p-6">Ruta / Nodos</th>
+<th className="p-6">Odómetro</th>
+                       
+                       
+                       
                     </tr>
                  </thead>
+                 
                  <tbody className="divide-y divide-white/5">
                     {registros.map((row) => (
-                      <tr key={row.id} className="group hover:bg-white/5 transition-colors">
-                         <td className="p-10 font-black text-2xl tracking-widest italic">{row.vehiculo.patente}</td>
-                         <td className="p-10">
-                            <span className="text-5xl font-black text-white leading-none">1</span>
-                            <div className="text-[8px] font-black uppercase text-blue-500 mt-1">Status</div>
+                      <tr key={row.id} className="group hover:bg-white/5 transition-colors text-center">
+                         <td className="p-6 font-black text-blue-400">
+                            {new Date(row.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
                          </td>
-                         <td className="p-10">
-                            <span className="text-5xl font-black text-white leading-none">{row.kmActual}</span>
-                            <div className="text-[8px] font-black uppercase text-blue-500 mt-1">KM_MTH</div>
-                         </td>
-                         <td className="p-10">
-                            <div className="inline-block px-4 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-black text-[10px] tracking-widest">
-                               ÓPTIMO
+                         <td className="p-6 font-black uppercase text-xs">{row.nombreConductor || 'Desconocido'}</td>
+                         <td className="p-6 font-black italic text-xl">{row.vehiculo.patente}</td>
+                         <td className="p-6">
+                            <div className="flex flex-wrap justify-center gap-2">
+                               {row.sucursales?.length > 0 ? row.sucursales.map(s => (
+                                  <span key={s.id} className="bg-blue-900/40 text-blue-300 text-[9px] px-2 py-1 rounded-md border border-blue-500/20">{s.nombre}</span>
+                               )) : <span className="text-gray-600 text-[9px]">SIN NODOS</span>}
                             </div>
                          </td>
+                         <td className="p-6 font-mono text-white text-lg">{row.kmActual}</td>
                       </tr>
                     ))}
+                    {registros.length === 0 && (
+                       <tr><td colSpan="5" className="p-10 text-center text-slate-500 font-black uppercase tracking-widest">Sin operaciones registradas para este día</td></tr>
+                    )}
                  </tbody>
+    
               </table>
            </div>
         </div>

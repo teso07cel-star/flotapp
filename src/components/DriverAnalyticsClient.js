@@ -92,7 +92,7 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
                   });
                   return acc;
                 }, {})
-              ).sort((a,b) => b[1] - a[1]).slice(0,5).map(([nombre, visitas], idx) => (
+              ).sort((a,b) => b[1] - a[1]).slice(0,15).map(([nombre, visitas], idx) => (
                 <div key={idx} className="flex justify-between items-center bg-black/20 p-4 rounded-xl">
                   <span className="text-xs font-black uppercase text-white">{idx+1}. {nombre}</span>
                   <span className="text-xs font-black text-blue-400">{visitas} V</span>
@@ -103,7 +103,7 @@ export default function DriverAnalyticsClient({ driverStats = [] }) {
         <div className="bg-[#0a1428] rounded-3xl p-8 border border-white/5">
            <h4 className="text-lg font-black uppercase tracking-widest text-blue-500 mb-6 text-center">Top Choferes</h4>
            <div className="space-y-4">
-              {[...driverStats].sort((a,b) => b.totalTrips - a.totalTrips).slice(0,5).map((d, idx) => (
+              {[...driverStats].sort((a,b) => b.totalTrips - a.totalTrips).map((d, idx) => (
                 <div key={idx} className="flex justify-between items-center bg-black/20 p-4 rounded-xl">
                   <span className="text-xs font-black uppercase text-white">{idx+1}. {d.nombre}</span>
                   <span className="text-xs font-black text-blue-400">{d.totalTrips} VIAJES</span>
