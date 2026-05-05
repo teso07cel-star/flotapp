@@ -1,4 +1,11 @@
 "use server";
+
+    const getArMonthYear = (date) => {
+        const d = new Date(date);
+        const argDate = new Date(d.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+        return { month: argDate.getMonth(), year: argDate.getFullYear() };
+    };
+    
 import prisma from "./prisma.js";
 import { revalidatePath } from "next/cache";
 
@@ -505,7 +512,7 @@ export async function getMonthlySummary(month, year) {
 
     sortedRecords.forEach(r => {
       const rDate = new Date(r.fecha);
-      const inTargetMonth = (rDate.getMonth() === month && rDate.getFullYear() === year);
+      const arDate = getArMonthYear(r.fecha); const inTargetMonth = (arDate.month === month && arDate.year === year);
       
       if (r.kmActual && r.vehiculoId) {
           const prev = vehicleLastInfo[r.vehiculoId];

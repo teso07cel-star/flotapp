@@ -95,7 +95,7 @@ function DailyReportContent() {
                             <button 
                                onClick={async () => {
                                   if(confirm("¿Seguro de borrar este registro?")) {
-                                     const delRes = await deleteRegistro(row.id); if(!delRes.success) alert("Error: " + delRes.error);
+                                     const delRes = await deleteRegistro(row.id); if(delRes.success) { alert("Registro eliminado"); window.location.reload(); } if(!delRes.success) alert("Error: " + delRes.error);
                                      window.location.reload();
                                   }
                                }}
