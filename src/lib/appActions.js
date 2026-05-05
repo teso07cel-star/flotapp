@@ -487,54 +487,66 @@ export async function getMonthlySummary(month, year) {
 
     
     
+    
     function normalizeName(name) {
-        if (!name) return 'Desconocido';
+        if (!name) return 'CONDUCTOR EXTERNO';
         const n = name.trim().toUpperCase();
-        if (n === 'GONZALO M' || n === 'GONZALO M.') return 'GONZALO MARTINEZ';
-        if (n === 'TOMAS C' || n === 'TOMAS C.') return 'TOMAS CASCO';
+        if (n.startsWith('GONZALO')) return 'GONZALO MARTINEZ';
+        if (n.startsWith('TOMAS C') || n === 'TOMAS CASCO') return 'TOMAS CASCO';
+        if (n.startsWith('MIGUEL C') || n === 'MIGUEL CEJAS') return 'MIGUEL CEJAS';
         return n;
     }
 
-    const driverStatsMap = {};
-    const vehicleLastKm = {};
     
-    // Sort all records chronologically to calculate perfect KM deltas
+    const vehicleLastInfo = {};
     const sortedRecords = [...allRegistros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
     sortedRecords.forEach(r => {
-      const d = new Date(r.fecha);
-      if (d.getMonth() === month && d.getFullYear() === year) {
-        const conductor = normalizeName(r.nombreConductor);
-        
-        if (!driverStatsMap[conductor]) {
-          driverStatsMap[conductor] = {
-            nombre: conductor,
-            vehicles: new Set(),
-            totalTrips: 0,
-            totalKm: 0,
-            branchMap: {}
-          };
-        }
-        
-        const stats = driverStatsMap[conductor];
-        stats.vehicles.add(r.vehiculo?.patente || 'Desconocido');
-        
-        // Calcular KM Delta
-        if (r.kmActual && r.vehiculoId) {
-            const prevKm = vehicleLastKm[r.vehiculoId];
-            if (prevKm && r.kmActual > prevKm) {
-                stats.totalKm += (r.kmActual - prevKm);
-            }
-            vehicleLastKm[r.vehiculoId] = r.kmActual; // actualizar para el siguiente
-        }
-        
-        r.sucursales?.forEach(s => {
-            stats.totalTrips += 1;
-            if (!stats.branchMap[s.nombre]) {
-                stats.branchMap[s.nombre] = { nombre: s.nombre, visitas: 0 };
-            }
-            stats.branchMap[s.nombre].visitas += 1;
-        });
+      const rDate = new Date(r.fecha);
+      const inTargetMonth = (rDate.getMonth() === month && rDate.getFullYear() === year);
+      
+      if (r.kmActual && r.vehiculoId) {
+          const prev = vehicleLastInfo[r.vehiculoId];
+          // Solo sumamos el delta si AMBOS registros son del mismo mes para evitar saltos entre meses
+          if (prev && inTargetMonth && prev.inTargetMonth && r.kmActual > prev.km) {
+              const diff = r.kmActual - prev.km;
+              const conductor = normalizeName(r.nombreConductor);
+              
+              if (!driverStatsMap[conductor]) {
+                driverStatsMap[conductor] = {
+                  nombre: conductor,
+                  vehicles: new Set(),
+                  totalTrips: 0,
+                  totalKm: 0,
+                  branchMap: {}
+                };
+              }
+              driverStatsMap[conductor].totalKm += diff;
+          }
+          vehicleLastInfo[r.vehiculoId] = { km: r.kmActual, inTargetMonth };
+      }
+
+      if (inTargetMonth) {
+          const conductor = normalizeName(r.nombreConductor);
+          if (!driverStatsMap[conductor]) {
+            driverStatsMap[conductor] = {
+              nombre: conductor,
+              vehicles: new Set(),
+              totalTrips: 0,
+              totalKm: 0,
+              branchMap: {}
+            };
+          }
+          const stats = driverStatsMap[conductor];
+          stats.vehicles.add(r.vehiculo?.patente || 'S/D');
+          
+          r.sucursales?.forEach(s => {
+              stats.totalTrips += 1;
+              if (!stats.branchMap[s.nombre]) {
+                  stats.branchMap[s.nombre] = { nombre: s.nombre, visitas: 0 };
+              }
+              stats.branchMap[s.nombre].visitas += 1;
+          });
       }
     });
 

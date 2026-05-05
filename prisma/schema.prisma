@@ -49,3 +49,16 @@ model Gasto {
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
+
+model Chofer {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+}
+
+model Autorizacion {
+  id        Int      @id @default(autoincrement())
+  fecha     DateTime @default(now())
+  nombre    String
+  patente   String
+  estado    String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+}
