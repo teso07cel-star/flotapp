@@ -75,8 +75,10 @@ export async function getMonthlySummary(month, year) {
   } catch (e) { return { success: false, error: e.message }; }
 }
 
-export async function getAllVehiculos() { return { success: true, data: await prisma.vehiculo.findMany({ include: { registros: true } }) }; }
+export async function getAllVehiculos() { return { success: true, data: await prisma.vehiculo.findMany({ include: { registros: true }, orderBy: { patente: 'asc' } }) }; }
 export async function getAllChoferes() { return { success: true, data: await prisma.chofer.findMany({ orderBy: { nombre: 'asc' } }) }; }
+export async function getAllSucursales() { return { success: true, data: await prisma.sucursal.findMany({ orderBy: { nombre: 'asc' } }) }; }
+
 export async function getVehiculoByPatente(p) { 
   return { success: true, data: await prisma.vehiculo.findUnique({ where: { patente: p.toUpperCase().trim() }, include: { registros: { orderBy: { fecha: 'desc' }, take: 1 } } }) };
 }
@@ -85,4 +87,14 @@ export async function getDriverTodayInfo(id) {
   if(!c) return { success: false };
   const logs = await prisma.registroDiario.findMany({ where: { nombreConductor: c.nombre }, include: { vehiculo: true, sucursales: true }, orderBy: { fecha: 'desc' }, take: 5 });
   return { success: true, data: { nombre: c.nombre, logs } };
+}
+
+export async function solicitarAutorizacion(nombre, patente) {
+  return { success: true, data: await prisma.autorizacion.create({ data: { nombre, patente, estado: 'PENDIENTE' } }) };
+}
+export async function checkEstadoAutorizacion(id) {
+  return { success: true, data: await prisma.autorizacion.findUnique({ where: { id: parseInt(id) } }) };
+}
+export async function registrarChofer(nombre) {
+  return { success: true, data: await prisma.chofer.create({ data: { nombre: nombre.toUpperCase().trim() } }) };
 }
