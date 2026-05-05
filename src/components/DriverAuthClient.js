@@ -26,7 +26,6 @@ export default function DriverAuthClient({ choferes }) {
   useEffect(() => {
     let devId = localStorage.getItem("flotapp_device_id");
     if (!devId) {
-       // Fallback for non-secure contexts (HTTP) where crypto.randomUUID might be undefined
        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
           devId = crypto.randomUUID();
        } else {
@@ -34,16 +33,15 @@ export default function DriverAuthClient({ choferes }) {
        }
        localStorage.setItem("flotapp_device_id", devId);
     }
-    console.log("Tactical Device ID:", devId);
 
-    // 3. PROTOCOLO DE AUTORIZACIÓN REAL DE BRIAN EZEQUIEL LOPEZ
     const savedDriver = localStorage.getItem("flotapp_driver_name");
     
     const checkAuthStatus = async () => {
       const devId = localStorage.getItem("flotapp_device_id");
       const res = await checkEstadoAutorizacion(devId);
       
-      if (res.success && res.estado === "APROBADO") {
+      // FIX: Comparar con "APROBADA" que es lo que devuelve el servidor
+      if (res.success && (res.estado === "APROBADA" || res.estado === "APROBADO")) {
         localStorage.setItem("device_authorized_v2", "true");
         setIsDeviceAuthorized(true);
       } else {
@@ -66,17 +64,17 @@ export default function DriverAuthClient({ choferes }) {
       setIsRequesting(true);
       setErrorMessage("");
       const devId = localStorage.getItem("flotapp_device_id");
-      console.log("Enviando solicitud para:", deviceOperatorName.trim(), "ID:", devId);
       try {
-        const res = await solicitarAutorizacion(deviceOperatorName.trim(), devId);
-        console.log("Respuesta del servidor:", res);
+        const res = await solicitarAutorizacion({
+            tipo: "DEVICE_BIND",
+            datos: { nombre: deviceOperatorName.trim(), deviceId: devId }
+        });
         if (res.success) {
           setAuthStep(2);
         } else {
-          setErrorMessage(res.error || "Error desconocido en el servidor");
+          setErrorMessage(res.error || "Error en el servidor");
         }
       } catch (err) {
-        console.error("Error al llamar solicitarAutorizacion:", err);
         setErrorMessage("Error de conexión: " + err.message);
       } finally {
         setIsRequesting(false);
@@ -89,14 +87,15 @@ export default function DriverAuthClient({ choferes }) {
        const devId = localStorage.getItem("flotapp_device_id");
        pollingRef.current = setInterval(async () => {
           const res = await checkEstadoAutorizacion(devId);
-          if (res.success && res.estado === "APROBADO") {
+          // FIX: Comparar con "APROBADA" que es lo que devuelve el servidor
+          if (res.success && (res.estado === "APROBADA" || res.estado === "APROBADO")) {
              clearInterval(pollingRef.current);
              setAuthSuccess(true);
              setTimeout(() => {
-                localStorage.setItem("device_authorized_v1", "true");
+                localStorage.setItem("device_authorized_v2", "true");
                 setIsDeviceAuthorized(true);
-             }, 1800);
-          } else if (res.success && res.estado === "RECHAZADO") {
+             }, 1500);
+          } else if (res.success && res.estado === "RECHAZADA") {
              clearInterval(pollingRef.current);
              alert("Tu solicitud de acceso fue rechazada por administración.");
              setAuthStep(1);
@@ -108,10 +107,6 @@ export default function DriverAuthClient({ choferes }) {
     };
   }, [authStep, isDeviceAuthorized]);
 
-  const handleDeviceAuthStep2 = () => {
-     // No longer used, handled by polling
-  };
-
   const handleFingerprintPress = async () => {
     if (fastLoginDriver) {
       const devId = localStorage.getItem("flotapp_device_id");
@@ -121,17 +116,9 @@ export default function DriverAuthClient({ choferes }) {
         return;
       }
       
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const { createRegistroDiario } = await import("@/lib/appActions");
-      await createRegistroDiario({
-          nombreConductor: fastLoginDriver,
-          tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
-      });
-
       setSelectedChofer(fastLoginDriver);
       document.cookie = `driver_name=${encodeURIComponent(fastLoginDriver)}; path=/; max-age=31536000`;
-      router.push('/?success=true'); 
+      router.push('/driver/form?patente=PGX770'); // Redirección táctica
     }
   };
 
@@ -148,7 +135,6 @@ export default function DriverAuthClient({ choferes }) {
       const devId = localStorage.getItem("flotapp_device_id");
       
       try {
-        console.log("Iniciando vinculación para:", val);
         const res = await bindDriverToDevice(val, devId);
         if (!res.success) {
           alert("Error de Vinculación: " + res.error);
@@ -158,18 +144,13 @@ export default function DriverAuthClient({ choferes }) {
         }
         
         setIsExternal(false);
-        setSelectedChofer(val); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 800); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 800); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 1000);
-        if (remember) {
-          localStorage.setItem("flotapp_driver_name", val);
-          document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
-        }
-
-        // REDIRECCIÓN INMEDIATA PARA EVITAR SENSACIÓN DE BLOQUEO
-        router.push('/?success=true');
-        router.refresh();
+        setSelectedChofer(val); 
+        localStorage.setItem("flotapp_driver_name", val);
+        document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
+        
+        router.push('/driver/form?patente=PGX770');
       } catch (err) {
-        console.error("Falla Crítica en Selección:", err);
-        alert("Error de Conexión. Reintente en unos segundos.");
+        alert("Error de Conexión.");
         setIsRequesting(false);
       }
     }
@@ -187,20 +168,10 @@ export default function DriverAuthClient({ choferes }) {
 
       setIsExternal(false);
       setSelectedChofer(name);
-      if (remember) {
-        localStorage.setItem("flotapp_driver_name", name);
-        document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
-      }
+      localStorage.setItem("flotapp_driver_name", name);
+      document.cookie = `driver_name=${encodeURIComponent(name)}; path=/; max-age=31536000`;
 
-      // REGISTRAR INICIO DE JORNADA (Fase 1)
-      const { createRegistroDiario } = await import("@/lib/appActions");
-      await createRegistroDiario({
-          nombreConductor: name,
-          tipoReporte: "INICIO_JORNADA",
-          lugarGuarda: "UBICACIÓN GPS AUTOMÁTICA"
-      });
-
-      router.push('/?success=true');
+      router.push('/driver/form?patente=PGX770');
     }
   };
 
@@ -253,7 +224,6 @@ export default function DriverAuthClient({ choferes }) {
             {errorMessage && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
                 <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{errorMessage}</p>
-                <p className="text-[9px] text-red-400/60 mt-2 text-center">Intentá de nuevo o contactá a soporte.</p>
               </div>
             )}
 
@@ -284,8 +254,8 @@ export default function DriverAuthClient({ choferes }) {
                 <p className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.2em] animate-pulse">Esperando Respuesta Táctica...</p>
              </div>
 
-             <div className="bg-slate-900/50 border border-white/5 p-5 rounded-[2rem] space-y-3">
-                <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest text-center">
+             <div className="bg-slate-900/50 border border-white/5 p-5 rounded-[2rem] space-y-3 text-center">
+                <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest leading-relaxed">
                    El administrador ha recibido tu petición. 
                    <br/>Mantené esta pantalla abierta.
                 </p>
@@ -378,7 +348,7 @@ export default function DriverAuthClient({ choferes }) {
           <div className="mt-8 text-center">
              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-400 mb-2">Sesión Recordada</p>
              <p className="text-white text-3xl font-black uppercase tracking-tight">{fastLoginDriver}</p>
-             <p className="text-[10px] text-gray-500 mt-4 max-w-[220px] leading-relaxed mx-auto font-bold uppercase tracking-wider italic">Toca la huella para confirmación biométrica</p>
+             <p className="text-[10px] text-gray-500 mt-4 max-w-[220px] leading-relaxed mx-auto font-bold uppercase tracking-wider italic text-center">Toca la huella para confirmación biométrica</p>
           </div>
           
           <button 
