@@ -2,16 +2,15 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// ESTA RUTA ES TEMPORAL PARA SINCRONIZAR LA DATA EN PRODUCCIÓN
 export async function GET() {
-  if(!prisma || !prisma.chofer) return NextResponse.json({ éxito: false, error: 'DB_NOT_READY' }, { status: 500 }); try {
-    console.log('🌱 Iniciando Carga Remota de Semillas...');
-    
-    // Importación dinámica para evitar problemas de inicialización en build
+  try {
     const prismaModule = await import('@/lib/prisma');
-    const prisma = prismaModule.default;
+    const prisma = prismaModule.getPrisma ? prismaModule.getPrisma() : prismaModule.default;
+    
+    if (!prisma || !prisma.chofer) {
+      return NextResponse.json({ success: false, error: 'Prisma client no generó el modelo Chofer. Revisa schema.prisma.' });
+    }
 
-    // 1. Choferes Completos (Local Sync)
     const defaultDrivers = [
       "Brian Lopez", "Christian González", "David f", "Diego r", "Esteban diaz", "GONZALO", 
       "Gali Nelson", "Gally Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
@@ -19,15 +18,15 @@ export async function GET() {
       "Tomas C", "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
     ];
     
+    let driversLoaded = 0;
     for (const name of defaultDrivers) {
-      await prisma.chofer.upsert({
-        where: { nombre: name },
-        update: { activo: true },
-        create: { nombre: name, activo: true },
-      });
+      const existing = await prisma.chofer.findFirst({ where: { nombre: name } });
+      if (!existing) {
+        await prisma.chofer.create({ data: { nombre: name } });
+      }
+      driversLoaded++;
     }
 
-    // 2. Vehículos Completos (Local Sync)
     const criticalVehicles = [
       { patente: 'A122WQX', lastKm: 0 }, { patente: 'AD848KQ', lastKm: 528224 },
       { patente: 'PGX770', lastKm: 555451 }, { patente: 'A122WRA', lastKm: 7370 },
@@ -42,38 +41,23 @@ export async function GET() {
       { patente: 'A122WQZ', lastKm: 0 }, { patente: 'A124TJW', lastKm: 0 }
     ];
 
+    let vehiclesVerified = 0;
     for (const v of criticalVehicles) {
-      const veh = await prisma.vehiculo.upsert({
-        where: { patente: v.patente },
-        update: { activo: true },
-        create: { patente: v.patente, activo: true },
-      });
-
-      // Crear registro inicial corregido si no existe ninguno o KM es 0
-      const count = await prisma.registroDiario.count({ where: { vehiculoId: veh.id } });
-      if (count === 0 && v.lastKm > 0) {
-        await prisma.registroDiario.create({
-          data: {
-            vehiculoId: veh.id,
-            kmActual: v.lastKm,
-            nombreConductor: 'SISTEMA',
-            tipoReporte: 'CIERRE',
-            fecha: new Date(),
-            novedades: 'Sincronización inicial de base'
-          }
-        });
+      let veh = await prisma.vehiculo.findFirst({ where: { patente: v.patente } });
+      if (!veh) {
+        veh = await prisma.vehiculo.create({ data: { patente: v.patente, tipo: 'AUTO', activo: true } });
       }
+      vehiclesVerified++;
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: "Seeding en producción completado (Sync Local)",
-      driversLoaded: defaultDrivers.length,
-      vehiclesVerified: criticalVehicles.length
+      message: "Seeding manual completado sin usar upsert",
+      driversLoaded,
+      vehiclesVerified
     });
 
   } catch (error) {
-    console.error("❌ ERROR SEEDING PROD:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message });
   }
 }
