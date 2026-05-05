@@ -509,7 +509,7 @@ export async function getMonthlySummary(month, year) {
       
       if (r.kmActual && r.vehiculoId) {
           const prev = vehicleLastInfo[r.vehiculoId];
-          if (prev && inTargetMonth && prev.inTargetMonth && r.kmActual > prev.km) {
+          if (prev && inTargetMonth && r.kmActual > prev.km) {
               const diff = r.kmActual - prev.km;
               const conductor = normalizeName(r.nombreConductor);
               

@@ -25,6 +25,29 @@ export const getPrisma = () => {
       log: ['error'], 
     });
   }
+  
+    // Bootstrap táctico de tablas faltantes
+    (async () => {
+      try {
+        await prisma.$executeRawUnsafe(`
+          CREATE TABLE IF NOT EXISTS "Chofer" (
+            "id" SERIAL PRIMARY KEY,
+            "nombre" TEXT UNIQUE NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS "Autorizacion" (
+            "id" SERIAL PRIMARY KEY,
+            "fecha" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            "nombre" TEXT NOT NULL,
+            "patente" TEXT NOT NULL,
+            "estado" TEXT DEFAULT 'PENDIENTE'
+          );
+        `);
+        console.log("✅ BASE DE DATOS ESTRUCTURADA");
+      } catch (e) {
+        console.error("❌ Error en bootstrap:", e);
+      }
+    })();
+    
   return prisma;
 };
 
