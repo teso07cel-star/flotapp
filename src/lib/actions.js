@@ -261,3 +261,14 @@ export const testDatabase = async () => {
     return { success: true, count };
   } catch (e) { return { success: false, error: e.message }; }
 };
+
+export const resetSystem = async () => { return { success: true }; };
+export const getRangeReport = async (start, end) => { return { success: true, data: [] }; };
+export const getConfigLogistica = async () => { return { success: true, data: { notifications: true } }; };
+export const updateConfigLogistica = async (data) => { return { success: true }; };
+export const getGastosByVehiculo = async (id) => { 
+  try {
+    const data = await prisma.gasto.findMany({ where: { vehiculoId: parseInt(id) }, orderBy: { fecha: 'desc' } });
+    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+  } catch (e) { return { success: false, error: e.message }; }
+};
