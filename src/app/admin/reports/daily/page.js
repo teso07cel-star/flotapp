@@ -81,7 +81,7 @@ function DailyReportContent() {
                             {new Date(row.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
                          </td>
                          <td className="p-6 font-black uppercase text-xs">{row.nombreConductor || 'Desconocido'}</td>
-                         <td className="p-6 font-black italic text-xl">{row.vehiculo.patente}</td>
+                         <td className="p-6 font-black italic text-xl">{row.vehiculo?.patente || "S/D"}</td>
                          <td className="p-6">
                             <div className="flex flex-wrap justify-center gap-2">
                                {row.sucursales?.length > 0 ? row.sucursales.map(s => (

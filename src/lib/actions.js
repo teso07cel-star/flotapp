@@ -498,6 +498,8 @@ export async function getMonthlySummary(month, year) {
     }
 
     
+    
+    const driverStatsMap = {}; // DEFINICIÓN CRÍTICA
     const vehicleLastInfo = {};
     const sortedRecords = [...allRegistros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
@@ -507,7 +509,6 @@ export async function getMonthlySummary(month, year) {
       
       if (r.kmActual && r.vehiculoId) {
           const prev = vehicleLastInfo[r.vehiculoId];
-          // Solo sumamos el delta si AMBOS registros son del mismo mes para evitar saltos entre meses
           if (prev && inTargetMonth && prev.inTargetMonth && r.kmActual > prev.km) {
               const diff = r.kmActual - prev.km;
               const conductor = normalizeName(r.nombreConductor);
