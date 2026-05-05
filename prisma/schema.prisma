@@ -27,7 +27,7 @@ model Autorizacion {
   id      Int      @id @default(autoincrement())
   nombre  String
   patente String
-  estado  String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  estado  String   @default("PENDIENTE")
   fecha   DateTime @default(now())
 }
 
