@@ -35,7 +35,7 @@ model RegistroDiario {
   novedadResuelta Boolean  @default(false)
   resolucion      String?
   nombreConductor String?
-  vehiculoId      Int?     // Lo puse opcional para que no falle con datos viejos
+  vehiculoId      Int?
   vehiculo        Vehiculo? @relation(fields: [vehiculoId], references: [id])
   sucursales      Sucursal[] @relation("RegistroDiarioToSucursal")
 }
