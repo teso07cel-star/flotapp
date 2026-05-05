@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log: ['error'],
-  });
+  return new PrismaClient({ log: ['error'] });
 };
 const globalForPrisma = globalThis;
 const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
