@@ -486,50 +486,62 @@ export async function getMonthlySummary(month, year) {
     const pricingNote = "Aprox. 70 USD/mes (sujeto a variaciones de proveedores de IA y capacidad)";
 
     
+    
+    function normalizeName(name) {
+        if (!name) return 'Desconocido';
+        const n = name.trim().toUpperCase();
+        if (n === 'GONZALO M' || n === 'GONZALO M.') return 'GONZALO MARTINEZ';
+        if (n === 'TOMAS C' || n === 'TOMAS C.') return 'TOMAS CASCO';
+        return n;
+    }
+
     const driverStatsMap = {};
-    allRegistros.forEach(r => {
+    const vehicleLastKm = {};
+    
+    // Sort all records chronologically to calculate perfect KM deltas
+    const sortedRecords = [...allRegistros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+    sortedRecords.forEach(r => {
       const d = new Date(r.fecha);
-      if (d.getMonth() === month && d.getFullYear() === year && r.nombreConductor) {
-        if (!driverStatsMap[r.nombreConductor]) {
-          driverStatsMap[r.nombreConductor] = {
-            nombre: r.nombreConductor,
+      if (d.getMonth() === month && d.getFullYear() === year) {
+        const conductor = normalizeName(r.nombreConductor);
+        
+        if (!driverStatsMap[conductor]) {
+          driverStatsMap[conductor] = {
+            nombre: conductor,
             vehicles: new Set(),
             totalTrips: 0,
-            kmMap: {},
+            totalKm: 0,
             branchMap: {}
           };
         }
-        driverStatsMap[r.nombreConductor].vehicles.add(r.vehiculo?.patente || 'Desconocido');
         
+        const stats = driverStatsMap[conductor];
+        stats.vehicles.add(r.vehiculo?.patente || 'Desconocido');
+        
+        // Calcular KM Delta
         if (r.kmActual && r.vehiculoId) {
-            if (!driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId]) {
-                driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId] = [];
+            const prevKm = vehicleLastKm[r.vehiculoId];
+            if (prevKm && r.kmActual > prevKm) {
+                stats.totalKm += (r.kmActual - prevKm);
             }
-            driverStatsMap[r.nombreConductor].kmMap[r.vehiculoId].push(r.kmActual);
+            vehicleLastKm[r.vehiculoId] = r.kmActual; // actualizar para el siguiente
         }
         
         r.sucursales?.forEach(s => {
-            driverStatsMap[r.nombreConductor].totalTrips += 1;
-            if (!driverStatsMap[r.nombreConductor].branchMap[s.nombre]) {
-                driverStatsMap[r.nombreConductor].branchMap[s.nombre] = { nombre: s.nombre, visitas: 0 };
+            stats.totalTrips += 1;
+            if (!stats.branchMap[s.nombre]) {
+                stats.branchMap[s.nombre] = { nombre: s.nombre, visitas: 0 };
             }
-            driverStatsMap[r.nombreConductor].branchMap[s.nombre].visitas += 1;
+            stats.branchMap[s.nombre].visitas += 1;
         });
       }
     });
 
     const driverStats = Object.values(driverStatsMap).map(d => {
-      let totalKm = 0;
-      Object.values(d.kmMap).forEach(kmArray => {
-          if (kmArray.length > 0) {
-             kmArray.sort((a, b) => a - b);
-             const diff = kmArray[kmArray.length - 1] - kmArray[0];
-             if (diff > 0) totalKm += diff;
-          }
-      });
       return {
         nombre: d.nombre,
-        totalKm: totalKm,
+        totalKm: d.totalKm,
         vehicles: Array.from(d.vehicles),
         totalTrips: d.totalTrips,
         branchDetails: Object.values(d.branchMap)

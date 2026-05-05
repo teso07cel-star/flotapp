@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { getPrisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export default async function DriversDailyReport({ searchParams }) {
   const params = await searchParams;
@@ -13,7 +13,7 @@ export default async function DriversDailyReport({ searchParams }) {
   const endDate = new Date(`${dateStr}T23:59:59.999`);
 
   // Fetch all logs within the date
-  const logs = await getPrisma().registroDiario.findMany({
+  const logs = await prisma.registroDiario.findMany({
     where: {
       fecha: { gte: startDate, lte: endDate },
     },
