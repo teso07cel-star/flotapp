@@ -26,12 +26,15 @@ export const saveRegistroDiario = async (data) => {
   try {
     const vehiculo = await prisma.vehiculo.findUnique({ where: { patente: data.patente } });
     if (!vehiculo) throw new Error("Vehículo no encontrado");
+    
     const registro = await prisma.registroDiario.create({ 
       data: { 
         kmActual: data.kmActual ? parseInt(data.kmActual) : null, 
         novedades: data.novedades || "", 
         nombreConductor: data.nombreConductor || "Anónimo", 
-        vehiculoId: vehiculo.id,
+        vehiculo: {
+          connect: { id: vehiculo.id }
+        },
         novedadResuelta: false
       } 
     });
