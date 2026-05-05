@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -27,10 +28,28 @@ model Sucursal {
   registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
 }
 
+model Chofer {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+}
+
+model Autorizacion {
+  id        Int      @id @default(autoincrement())
+  fecha     DateTime @default(now())
+  nombre    String
+  patente   String
+  estado    String   @default("PENDIENTE")
+}
+
 model RegistroDiario {
   id              Int      @id @default(autoincrement())
   fecha           DateTime @default(now())
   kmActual        Int? 
+  kmTeoricos      Int      @default(0)
+  kmModificado    Boolean  @default(false)
+  tipoReporte     String?  // INICIO, STOP, CIERRE
+  nivelCombustible String?
+  lugarGuarda     String?
   novedades       String?
   novedadResuelta Boolean  @default(false)
   resolucion      String?
@@ -48,17 +67,4 @@ model Gasto {
   tipo        String
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
-}
-
-model Chofer {
-  id     Int    @id @default(autoincrement())
-  nombre String @unique
-}
-
-model Autorizacion {
-  id        Int      @id @default(autoincrement())
-  fecha     DateTime @default(now())
-  nombre    String
-  patente   String
-  estado    String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
 }

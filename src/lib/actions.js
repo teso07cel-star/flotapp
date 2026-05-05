@@ -734,3 +734,23 @@ export async function getRangeReport(start, end) { return { success: true, data:
 export async function getConfigLogistica() { return { success: true, data: {} }; }
 export async function updateConfigLogistica(data) { return { success: true }; }
 export async function finalizeDriverLog(id) { return { success: true }; }
+
+export async function getDriverTodayInfo(driverId) {
+  try {
+    const chofer = await prisma.chofer.findUnique({ where: { id: parseInt(driverId) } });
+    if (!chofer) return { success: false, error: "Chofer no encontrado" };
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    const logs = await prisma.registroDiario.findMany({
+      where: {
+        nombreConductor: chofer.nombre,
+        fecha: { gte: today }
+      },
+      include: { vehiculo: true, sucursales: true },
+      orderBy: { fecha: 'desc' }
+    });
+    return { success: true, data: { nombre: chofer.nombre, logs } };
+  } catch (e) { return { success: false, error: e.message }; }
+}
