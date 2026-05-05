@@ -1,52 +1,58 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
 model Vehiculo {
-  id              Int              @id @default(autoincrement())
-  patente         String           @unique
-  tipo            String
-  activo          Boolean          @default(true)
-  mantenimientos  Mantenimiento[]
-  registros       RegistroDiario[]
-  gastos          Gasto[]
+  id             Int              @id @default(autoincrement())
+  patente        String           @unique
+  tipo           String
+  activo         Boolean          @default(true)
+  gastos         Gasto[]
+  mantenimientos Mantenimiento[]
+  registros      RegistroDiario[]
 }
-model Sucursal {
-  id              Int              @id @default(autoincrement())
-  nombre          String           @unique
-  registros       RegistroDiario[] @relation("RegistroDiarioToSucursal")
-}
+
 model Chofer {
-  id              Int              @id @default(autoincrement())
-  nombre          String           @unique
+  id     Int    @id @default(autoincrement())
+  nombre String 
 }
+
 model Autorizacion {
-  id        Int      @id @default(autoincrement())
-  fecha     DateTime @default(now())
-  nombre    String
-  patente   String
-  estado    String   @default("PENDIENTE")
+  id      Int      @id @default(autoincrement())
+  nombre  String
+  patente String
+  estado  String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  fecha   DateTime @default(now())
 }
+
+model Sucursal {
+  id        Int              @id @default(autoincrement())
+  nombre    String           
+  registros RegistroDiario[] @relation("RegistroDiarioToSucursal")
+}
+
 model RegistroDiario {
-  id              Int      @id @default(autoincrement())
-  fecha           DateTime @default(now())
-  kmActual        Int? 
-  kmTeoricos      Int      @default(0)
-  kmModificado    Boolean  @default(false)
-  tipoReporte     String?  
+  id               Int        @id @default(autoincrement())
+  fecha            DateTime   @default(now())
+  kmActual         Int?
+  tipoReporte      String?
   nivelCombustible String?
-  lugarGuarda     String?
-  novedades       String?
-  novedadResuelta Boolean  @default(false)
-  resolucion      String?
-  nombreConductor String?
-  vehiculoId      Int?
-  vehiculo        Vehiculo? @relation(fields: [vehiculoId], references: [id])
-  sucursales      Sucursal[] @relation("RegistroDiarioToSucursal")
+  lugarGuarda      String?
+  novedades        String?
+  novedadResuelta  Boolean    @default(false)
+  resolucion       String?
+  nombreConductor  String?
+  vehiculoId       Int?
+  vehiculo         Vehiculo?  @relation(fields: [vehiculoId], references: [id])
+  sucursales       Sucursal[] @relation("RegistroDiarioToSucursal")
 }
+
 model Gasto {
   id          Int      @id @default(autoincrement())
   fecha       DateTime @default(now())
@@ -56,13 +62,14 @@ model Gasto {
   vehiculoId  Int
   vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
+
 model Mantenimiento {
-  id          Int      @id @default(autoincrement())
-  tipo        String
-  fecha       DateTime @default(now())
-  kmAviso     Int
-  kmProx      Int
-  completado  Boolean  @default(false)
-  vehiculoId  Int
-  vehiculo    Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  tipo       String
+  fecha      DateTime @default(now())
+  kmAviso    Int
+  kmProx     Int
+  completado Boolean  @default(false)
+  vehiculoId Int
+  vehiculo   Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
 }
