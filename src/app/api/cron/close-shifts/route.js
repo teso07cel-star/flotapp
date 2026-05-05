@@ -30,19 +30,22 @@ export async function GET(request) {
     for (const [driver, lastDoc] of lastRecordsByDriver.entries()) {
       if (lastDoc.tipoReporte !== "CIERRE") {
         // Encontramos un turno abierto. Proceder a cerrarlo "Sin Datos"
-        await prisma.registroDiario.create({
-          data: {
-            vehiculoId: lastDoc.vehiculoId,
+        
+        const createData = {
             nombreConductor: driver,
-            kmActual: lastDoc.kmActual, // Mantenemos el último km conocido
+            kmActual: lastDoc.kmActual,
             kmModificado: false,
             kmTeoricos: 0,
             nivelCombustible: "SIN DATOS_AUTO",
             novedades: "CIERRE AUTOMATIZADO 20:00HS",
             tipoReporte: "CIERRE",
             lugarGuarda: "CIERRE AUTOMÁTICO DEL SISTEMA"
-          }
-        });
+        };
+        // Solo agregar vehiculoId si existe y es válido
+        if (lastDoc.vehiculoId) {
+            createData.vehiculo = { connect: { id: lastDoc.vehiculoId } };
+        }
+        await prisma.registroDiario.create({ data: createData });
         closedCount++;
       }
     }
