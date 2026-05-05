@@ -158,7 +158,7 @@ export default function DriverAuthClient({ choferes }) {
         }
         
         setIsExternal(false);
-        setSelectedChofer(val); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 1000);
+        setSelectedChofer(val); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 800); localStorage.setItem("flotapp_driver_name", val); setTimeout(() => { window.location.href = "/driver/navigation/select"; }, 1000);
         if (remember) {
           localStorage.setItem("flotapp_driver_name", val);
           document.cookie = `driver_name=${encodeURIComponent(val)}; path=/; max-age=31536000`;
