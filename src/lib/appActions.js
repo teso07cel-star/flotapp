@@ -668,4 +668,3 @@ export async function getRangeReport(start, end) { return { success: true, data:
 export async function getConfigLogistica() { return { success: true, data: {} }; }
 export async function updateConfigLogistica(data) { return { success: true }; }
 export async function finalizeDriverLog(id) { return { success: true }; }
-export async function resetDriverDevice(id) { return { success: true }; } // en caso de faltar
