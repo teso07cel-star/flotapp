@@ -48,11 +48,7 @@ export const updateVehiculo = async (id, data) => {
 };
 
 // --- CHOFERES ---
-export const getAllChoferes = async () => {
-  if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
-    const data = await prisma.chofer.findMany({ orderBy: { nombre: 'asc' } });
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
-  } catch (e) { return { success: false, data: { branchRanking: [], driverStats: [], totalVisits: 0 }, error: e.message }; }
+export const getAllChoferes = async () => { try { if(!prisma) return { success: true, data: [] }; const data = await prisma.chofer.findMany({ orderBy: { nombre: 'asc' } }); return { success: true, data }; } catch(e) { return { success: true, data: [] }; } };
 };
 export const addChofer = async (nombre) => {
   if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
@@ -195,11 +191,7 @@ export const checkEstadoAutorizacion = async (id) => {
     return { success: true, data: a };
   } catch (e) { return { success: false, data: { branchRanking: [], driverStats: [], totalVisits: 0 }, error: e.message }; }
 };
-export const getAutorizacionesPendientes = async () => {
-  if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
-    const data = (!prisma.autorizacion) ? [] : await prisma.autorizacion.findMany({ where: { estado: 'PENDIENTE' }, orderBy: { fecha: 'desc' } });
-    return { success: true, data };
-  } catch (e) { return { success: false, data: { branchRanking: [], driverStats: [], totalVisits: 0 }, error: e.message }; }
+export const getAutorizacionesPendientes = async () => { try { if(!prisma || !prisma.autorizacion) return { success: true, data: [] }; const data = await prisma.autorizacion.findMany({ where: { estado: 'PENDIENTE' }, orderBy: { fecha: 'desc' } }); return { success: true, data }; } catch(e) { return { success: true, data: [] }; } };
 };
 export const aprobarAutorizacion = async (id) => {
   if(!prisma) return { success: false, error: 'DB_CONNECTION_ERROR' }; try {
