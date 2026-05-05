@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 // ESTA RUTA ES TEMPORAL PARA SINCRONIZAR LA DATA EN PRODUCCIÓN
 export async function GET() {
-  try {
+  if(!prisma || !prisma.chofer) return NextResponse.json({ éxito: false, error: 'DB_NOT_READY' }, { status: 500 }); try {
     console.log('🌱 Iniciando Carga Remota de Semillas...');
     
     // Importación dinámica para evitar problemas de inicialización en build
