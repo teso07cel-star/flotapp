@@ -7,56 +7,19 @@ export async function GET() {
     const prismaModule = await import('@/lib/prisma');
     const prisma = prismaModule.getPrisma ? prismaModule.getPrisma() : prismaModule.default;
     
-    if (!prisma || !prisma.chofer) {
-      return NextResponse.json({ success: false, error: 'Prisma client no generó el modelo Chofer. Revisa schema.prisma.' });
+    if (!prisma) {
+      return NextResponse.json({ success: false, error: 'Prisma es null o undefined' });
     }
 
-    const defaultDrivers = [
-      "Brian Lopez", "Christian González", "David f", "Diego r", "Esteban diaz", "GONZALO", 
-      "Gali Nelson", "Gally Nelson", "Gerardo v", "Iván Santillán", "Jonathan v", 
-      "Juan Cruz Hidalgo", "Lucio Bello", "MARIANO", "Matías Chaile", "Miguel c", 
-      "Tomas C", "Tomás Casco", "Vega Jorge Daniel", "VideoTest"
-    ];
+    const keys = Object.keys(prisma).filter(k => !k.startsWith('_'));
     
-    let driversLoaded = 0;
-    for (const name of defaultDrivers) {
-      const existing = await prisma.chofer.findFirst({ where: { nombre: name } });
-      if (!existing) {
-        await prisma.chofer.create({ data: { nombre: name } });
-      }
-      driversLoaded++;
-    }
-
-    const criticalVehicles = [
-      { patente: 'A122WQX', lastKm: 0 }, { patente: 'AD848KQ', lastKm: 528224 },
-      { patente: 'PGX770', lastKm: 555451 }, { patente: 'A122WRA', lastKm: 7370 },
-      { patente: 'AD380TS', lastKm: 714444 }, { patente: 'A239WDL', lastKm: 10952 },
-      { patente: 'ONR078', lastKm: 417491 }, { patente: 'AF601QS', lastKm: 28453 },
-      { patente: 'PGX769', lastKm: 515893 }, { patente: 'AD724VP', lastKm: 449756 },
-      { patente: 'AF668JV', lastKm: 417795 }, { patente: 'AF668JR', lastKm: 29147 },
-      { patente: 'A239WDM', lastKm: 7441 }, { patente: 'AD848LH', lastKm: 0 },
-      { patente: 'AD724VQ', lastKm: 0 }, { patente: 'AD848KR', lastKm: 529084 },
-      { patente: 'AH279KZ', lastKm: 70114 }, { patente: 'AH336BA', lastKm: 84411 },
-      { patente: 'AE982AS', lastKm: 348145 }, { patente: 'AE982AR', lastKm: 453085 },
-      { patente: 'A122WQZ', lastKm: 0 }, { patente: 'A124TJW', lastKm: 0 }
-    ];
-
-    let vehiclesVerified = 0;
-    for (const v of criticalVehicles) {
-      let veh = await prisma.vehiculo.findFirst({ where: { patente: v.patente } });
-      if (!veh) {
-        veh = await prisma.vehiculo.create({ data: { patente: v.patente, tipo: 'AUTO', activo: true } });
-      }
-      vehiclesVerified++;
-    }
-
     return NextResponse.json({ 
-      success: true, 
-      message: "Seeding manual completado sin usar upsert",
-      driversLoaded,
-      vehiclesVerified
+      success: false, 
+      error: 'DIAGNOSTIC MODE',
+      prismaKeys: keys,
+      hasChofer: !!prisma.chofer,
+      hasAutorizacion: !!prisma.autorizacion
     });
-
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message });
   }
