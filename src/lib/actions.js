@@ -239,3 +239,10 @@ export const registrarChofer = async (nombre) => {
   await prisma.chofer.create({ data: { nombre: nombre.toUpperCase().trim() } });
   return { success: true };
 };
+
+export const updateSucursal = async (id, nombre) => {
+  try {
+    await prisma.sucursal.update({ where: { id: parseInt(id) }, data: { nombre: nombre.trim() } });
+    revalidatePath("/admin/branches"); return { success: true };
+  } catch (e) { return { success: false }; }
+};

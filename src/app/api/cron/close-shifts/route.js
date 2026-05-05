@@ -34,7 +34,7 @@ export async function GET(request) {
         const createData = {
             nombreConductor: driver,
             kmActual: lastDoc.kmActual,
-            kmModificado: false,
+            // kmModificado: false,
             kmTeoricos: 0,
             nivelCombustible: "SIN DATOS_AUTO",
             novedades: "CIERRE AUTOMATIZADO 20:00HS",
