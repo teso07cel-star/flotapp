@@ -197,8 +197,7 @@ export async function createRegistroDiario(data) {
         novedades: data.novedades || null,
         novedadResuelta: false,
         nombreConductor: data.nombreConductor || null,
-        choferId: data.choferId ? parseInt(data.choferId) : null,
-        fecha: getArDate(),
+                fecha: getArDate(),
         sucursales: {
           connect: data.sucursalIds ? data.sucursalIds.map(id => ({ id: parseInt(id) })) : []
         }

@@ -2,14 +2,14 @@
 import { useState } from "react";
 import DynamicMap from "./DynamicMap";
 
-export default function DriverAnalyticsClient({ driverStats }) {
+export default function DriverAnalyticsClient({ driverStats = [] }) {
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   return (
     <div className="flex flex-col">
       {/* Lista de Conductores */}
       <div className="grid grid-cols-1 last:border-b-0">
-        {driverStats.map((d, i) => (
+        {driverStats?.map((d, i) => (
           <div key={i} className="border-b border-slate-200 last:border-0 overflow-hidden">
             <button 
               onClick={() => setSelectedDriver(selectedDriver === d.nombre ? null : d.nombre)}
