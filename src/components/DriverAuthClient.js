@@ -214,13 +214,22 @@ export default function DriverAuthClient({ choferes }) {
         {authStep === 1 ? (
           <div className="space-y-4 animate-in fade-in zoom-in-95 duration-500">
             <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest text-center mb-2">Identificación de Usuario</label>
-            <input 
-              type="text" 
-              placeholder="NOMBRE Y APELLIDO"
-              value={deviceOperatorName}
-              onChange={(e) => setDeviceOperatorName(e.target.value)}
-              className="w-full bg-[#020617] border-2 border-slate-700/50 rounded-2xl px-5 py-5 text-white focus:border-blue-500 outline-none text-center font-bold"
-            />
+            <div className="relative group">
+              <select
+                required
+                value={deviceOperatorName}
+                onChange={(e) => setDeviceOperatorName(e.target.value)}
+                className="w-full bg-[#020617] border-2 border-slate-700/50 rounded-2xl px-5 py-5 text-white focus:border-blue-500 outline-none text-center font-bold appearance-none cursor-pointer"
+              >
+                <option value="" disabled>-- ELIGE TU NOMBRE --</option>
+                {choferes.map(c => (
+                  <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                ))}
+              </select>
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
             {errorMessage && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl animate-in fade-in zoom-in duration-300">
                 <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center">{errorMessage}</p>
